@@ -1,0 +1,2 @@
+Repo_Name,Language,Pattern,Progress,Started_At,Last_Active,Status,Notes
+DeepInfer,Python / C++,Layered Engine + Zero-Overhead C++ Async Pipeline,35.5%,2026-10-25,2026-10-25,in_progress,Completed Git history evolution & Churn analysis (/history 10%) and Domain 1 walkthrough (70%); global mastery reached 35.5%
