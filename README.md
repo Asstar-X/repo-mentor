@@ -182,13 +182,86 @@ python tools/export_study_html.py studies/<repo_name>/
 
 ---
 
-## Agent Compatibility
+## How to Install this Skill (Agent Setup)
 
-`repo-mentor` uses a **Thin-Pointer Specification Design**, providing zero-friction integration across leading AI agent runtimes:
+`repo-mentor` adheres to the open **Agent Skills specification** and the **Thin-Pointer Design**. It runs out-of-the-box across **Claude Code**, **OpenAI Codex**, **Google Antigravity**, **Cursor**, and **Windsurf**.
 
-- **Google Antigravity**: Symlink or copy `repo-mentor` into `~/.gemini/antigravity/builtin/skills/` or active workspace rules.
-- **Claude Code**: Add `repo-mentor` into `.claude/skills/` or reference `SKILL.md` directly.
-- **Cursor / Codex / Gemini CLI**: Open this directory as an agent workspace; commands and guidelines are automatically loaded via [`AGENTS.md`](AGENTS.md) and [`SKILL.md`](SKILL.md).
+### 1. Claude Code
+Claude Code natively discovers skills placed in either your global or project-level `.claude/skills/` directory:
+
+```bash
+# Option A: Global install (available across all projects in Claude Code)
+mkdir -p ~/.claude/skills
+git clone https://github.com/Asstar-X/repo-mentor.git ~/.claude/skills/repo-mentor
+
+# Option B: Project-level install (active only in the current codebase)
+mkdir -p .claude/skills
+git clone https://github.com/Asstar-X/repo-mentor.git .claude/skills/repo-mentor
+```
+
+**Usage in Claude Code**:
+Open Claude Code and invoke any command:
+```bash
+claude
+> /overview .
+> /guide
+> /trace <domain_name>
+```
+
+---
+
+### 2. OpenAI Codex & Agent CLI
+For OpenAI Codex and CLI environments adhering to the Agent Skills standard:
+
+```bash
+# Global skills directory
+mkdir -p ~/.codex/skills
+git clone https://github.com/Asstar-X/repo-mentor.git ~/.codex/skills/repo-mentor
+
+# Or universal agents directory
+mkdir -p ~/.agents/skills
+git clone https://github.com/Asstar-X/repo-mentor.git ~/.agents/skills/repo-mentor
+```
+
+Codex will automatically ingest `SKILL.md` and `AGENTS.md`, exposing the 9 core slash commands and adhering to strict technical authority guidelines.
+
+---
+
+### 3. Google Antigravity (AGY)
+Antigravity automatically discovers skills with valid `SKILL.md` frontmatter in the user configuration path:
+
+```bash
+# User skills directory
+mkdir -p ~/.gemini/config/skills
+git clone https://github.com/Asstar-X/repo-mentor.git ~/.gemini/config/skills/repo-mentor
+```
+
+Antigravity will instantly register the `repo-mentor` skill and make all 9 slash commands accessible in interactive sessions.
+
+---
+
+### 4. Cursor & Windsurf IDE
+In Cursor or Windsurf, clone `repo-mentor` into your workspace rules or skills folder:
+
+```bash
+# Project rules directory
+mkdir -p .cursor/skills
+git clone https://github.com/Asstar-X/repo-mentor.git .cursor/skills/repo-mentor
+```
+
+Cursor reads `AGENTS.md` and `SKILL.md` to guide AI responses, enforcing fact-first verification, boilerplate filtering, and line-number audits.
+
+---
+
+### 5. Verification
+After installing into your agent runtime, verify the installation by typing:
+```text
+/overview .
+```
+or in natural language:
+```text
+"Use repo-mentor to provide an architectural overview of this repository."
+```
 
 ---
 
