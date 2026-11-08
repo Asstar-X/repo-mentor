@@ -1,6 +1,6 @@
-# /verify (Alias: /audit) — Code Anchor & Line Number Verification
+# /verify (Alias: /audit) — Code Anchor & Quality Verification
 
-Executes `repo-mentor verify` (or `tools/verify_anchors.py`) and the Anti-AI quality engine to deterministically verify that all code paths, line numbers, and symbols referenced in study notes (e.g. `[src/engine.go#L45-L60]`) physically exist on disk, eliminating hallucinations.
+Executes `repo-mentor verify` and the quality engine to deterministically verify that all code paths, line numbers, symbols, and Mermaid diagrams referenced in study notes physically exist and render cleanly on disk, eliminating hallucinations.
 
 ---
 
@@ -9,15 +9,12 @@ Executes `repo-mentor verify` (or `tools/verify_anchors.py`) and the Anti-AI qua
 ### 1. Execute Verification Tools
 Run against target study assets:
 ```bash
-# 1. Physical line number and symbol existence audit
-repo-mentor verify <target_path> studies/<repo_name>/ARCHITECTURE.md || python tools/verify_anchors.py <target_path> studies/<repo_name>/ARCHITECTURE.md
-repo-mentor verify <target_path> studies/<repo_name>/DEBUG_NOTES.md || python tools/verify_anchors.py <target_path> studies/<repo_name>/DEBUG_NOTES.md
+# 1. Physical line number, symbol existence, and Mermaid diagram audit (with auto-fix)
+repo-mentor verify <target_path> studies/<repo_name>/ARCHITECTURE.md --fix
+repo-mentor verify <target_path> studies/<repo_name>/DEBUG_NOTES.md --fix
 
-# 2. Mermaid syntax and diagram formatting audit
-python tools/verify_mermaid.py studies/<repo_name>/ARCHITECTURE.md --fix
-
-# 3. Anti-AI fluff linting and rubric scoring (Gate 3)
-repo-mentor eval studies/<repo_name>/ --check-fluff
+# 2. Anti-AI fluff linting and rubric scoring (Gate 3)
+repo-mentor eval <target_path> studies/<repo_name>/ARCHITECTURE.md
 ```
 
 ---

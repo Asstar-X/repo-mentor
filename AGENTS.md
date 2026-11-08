@@ -49,7 +49,7 @@ Furthermore, agents **MUST** strictly adhere to the **5-Level Cognitive Zooming 
 - [`methodology/08-untrusted-repo-security.md`](methodology/08-untrusted-repo-security.md) — Prompt injection defense, static-first rule, and path containment.
 
 ### 1.3 Core Analysis Engines & CLI Integration
-Agents should invoke the `repo-mentor` CLI (or standard library tools in `tools/`) for deterministic fact extraction:
+Agents should invoke the `repo-mentor` CLI for deterministic fact extraction:
 ```bash
 # Topology, language distribution, and entrypoint scan
 repo-mentor scan <target_path>

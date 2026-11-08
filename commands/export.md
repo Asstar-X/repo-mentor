@@ -18,7 +18,7 @@ Ensure zero broken code anchors and zero banned buzzwords.
 
 ### 2. Run Compilation Tool
 ```bash
-repo-mentor export studies/<repo_name>/ || python tools/export_study_html.py studies/<repo_name>/
+repo-mentor export studies/<repo_name>/
 ```
 The export engine automatically synthesizes and semantically structures:
 - `studies/<repo_name>/README.md`

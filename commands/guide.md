@@ -9,8 +9,8 @@ Generates an actionable, copy-pasteable local study roadmap for the target codeb
 ### 1. Extract Ground Truth
 From the repository root, run deterministic tools:
 ```bash
-repo-mentor scan <target_path> --entrypoints || python tools/repo_scanner.py <target_path>
-repo-mentor hotspots <target_path> --top 10 || python tools/git_hotspots.py <target_path>
+repo-mentor scan <target_path>
+repo-mentor hotspots <target_path> --top 10
 ```
 Identify test directories, build systems, entrypoints, and modification hotspots.
 

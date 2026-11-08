@@ -77,7 +77,7 @@ When analyzing an unfamiliar repository, follow this operational checklist:
    - Clone with `--depth=1` to minimize exposure and history footprint.
    - Scan manifest files (`package.json`, `Cargo.toml`, `pyproject.toml`, `Makefile`) specifically checking for suspicious lifecycle scripts and external network calls.
 2. **Phase 2: Static Analysis**
-   - Run pure static analysis using standard library tools (`python tools/repo_scanner.py <path>`).
+   - Run pure static analysis using `repo-mentor scan <path>`.
    - Extract the internal module DAG without executing target imports.
 3. **Phase 3: Controlled Dynamic Smoke Testing (Only When Explicitly Authorized)**
    - If unit tests or debugging are required, run them inside an isolated container, sandbox, or non-privileged subshell with network egress blocked.

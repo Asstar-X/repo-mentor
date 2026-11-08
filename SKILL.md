@@ -50,19 +50,17 @@ All analysis in `repo-mentor` follows the **5-Level Cognitive Zooming** framewor
 
 ---
 
-## 1. Unified Command Reference
+## 1. Streamlined Command Reference (4 Primary Commands)
 
-| Command | Aliases | Description & Architectural Focus | CLI Tool Equivalent |
+Rather than fragmenting the workflow across 9 disconnected tools, `repo-mentor` consolidates the reading journey into **4 primary commands** (with aliases preserved for backwards compatibility):
+
+| Primary Command | Aliases | Cognitive Level & Focus | CLI Equivalent |
 | :--- | :--- | :--- | :--- |
-| **`/overview [path/url]`** | `/recon`, `/blueprint` | Direct onboarding: Silent asset initialization, macro architecture classification, 3-tier module priority triage (Tier-0/1/2), golden path sequence diagram, and domain matrix baseline. | `repo-mentor scan <path>`<br/>`repo-mentor map <path>` |
-| **`/guide`** | `/roadmap` | Actionable smoke-run roadmap: Exact local build and targeted unit test commands, progressive reading order, and golden breakpoint stack. | `repo-mentor scan <path> --entrypoints` |
-| **`/trace <domain/flow>`** | `/flow` | Trace end-to-end 5-phase call flow for a core domain; verify line-number anchors and sync/async boundaries (contributes 35% to domain score). | `repo-mentor ast <path> --calls` |
-| **`/core <domain>`** | `/models` | Filter boilerplate to model domain ontologies, lifecycle state machines, and system invariants (contributes 35% to domain score). | `repo-mentor ast <path> --symbols` |
-| **`/history`** | `/archeology` | Analyze Git churn hotspots over recent commits and inspect genesis commit architecture archaeology (contributes 10% to macro score). | `repo-mentor hotspots <path>` |
-| **`/drill <domain>`** | `/quiz`, `/interview` | Socratic architecture defense: 2 destructive limit scenarios (crash recovery, concurrency races, blast radius) (contributes 30% to domain score). | `repo-mentor eval <study_dir>` |
-| **`/verify`** | `/audit` | Deterministically verify the physical existence of all file paths, symbol locations, and line-number anchors against live code. | `repo-mentor verify <path> <file>` |
-| **`/export`** | `/report` | Compile accumulated study notes into a standalone, single-file offline interactive HTML study whitepaper with zoomable Mermaid diagrams. | `repo-mentor export <study_dir>` |
-| **`/tracker`** | `/stats` | Display global study progress, core functional domain coverage matrix dashboard, and architecture pattern radar. | `repo-mentor scan --stats` |
+| **`/overview [path/url]`** | `/recon`, `/blueprint`, `/history`, `/guide` | **Level 1 & 2 (Macro)**: Real-world pain point, first-principles tension, Cast of Characters, Git churn hotspots, and smoke-run commands. | `repo-mentor scan <path>`<br/>`repo-mentor map <path>`<br/>`repo-mentor hotspots <path>` |
+| **`/deep-dive <domain>`** | `/trace`, `/core`, `/drill` | **Level 3 & 4 (Micro)**: End-to-end data journey (real payload diff), keystone state machines, core algorithms, code anchors, and What-If limit drills. | `repo-mentor ast <path>` |
+| **`/verify`** | `/audit` | **Quality Gate**: Deterministically audit file paths, symbol existence, line number bounds, and Mermaid syntax (with auto-fix). | `repo-mentor verify <path> <file> --fix`<br/>`repo-mentor eval <path> <file>` |
+| **`/export`** | `/report` | **Level 5 (Deliverable)**: Compile accumulated study slices into a self-contained, interactive single-file HTML architecture whitepaper. | `repo-mentor export <study_dir>` |
+| *`/tracker`* | `/checklist` | *Checklist Dashboard*: Inspect explored domains vs. unexplored blind spots without pseudoscience formula clutter. | N/A |
 
 ---
 
@@ -72,17 +70,21 @@ All analysis in `repo-mentor` follows the **5-Level Cognitive Zooming** framewor
 
 | Category | File Path | Scope & Engineering Standard |
 | :--- | :--- | :--- |
-| **Command** | [`commands/overview.md`](commands/overview.md) | Macro pattern classification, 3-tier triage matrix, topology diagram, domain baseline |
-| **Command** | [`commands/guide.md`](commands/guide.md) | Local build/smoke test commands, 4-step progressive reading order, golden breakpoints |
-| **Command** | [`commands/trace.md`](commands/trace.md) | 5-phase Golden Path call chain walkthrough, sync/async hops, sequence diagrams |
-| **Command** | [`commands/core.md`](commands/core.md) | Domain entity modeling, state machine transitions, illegal guard checks, invariants |
-| **Command** | [`commands/history.md`](commands/history.md) | Git churn hotspots (power law distribution) and genesis commit MVP archaeology |
-| **Command** | [`commands/drill.md`](commands/drill.md) | Destructive limit scenarios, concurrency race counterexamples, technical debt audit |
-| **Command** | [`commands/verify.md`](commands/verify.md) | Deterministic code anchor audit, physical line range bounds, and symbol existence |
-| **Command** | [`commands/export.md`](commands/export.md) | Offline single-file HTML whitepaper compiler with responsive monochrome layout |
-| **Command** | [`commands/tracker.md`](commands/tracker.md) | Global repository learning progress, domain coverage dashboard, and pattern radar |
-| **Methodology** | [`methodology/01-architecture-patterns.md`](methodology/01-architecture-patterns.md) | Pattern topologies, structural signatures vs directory names, Anti-patterns N1 & N4 |
-| **Methodology** | [`methodology/02-module-boundaries.md`](methodology/02-module-boundaries.md) | Tier-0/1/2 triage, inward dependency rules, interface inversion, Anti-pattern N3 |
+| **Command** | [`commands/overview.md`](commands/overview.md) | Level 1 (Why) + Level 2 (Strategy & Characters) + Git Hotspots |
+| **Command** | [`commands/deep-dive.md`](commands/deep-dive.md) | Level 3 (Example & Payload Diff) + Level 4 (Algorithms & Drills) |
+| **Command** | [`commands/verify.md`](commands/verify.md) | Quality gate: physical code anchors, AST symbols, Mermaid auto-fix |
+| **Command** | [`commands/export.md`](commands/export.md) | Interactive single-file HTML manual compiler |
+| **Command** | [`commands/tracker.md`](commands/tracker.md) | Binary domain exploration checklist (Explored vs Blind Spot) |
+| **Methodology** | [`methodology/01-architecture-patterns.md`](methodology/01-architecture-patterns.md) | Problem space, first-principles tension, Cast of Characters |
+| **Methodology** | [`methodology/02-module-boundaries.md`](methodology/02-module-boundaries.md) | Tier-0/1/2 triage, inward dependencies, interface inversion |
+| **Methodology** | [`methodology/03-tracing-callchains.md`](methodology/03-tracing-callchains.md) | Concrete data journey, 5-phase Golden Path, sync/async hops |
+| **Methodology** | [`methodology/05-data-structures-and-states.md`](methodology/05-data-structures-and-states.md) | Keystone entities, state machine transitions, invariants |
+| **Methodology** | [`methodology/06-git-history-analysis.md`](methodology/06-git-history-analysis.md) | Git churn power law, healthy vs debt diagnosis, genesis archaeology |
+| **Methodology** | [`methodology/07-verifying-understanding.md`](methodology/07-verifying-understanding.md) | Triple-Anchor Rule, 3-tier confidence labeling, counter-factual drills |
+| **Methodology** | [`methodology/08-untrusted-repo-security.md`](methodology/08-untrusted-repo-security.md) | Prompt injection defense, static-first rule, path containment |
+| **Template** | [`templates/ARCHITECTURE.md`](templates/ARCHITECTURE.md) | Production architecture blueprint with 5-level zooming |
+| **Template** | [`templates/DEBUG_NOTES.md`](templates/DEBUG_NOTES.md) | Source walkthrough journal, golden breakpoints, limit drills |
+| **Template** | [`templates/STUDY_INDEX.md`](templates/STUDY_INDEX.md) | Study index, domain checklist, and architectural radar |
 | **Methodology** | [`methodology/03-tracing-callchains.md`](methodology/03-tracing-callchains.md) | 5-phase Golden Path tracing, sync/async boundary hops, Anti-pattern N5 |
 | **Methodology** | [`methodology/04-skipping-boilerplate.md`](methodology/04-skipping-boilerplate.md) | 80% boilerplate filtering, 20% load-bearing invariants, Anti-pattern N7 |
 | **Methodology** | [`methodology/05-data-structures-and-states.md`](methodology/05-data-structures-and-states.md) | Keystone entities, state machine transitions, forbidden guards, invariant code anchors |

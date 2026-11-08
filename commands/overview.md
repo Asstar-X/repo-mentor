@@ -21,17 +21,17 @@ If `studies/<repo_name>/` does not exist, initialize silently:
 
 ---
 
-### 2. Extract Facts Using Deterministic Tools
-Execute `repo-mentor` CLI (or standard library tools in `tools/`) from the repository root:
+### 2. Extract Facts Using Deterministic CLI
+Execute `repo-mentor` CLI from the repository root:
 ```bash
 # Topology, language distribution, and entrypoint scan
-repo-mentor scan <target_path> || python tools/repo_scanner.py <target_path>
+repo-mentor scan <target_path>
 
 # Intra-repo module dependency DAG with Mermaid topology
-repo-mentor map <target_path> --mermaid || python tools/dependency_graph.py <target_path> --mermaid
+repo-mentor map <target_path> --mermaid
 
 # Git churn modification frequency analysis
-repo-mentor hotspots <target_path> --commits 300 --top 15 || python tools/git_hotspots.py <target_path>
+repo-mentor hotspots <target_path> --commits 300 --top 15
 ```
 
 ---
@@ -76,8 +76,8 @@ Extract $k$ indispensable Tier-0 core functional domains ($k \in [3, 8]$) and in
 ### 4. Persistence & Quality Gate Verification
 Write architecture specification to `studies/<repo_name>/ARCHITECTURE.md` and coverage matrix to `studies/<repo_name>/README.md`. Run semantic anchor verifier and anti-AI linter:
 ```bash
-repo-mentor verify <target_path> studies/<repo_name>/ARCHITECTURE.md || python tools/verify_anchors.py <target_path> studies/<repo_name>/ARCHITECTURE.md
-repo-mentor eval studies/<repo_name>/ --check-fluff
+repo-mentor verify <target_path> studies/<repo_name>/ARCHITECTURE.md
+repo-mentor eval <target_path> studies/<repo_name>/ARCHITECTURE.md
 ```
 Ensure 100% of line anchors exist and zero banned buzzwords are flagged.
 
