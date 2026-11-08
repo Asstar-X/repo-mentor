@@ -1,6 +1,5 @@
 # /drill (命令别名)
 
-> 💡 `/drill` 是 [`/deep-dive <domain>`](deep-dive.md) 的简易别名，底层由 [`skills/repo-deepdive/SKILL.md`](../skills/repo-deepdive/SKILL.md) 驱动。
+> 💡 `/drill` 是极限情况与边界防护推演的简易别名，已被有机整合到 [`/core <目标>`](core.md) 的“第四部分：边界处理与特殊情况”中。
 
-破坏性极限场景推演（What-If 灾难假设、崩溃恢复与并发竞态）已被有机整合到各领域的深度切片中。
-请使用 [`/deep-dive <domain>`](deep-dive.md) 在剖析承重算法的同时运行极限防御推演。
+请使用 [`/core <目标>`](core.md) 在剖析目标对象核心内容的同时，审计其在极端情况与异常边界下的防线设计。

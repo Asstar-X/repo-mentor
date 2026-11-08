@@ -143,24 +143,24 @@ The `repo-mentor` CLI provides 8 core subcommands covering the complete codebase
 
 ```
 repo-mentor/
-├── SKILL.md                          # [Master Entry] Orchestrates 5-level cognitive zooming and sub-skills
+├── SKILL.md                          # [Master Entry] Orchestrates cognitive zooming and sub-skills
 ├── skills/                           # [Modular Skills Suite] 5 dedicated, single-responsibility skills
-│   ├── repo-recon/SKILL.md           # Module 1: Macro architecture reconnaissance & cast modeling (Level 1-2)
-│   ├── repo-trace/SKILL.md           # Module 2: Concrete data journey & golden path call tracing (Level 3)
-│   ├── repo-deepdive/SKILL.md        # Module 3: Keystone FSM, load-bearing code & What-If limit drills (Level 4-5)
+│   ├── repo-recon/SKILL.md           # Module 1: Macro architecture reconnaissance & cast modeling (System Overview)
+│   ├── repo-core/SKILL.md            # Module 2: Core implementation & internal logic deep dive (Looking Inward)
+│   ├── repo-trace/SKILL.md           # Module 3: Contextual usage scenarios & call path tracing (Looking Outward)
 │   ├── repo-verify/SKILL.md          # Module 4: Code anchor audit, Mermaid self-healing & anti-fluff gate
 │   └── repo-export/SKILL.md          # Module 5: Study synthesis & single-file offline HTML compiler
 ```
 
 ### 5 Dedicated Skill Modules & Slash Command Mapping
 
-| Modular Skill | Primary Command | Zooming Level | Core Responsibility & Boundary |
+| Modular Skill | Primary Command | Perspective | Core Responsibility & Boundary (Universal Standards) |
 | :--- | :--- | :--- | :--- |
-| **[`repo-recon`](skills/repo-recon/SKILL.md)** | `/overview`, `/guide` | **Level 1 & 2** (Macro) | Real-world agony, first-principles tension, 5-archetype classification, cast of 3~5 characters, Git hotspots. **Zero microscopic code lines**. |
-| **[`repo-trace`](skills/repo-trace/SKILL.md)** | `/trace` | **Level 3** (Data Journey) | Single concrete living input walkthrough, station-by-station payload diff, 5-phase golden path sequence, sync/async hops. |
-| **[`repo-deepdive`](skills/repo-deepdive/SKILL.md)** | `/deep-dive`, `/core`, `/drill` | **Level 4 & 5** (Hardcore & Tradeoffs) | Keystone entity structs, lifecycle state machine (`stateDiagram-v2`), 3~8 load-bearing code lines, destructive What-If disaster drills, trade-offs. |
-| **[`repo-verify`](skills/repo-verify/SKILL.md)** | `/verify` | **Quality Gate** (Grounding) | Deterministic static audit of cited physical file paths, line bounds within EOF, Mermaid syntax auto-healing, and 52 banned buzzwords filter. |
-| **[`repo-export`](skills/repo-export/SKILL.md)** | `/export` | **Deliverable** (Whitepaper) | Multi-slice knowledge deduplication and synthesis into a single-file, zero-CDN offline interactive HTML whitepaper. |
+| **[`repo-recon`](skills/repo-recon/SKILL.md)** | `/overview`, `/guide` | **System Global** | Real-world agony, core mission contract, cast of characters, reading priority triage, and hotspots. **Zero microscopic code lines**. |
+| **[`repo-core`](skills/repo-core/SKILL.md)** | `/core`, `/drill` | **Looking Inward** | Plain-language purpose, inner step-by-step logic, 5~15 load-bearing lines, design intent, and boundary defenses. |
+| **[`repo-trace`](skills/repo-trace/SKILL.md)** | `/trace` | **Looking Outward** | Concrete trigger scenario, root trigger event, upstream/downstream topology, sample data journey, error propagation. |
+| **[`repo-verify`](skills/repo-verify/SKILL.md)** | `/verify` | **Quality Gate** | Deterministic static audit of cited physical file paths, line bounds within EOF, Mermaid syntax auto-healing, and 52 banned buzzwords filter. |
+| **[`repo-export`](skills/repo-export/SKILL.md)** | `/export` | **Deliverable** | Multi-slice knowledge deduplication and synthesis into a single-file, zero-CDN offline interactive HTML whitepaper. |
 | *Progress Dashboard* | `/tracker` | *Coverage* | Clean binary domain checklist (Explored vs. Blind Spot). |
 
 ### Agent Installation
