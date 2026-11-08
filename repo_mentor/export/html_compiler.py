@@ -883,29 +883,19 @@ def compile_study_html(study_dir: str | Path, output_file: Optional[str | Path] 
     mastery_eval = evaluate_study_directory(study_path)
     progress_val = mastery_eval.get("global_progress", 0.0)
 
-    # Load tracker metadata if present
-    lang = "Python"
-    pattern = "Modular Architecture"
-    tracker_candidates = [
-        study_path.parent / "study_tracker.csv",
-        study_path.parent.parent / "study_tracker.csv",
-        Path.cwd() / "study_tracker.csv"
-    ]
-    for tc in tracker_candidates:
-        if tc.is_file():
-            try:
-                with open(tc, "r", encoding="utf-8") as f:
-                    for row in csv.DictReader(f):
-                        if row.get("Repo_Name", "").strip().lower() == repo_name.lower():
-                            lang = row.get("Language", lang).strip()
-                            pattern = row.get("Pattern", pattern).strip()
-                            break
-            except Exception:
-                pass
-
     # Read ARCHITECTURE.md
     arch_md = study_path / "ARCHITECTURE.md"
     arch_content = arch_md.read_text(encoding="utf-8", errors="replace") if arch_md.is_file() else f"# {repo_name} Architecture"
+
+    # Infer metadata from ARCHITECTURE.md if present
+    lang = "Universal"
+    pattern = "Modular Architecture"
+    lang_m = re.search(r"\*\*(?:目标语言生态|Primary Language)\*\*:\s*([^\n\r]+)", arch_content)
+    if lang_m:
+        lang = lang_m.group(1).strip()
+    pat_m = re.search(r"\*\*(?:Architecture Pattern|架构模式)\*\*:\s*([^\n\r]+)", arch_content)
+    if pat_m:
+        pattern = pat_m.group(1).strip()
 
     # Extract dynamic challenges and walkthrough items
     challenge_items = _extract_challenges_dynamically(study_path, repo_name)

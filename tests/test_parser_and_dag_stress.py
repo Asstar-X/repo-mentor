@@ -273,40 +273,74 @@ export function createGateway(): GatewayService {
 class TestDependencyDAG:
     """Stress-testing intra-repo dependency analysis."""
 
-    def test_go_internal_package_mapping_gin(self):
-        gin_path = Path("/tmp/benchmark-repos/gin")
-        if not gin_path.is_dir():
-            pytest.skip("Gin benchmark repository not found at /tmp/benchmark-repos/gin")
+    def test_go_internal_package_mapping(self, tmp_path: Path):
+        (tmp_path / "go.mod").write_text("module github.com/sample/app\n\ngo 1.22\n", encoding="utf-8")
+        
+        render_dir = tmp_path / "render"
+        render_dir.mkdir()
+        (render_dir / "render.go").write_text("package render\ntype Renderer struct{}\n", encoding="utf-8")
+        
+        binding_dir = tmp_path / "binding"
+        binding_dir.mkdir()
+        (binding_dir / "binding.go").write_text("package binding\ntype Binder struct{}\n", encoding="utf-8")
+        
+        fs_dir = tmp_path / "internal" / "fs"
+        fs_dir.mkdir(parents=True)
+        (fs_dir / "fs.go").write_text(
+            'package fs\nimport "github.com/sample/app/render"\nvar _ = render.Renderer{}\n',
+            encoding="utf-8"
+        )
+        
+        server_dir = tmp_path / "server"
+        server_dir.mkdir()
+        (server_dir / "server.go").write_text(
+            'package server\nimport (\n\t"github.com/sample/app/binding"\n\t"github.com/sample/app/internal/fs"\n)\n',
+            encoding="utf-8"
+        )
 
-        analyzer = DependencyAnalyzer(gin_path)
+        analyzer = DependencyAnalyzer(tmp_path)
         res = analyzer.analyze(internal_only=True)
         internal_modules = res["internal_modules"]
         edges = res["edges"]
 
-        # Internal package imports must be captured and non-empty
-        assert len(internal_modules) >= 5
-        assert len(edges) >= 8
+        assert "render" in internal_modules
+        assert "binding" in internal_modules
+        assert "internal/fs" in internal_modules
+        assert "server" in internal_modules
+        assert len(edges) >= 3
 
-        # Explicitly verify required packages
-        for req_pkg in ["render", "binding", "internal/fs", "internal/bytesconv"]:
-            assert req_pkg in internal_modules, f"Missing Go internal package: {req_pkg}"
-            pkg_edges = [e for e in edges if e["source"] == req_pkg or e["target"] == req_pkg]
-            assert len(pkg_edges) > 0, f"No edges mapped for internal package: {req_pkg}"
+    def test_python_internal_package_mapping(self, tmp_path: Path):
+        pkg_dir = tmp_path / "mypkg"
+        pkg_dir.mkdir()
+        (pkg_dir / "__init__.py").write_text("", encoding="utf-8")
+        
+        mem_dir = pkg_dir / "memory"
+        mem_dir.mkdir()
+        (mem_dir / "__init__.py").write_text("", encoding="utf-8")
+        (mem_dir / "main.py").write_text(
+            "from mypkg.configs import Config\nfrom mypkg.storage import Store\n",
+            encoding="utf-8"
+        )
+        
+        cfg_dir = pkg_dir / "configs"
+        cfg_dir.mkdir()
+        (cfg_dir / "__init__.py").write_text("", encoding="utf-8")
+        (cfg_dir / "settings.py").write_text("class Config: pass\n", encoding="utf-8")
+        
+        storage_dir = pkg_dir / "storage"
+        storage_dir.mkdir()
+        (storage_dir / "__init__.py").write_text("", encoding="utf-8")
+        (storage_dir / "db.py").write_text("class Store: pass\n", encoding="utf-8")
 
-    def test_python_internal_package_mapping_mem0(self):
-        mem0_path = Path("/Users/xing/AI/Project/Memory/mem0")
-        if not mem0_path.is_dir():
-            pytest.skip("Mem0 repository not found at /Users/xing/AI/Project/Memory/mem0")
-
-        analyzer = DependencyAnalyzer(mem0_path)
+        analyzer = DependencyAnalyzer(tmp_path)
         res = analyzer.analyze(internal_only=True)
         internal_modules = res["internal_modules"]
         edges = res["edges"]
 
-        assert len(internal_modules) >= 5
-        assert len(edges) >= 10
-        assert "mem0.memory" in internal_modules
-        assert "mem0.configs" in internal_modules
+        assert "mypkg.memory" in internal_modules
+        assert "mypkg.configs" in internal_modules
+        assert "mypkg.storage" in internal_modules
+        assert len(edges) >= 2
 
     def test_empty_repo_dependency_dag(self, tmp_path: Path):
         analyzer = DependencyAnalyzer(tmp_path)

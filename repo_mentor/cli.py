@@ -7,7 +7,7 @@ Provides an ergonomic, typed command-line interface:
 - ast: Extract symbols, classes, functions, and call invocations.
 - init: Initialize a standardized study workspace.
 - export: Compile dynamic single-file HTML whitepaper manual.
-- verify & eval: Verification and evaluation judge (Milestone 4 integration).
+- verify & eval: Verification and evaluation judge.
 """
 
 from __future__ import annotations
@@ -295,7 +295,7 @@ def verify(
     fix: bool = typer.Option(False, "--fix", help="Attempt automated repair"),
     strict: bool = typer.Option(False, "--strict", help="Enforce zero-tolerance gating")
 ) -> None:
-    """Verify semantic code anchors and Mermaid syntax in study notes (Milestone 4 engine)."""
+    """Verify semantic code anchors and Mermaid syntax in study notes."""
     try:
         from repo_mentor.verification.anchor_verifier import verify_study_anchors
         from repo_mentor.verification.mermaid_verifier import verify_study_mermaid
@@ -320,7 +320,7 @@ def verify(
         console.print(Panel(
             "[bold yellow]Verification Engine Notice[/bold yellow]\n\n"
             "The semantic anchor verification and Mermaid repair engine is packaged in "
-            "[bold cyan]Milestone 4 (repo_mentor.verification)[/bold cyan].\n"
+            "[bold cyan]repo_mentor.verification[/bold cyan].\n"
             f"Details: {e}",
             title="Verification Module",
             border_style="yellow"
@@ -334,7 +334,7 @@ def eval(
     strict: bool = typer.Option(False, "--strict", help="Enforce zero-tolerance gating"),
     format: str = typer.Option("rich", "--format", "-f", help="Output format: rich or json")
 ) -> None:
-    """Run 100-Point Rubric Automated Evaluation Judge on study deliverables (Milestone 4 engine)."""
+    """Run 100-Point Rubric Automated Evaluation Judge on study deliverables."""
     try:
         from repo_mentor.verification.judge import evaluate_report
         report = evaluate_report(repo_path, report_path, strict=strict, format=format)
@@ -348,7 +348,7 @@ def eval(
         console.print(Panel(
             "[bold yellow]Evaluation Judge Notice[/bold yellow]\n\n"
             "The 100-Point Rubric Objective Evaluation Judge is packaged in "
-            "[bold cyan]Milestone 4 (repo_mentor.verification.judge)[/bold cyan].\n"
+            "[bold cyan]repo_mentor.verification.judge[/bold cyan].\n"
             f"Details: {e}",
             title="Automated Judge Module",
             border_style="yellow"

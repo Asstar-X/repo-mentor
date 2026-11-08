@@ -278,7 +278,7 @@ def evaluate_report(
     )
     console.print(Panel(
         panel_content,
-        title="[bold green]Milestone 4 Evaluation Judge Report[/bold green]",
+        title="[bold green]Objective Evaluation Judge Report[/bold green]",
         border_style="green" if report.passed else "red"
     ))
 

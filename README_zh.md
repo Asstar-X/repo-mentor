@@ -225,15 +225,9 @@ $$\text{Final Score} = S_{\text{grounding}} + S_{\text{execution}} + S_{\text{fl
 
 ---
 
-## 开源标杆项目实测 Benchmark
+## 开源标杆项目实测成绩
 
 `repo-mentor` 在真实的跨语言、生产级开源仓库上完成了端到端基准测试：
-
-```
-benchmarks/
-├── mem0/             # Python (~25,000 行): 大模型多向量记忆管理系统
-└── gin-gonic/gin/    # Go (~24,000 行): 高性能 Radix-Tree Web 框架
-```
 
 ### 实测成绩对照表
 

@@ -5,6 +5,7 @@ __pycache__/
 
 # Testing and coverage
 .pytest_cache/
+.mypy_cache/
 .coverage
 htmlcov/
 
@@ -12,8 +13,6 @@ htmlcov/
 studies/*
 !studies/.gitkeep
 .repo_sources/
-benchmarks/results/
-benchmarks/studies/
 
 # OS artifacts
 .DS_Store

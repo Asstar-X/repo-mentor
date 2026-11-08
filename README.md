@@ -226,15 +226,9 @@ $$\text{Final Score} = S_{\text{grounding}} + S_{\text{execution}} + S_{\text{fl
 
 ---
 
-## Multi-Sample Benchmark Preview
+## Multi-Sample Validation Scorecard
 
 `repo-mentor` is validated against multi-language, production-grade open-source repositories to guarantee cross-ecosystem objectivity:
-
-```
-benchmarks/
-├── mem0/             # Python (~25,000 LOC): Multi-vector memory layer for LLMs
-└── gin-gonic/gin/    # Go (~24,000 LOC): High-performance Radix-tree HTTP web engine
-```
 
 ### Benchmark Scorecard (Representative Run)
 

@@ -103,8 +103,8 @@ def test_cli_init_and_export():
 def test_cli_verify_and_eval_placeholders():
     v_res = runner.invoke(app, ["verify"])
     assert v_res.exit_code == 0
-    assert "Milestone 4" in v_res.stdout
+    assert "Verification Engine" in v_res.stdout
 
     e_res = runner.invoke(app, ["eval", ".", "README.md"])
     assert e_res.exit_code == 0
-    assert "Milestone 4" in e_res.stdout
+    assert "Evaluation Judge" in e_res.stdout

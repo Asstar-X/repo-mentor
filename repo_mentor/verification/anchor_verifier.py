@@ -575,7 +575,7 @@ def verify_study_anchors(
     repo_root = Path(repo_dir).resolve()
     target = Path(study_path).resolve()
 
-    console.print("[bold cyan]Milestone 4 Verification Engine: Anchor & Mermaid Audit[/bold cyan]")
+    console.print("[bold cyan]Verification Engine: Anchor & Mermaid Audit[/bold cyan]")
     console.print(f"Target Repo: [dim]{repo_root}[/dim] | Study: [dim]{target}[/dim]\n")
 
     if target.is_file():
