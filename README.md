@@ -46,9 +46,9 @@ When developers ask standard LLMs or AI assistants to explain a 50,000-line unfa
 | :--- | :--- | :--- |
 | **Fact Grounding** | Fabricated line numbers, hallucinated API names, and superficial bullet points. | **AST-grounded citations**: exact file paths, line ranges, and verified symbol signatures (`path/to/file.py:42-88`). |
 | **Tone & Style** | Heavy "AI-flavor": empty praise, buzzwords ("seamlessly integrates", "cutting-edge architecture"). | **Zero-fluff engineering prose**: Banned buzzword linting, factual constraints, and concrete counterexamples. |
-| **Execution Flow** | Isolated file summaries; loses the dynamic data flow across boundaries. | **Golden path execution tracing**: end-to-end request lifecycle from entrypoint to storage with sequence DAGs. |
-| **Architectural Depth** | Describes *what* the code does line-by-line without explaining *why*. | **Trade-offs & Failure modes**: concurrency races, memory footprints, consistency guarantees, and failure domains. |
-| **Mastery Verification** | Dunning-Kruger trap: asking 3 easy questions gives a false sense of 100% mastery. | **100-Point Quantitative Rubric**: automated judge auditing grounding rate, hallucination rate, and domain coverage caps. |
+| **Execution Flow** | Isolated file summaries; loses the dynamic data flow across boundaries. | **Execution Path Tracing**: End-to-end operational sequence from external entrypoint through core logic to output. |
+| **Architectural Depth** | Describes *what* the code does line-by-line without explaining *why*. | **Trade-offs & Failure Modes**: Engineering compromises, state invariant boundaries, capacity limits, and edge recovery. |
+| **Mastery Verification** | Dunning-Kruger trap: asking 3 easy questions gives a false sense of 100% mastery. | **100-Point Quantitative Rubric & Socratic Drill**: Automated fact auditing, hallucination penalization, and interactive oral defense. |
 
 ---
 
@@ -76,8 +76,8 @@ When developers ask standard LLMs or AI assistants to explain a 50,000-line unfa
                     ▼                                ▼
 ┌──────────────────────────────────────┐  ┌──────────────────────────────┐
 │       Anti-AI Methodology & Norms    │  │  Objective Benchmark Suite   │
-│  ├── 8 Negative Anti-Patterns (N1-N8)│  │  ├── Python: mem0 (~25k LOC) │
-│  ├── 5 Positive Engineering Standards│  │  ├── Go: gin-gonic/gin (~24k)│
+│  ├── 8 Negative Anti-Patterns (N1-N8)│  │  ├── Multi-Language Datasets │
+│  ├── 5 Positive Engineering Standards│  │  ├── 0 Hallucination Standard │
 │  └── 100-Point Quantitative Rubric   │  │  └── Automated Judge Report  │
 └──────────────────────────────────────┘  └──────────────────────────────┘
 ```
@@ -139,7 +139,7 @@ The `repo-mentor` CLI provides 8 core subcommands covering the complete codebase
 
 ## Modular Agent Skills Suite
 
-`repo-mentor` implements the universal **Agent Skills** specification following **Andrej Karpathy's minimalist engineering principles**. The suite is structured as **1 Master Orchestrator + 5 Modular Domain Skills**, enforcing strict single-responsibility boundaries and zero information redundancy:
+`repo-mentor` implements the universal **Agent Skills** specification following **Andrej Karpathy's minimalist engineering principles**. The suite is structured as **1 Master Orchestrator + 6 Modular Domain Skills**, enforcing strict single-responsibility boundaries, human-first pedagogy ("explain intent in plain language first, then code implementation"), and zero domain bias:
 
 ```
 repo-mentor/
@@ -151,6 +151,8 @@ repo-mentor/
 │   ├── repo-drill/SKILL.md           # Master Examination: Socratic quizzing & oral defense (/drill)
 │   ├── repo-verify/SKILL.md          # Quality Gate: Code anchor audit & factual verification (/verify)
 │   └── repo-export/SKILL.md          # Deliverable: Study synthesis & offline HTML whitepaper compiler (/export)
+├── methodology/                      # [Engineering Guides] 7 Universal code reading methodologies
+└── templates/                        # [Universal Deliverables] Unconstrained architecture whitepaper templates
 ```
 
 ### Core Skill Modules & Slash Command Mapping
@@ -190,11 +192,11 @@ git clone https://github.com/Asstar-X/repo-mentor.git .cursor/skills/repo-mentor
 ## Anti-AI Reading Methodology & 100-Point Rubric
 
 ### 5 Positive Engineering Standards
-1. **Fact Grounding (P1)**: Every assertion must reference physical file paths and exact line spans (`mem0/memory/main.py:120-145`).
-2. **System Invariants (P2)**: Explicitly identify state constraints, locking semantics, and consistency guarantees.
-3. **Golden Path (P3)**: Unpack the primary operational sequence from external entrypoint down to low-level persistence.
-4. **Architectural Trade-offs (P4)**: Document explicit engineering compromises (throughput vs. latency, memory vs. simplicity).
-5. **Failure Modes & Edge Cases (P5)**: Audit error boundaries, reconnect strategies, rate-limiting, and crash recovery.
+1. **Fact Grounding (P1)**: Every assertion must reference physical file paths and exact line spans (`path/to/file.ext#L120-L145`).
+2. **System Invariants (P2)**: Explicitly identify state constraints, structural validity, and consistency guarantees.
+3. **Execution Flow (P3)**: Unpack the primary operational sequence from external entrypoint through core logic to output.
+4. **Architectural Trade-offs (P4)**: Document explicit engineering compromises (flexibility vs. simplicity, speed vs. safety).
+5. **Failure Modes & Edge Cases (P5)**: Audit error boundaries, capacity limits, defensive validation, and state recovery.
 
 ### 8 Negative Anti-Patterns (N1-N8)
 - **N1 (Superficial File Listing)**: Reciting directory trees without explaining inter-module data contracts.
@@ -203,7 +205,7 @@ git clone https://github.com/Asstar-X/repo-mentor.git .cursor/skills/repo-mentor
 - **N4 (Uncritical Buzzword Fluff)**: Using empty superlative adjectives ("seamless", "ultra-fast", "robust", "state-of-the-art").
 - **N5 (Missing Trade-off Analysis)**: Presenting architectural decisions as flawless without discussing downsides.
 - **N6 (Isolated Component Silos)**: Analyzing classes in isolation without mapping end-to-end cross-module call flows.
-- **N7 (Ignored Error & Failure Paths)**: Assuming happy-path execution and ignoring panic recovery or retry bounds.
+- **N7 (Ignored Error & Failure Paths)**: Assuming happy-path execution and ignoring input validation or error recovery.
 - **N8 (Dunning-Kruger Blind Spots)**: Claiming full mastery after inspecting only entrypoint wrappers.
 
 ### 100-Point Quantitative Rubric
@@ -215,9 +217,9 @@ $$\text{Final Score} = S_{\text{grounding}} + S_{\text{execution}} + S_{\text{fl
 | Metric | Max Points | Measurement Method |
 | :--- | :---: | :--- |
 | **Fact Grounding Rate** | 30 | Percentage of assertions backed by valid, verifiable file path and line anchors. |
-| **Execution Flow Completeness** | 25 | Continuity of sequence hops from entrypoint through intermediate handlers to storage. |
+| **Execution Flow Completeness** | 25 | Continuity of sequence hops from entrypoint through intermediate processing to output. |
 | **Fluff-Free Index** | 25 | Inverse density of banned buzzwords, filler transitions, and ungrounded paragraphs. |
-| **Architectural Trade-off Depth** | 20 | Explicit presence of trade-off evaluations, concurrency constraints, and failure modes. |
+| **Architectural Trade-off Depth** | 20 | Explicit presence of trade-off evaluations, state invariant constraints, and failure modes. |
 | **Hallucination Penalty** | -10 per hit | Deterministic penalty for non-existent files, invalid line spans, or phantom symbols. |
 
 - **Grade A (High-Star Standard)**: $\ge 85$ points and $0$ hallucinations.
