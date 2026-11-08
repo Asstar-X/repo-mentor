@@ -37,14 +37,12 @@ framework_version: 2.3.0
 
 | 核心命令 | 核心使命 | 专职子技能 |
 | :--- | :--- | :--- |
-| **`/overview`** | **全局破冰**：项目存在原罪、核心使命、白板剧本角色表与变更热点。 | [`skills/repo-recon/SKILL.md`](skills/repo-recon/SKILL.md) |
+| **`/overview`** | **项目概览与快速上手**：使命痛点、开箱验证（构建与单测）、宏观代码组织、Git 热点与切入路线。 | [`skills/repo-recon/SKILL.md`](skills/repo-recon/SKILL.md) |
 | **`/core <目标>`** | **向内看自身**：它在干什么、内部怎么实现的、关键细节与边界防护。 | [`skills/repo-core/SKILL.md`](skills/repo-core/SKILL.md) |
 | **`/trace <目标>`** | **向外看应用**：它用在哪里、被谁调用、数据流转与异常传播。 | [`skills/repo-trace/SKILL.md`](skills/repo-trace/SKILL.md) |
-| **`/drill [目标]`** | **名师考核**：提炼 2~3 道硬核考题抽查答辩，检验真实掌握度。 | [`skills/repo-drill/SKILL.md`](skills/repo-drill/SKILL.md) |
-| **`/guide`** | **实操路线**：本地极简编译运行、定向冒烟单测与黄金断点推荐。 | [`skills/repo-recon/SKILL.md`](skills/repo-recon/SKILL.md) |
-| **`/verify`** | **事实质检**：自动化静态核验引用的文件与行号，自愈 Mermaid 语法。 | [`skills/repo-verify/SKILL.md`](skills/repo-verify/SKILL.md) |
-| **`/export`** | **成果交付**：将研读切片去重编译为单文件离线交互式 HTML 白皮书。 | [`skills/repo-export`](skills/repo-export/SKILL.md) |
-| **`/tracker`** | **进度看板**：以清晰的二元清单展示核心领域的覆盖度与盲区。 | — |
+| **`/drill [目标]`** | **名师考核答辩**：提炼 2~3 道硬核考题抽查答辩，检验真实掌握度。 | [`skills/repo-drill/SKILL.md`](skills/repo-drill/SKILL.md) |
+| **`/verify`** | **代码事实审计**：自动化静态核验引用的文件与行号，自愈 Mermaid 语法。 | [`skills/repo-verify/SKILL.md`](skills/repo-verify/SKILL.md) |
+| **`/export`** | **成果白皮书导出**：将研读切片去重编译为单文件离线交互式 HTML 白皮书。 | [`skills/repo-export`](skills/repo-export/SKILL.md) |
 
 ---
 

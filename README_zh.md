@@ -145,11 +145,11 @@ repo-mentor hotspots /path/to/target-repo --top 10
 repo-mentor/
 ├── SKILL.md                          # [主入口] Master Orchestrator：统筹认知体系与核心导学
 ├── skills/                           # [核心] 专职 Skill 独立模块目录
-│   ├── repo-recon/SKILL.md           # 全局破冰: 宏观架构侦察与剧本建模 (/overview, /guide)
+│   ├── repo-recon/SKILL.md           # 项目概览: 使命痛点、开箱验证、宏观拓扑与演进热点 (/overview)
 │   ├── repo-core/SKILL.md            # 向内看自身: 核心实现与内部逻辑深度剖析 (/core)
 │   ├── repo-trace/SKILL.md           # 向外看应用: 上下文使用场景与调用脉络追踪 (/trace)
 │   ├── repo-drill/SKILL.md           # 名师考核: 提炼灵魂考题抽查答辩与批改 (/drill)
-│   ├── repo-verify/SKILL.md          # 质量门禁: 代码锚点真实性与反AI套话质检 (/verify)
+│   ├── repo-verify/SKILL.md          # 质量门禁: 代码锚点真实性与事实审计 (/verify)
 │   └── repo-export/SKILL.md          # 成果交付: 架构白皮书合成与离线交互式导出 (/export)
 ```
 
@@ -157,13 +157,12 @@ repo-mentor/
 
 | 专职 Skill 模块 | 对应命令 | 观察视角 | 核心使命 |
 | :--- | :--- | :--- | :--- |
-| **[`repo-recon`](skills/repo-recon/SKILL.md)** | `/overview`, `/guide` | **全局全景** | 剖析现实原罪、核心使命契约、白板剧本角色表与变更热点。**严禁微观代码行**。 |
+| **[`repo-recon`](skills/repo-recon/SKILL.md)** | `/overview` | **全局全景** | 现实痛点与使命契约、开箱即验（构建与单测）、代码组织与架构拓扑、Git 热点与切入路线。 |
 | **[`repo-core`](skills/repo-core/SKILL.md)** | `/core` | **向内看自身** | 纯人话讲透它干什么、内部处理主线、承重切片与设计意图、特殊与边界防护。 |
 | **[`repo-trace`](skills/repo-trace/SKILL.md)** | `/trace` | **向外看应用** | 实际业务触发场景、最上游触发源、上下游协同拓扑图、具象实例流经差分、异常传播。 |
 | **[`repo-drill`](skills/repo-drill/SKILL.md)** | `/drill` | **名师考核** | 提炼 2~3 道直击本质的考题（意图/流转/失效），互动答辩客观批改，破除虚假掌握感。 |
-| **[`repo-verify`](skills/repo-verify/SKILL.md)** | `/verify` | **质量门禁** | 自动化静态校验文档中引用的物理文件与行号范围，自愈 Mermaid 图表语法，拦截 52 个反 AI 虚夸词。 |
+| **[`repo-verify`](skills/repo-verify/SKILL.md)** | `/verify` | **质量门禁** | 自动化静态校验文档中引用的物理文件与行号范围，自愈 Mermaid 图表语法。 |
 | **[`repo-export`](skills/repo-export/SKILL.md)** | `/export` | **成果交付** | 将积累的各切片笔记去重合成，编译输出单文件零外部依赖的离线交互式 HTML 架构白皮书。 |
-| *进度看板* | `/tracker` | *进度跟踪* | 以二元清单（已探索 vs 盲区）展示核心领域的覆盖情况，杜绝虚假打分。 |
 
 ### 主流 Agent 安装方式
 

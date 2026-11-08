@@ -2,7 +2,7 @@
 
 > **支撑技能**: [`skills/repo-export/SKILL.md`](../skills/repo-export/SKILL.md)
 
-将积累在 `studies/<repo_name>/` 下的所有研读资产（系统定位、宏观拓扑、调用链数据流、状态机模型与破坏性推演手记）去重合成，编译为一份完全自包含、可在无网络机房离线查阅的单文件 HTML 交互式架构白皮书。
+将积累在 `studies/<repo_name>/` 下的所有研读资产去重合成，编译为一份完全自包含、可在无网络机房离线查阅的单文件 HTML 交互式架构白皮书。
 
 ---
 
