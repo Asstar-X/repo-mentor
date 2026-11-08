@@ -1,63 +1,53 @@
-# /deep-dive (Aliases: /trace, /core, /drill) — Unified Domain Deep-Dive
+# /deep-dive (Aliases: /core, /drill) — Keystone Entities, State Machines & Limit Drills
 
-Analyzes a specific core functional domain end-to-end, traversing from a concrete data scenario (Level 3) down to micro-level algorithms, state machine invariants, code anchors, and limit defenses (Level 4), concluding with architectural trade-offs (Level 5).
+> **Backing Skill**: [`skills/repo-deepdive/SKILL.md`](../skills/repo-deepdive/SKILL.md)
 
----
-
-## Operational Steps
-
-### 1. Identify Target Domain & Context
-1. Identify the target domain $D_i$ (e.g., `/deep-dive storage` or `/deep-dive hook-spool`).
-2. Verify target domain files using AST extraction:
-   ```bash
-   repo-mentor ast <target_path> --symbol <domain_symbol>
-   ```
+Executes cognitive **Level 4 (Deep Dive)** & **Level 5 (Takeaway)**: inspects keystone entity structures, models lifecycle state machines (FSM), extracts 3~8 load-bearing code lines with verified AST anchors, runs destructive What-If disaster drills, and audits architectural trade-offs.
 
 ---
 
-## 2. Generate 3-Part Deep-Dive Slice (`studies/<repo_name>/traces/<domain>.md`)
+## Operational Workflow
 
-### Part I: Level 3 — Concrete Walkthrough: A Day in the Life (具象案例与数据变形)
-> 💡 **Cognitive Rule**: 读者在看代码前，必须看到一份**真实具体的数据**在各组件间流转变形的全过程。
-1. **Specific Input Event**:
-   - Provide an exact, concrete input payload (e.g. a specific CLI command, JSON payload, or test failure).
-2. **Step-by-Step Data Journey**:
-   - Trace how the payload transforms across stations (Ingress ➔ Spool/Buffer ➔ Processing ➔ Persistence).
-   - Document the **Payload Diff** at each station (what gets sanitized, what gets extracted, what hash or timestamp is attached).
+### 1. Inspect Keystone Entities & Symbols
+```bash
+# Locate keystone structs, classes, or state machines in target domain
+repo-mentor ast <target_path> --symbol <KeystoneStruct>
+```
 
-### Part II: Level 4 — Keystone Algorithms, State Invariants & Code Anchors (硬核代码与微观实现)
-> 💡 **Cognitive Rule**: 带着好奇心深入微观实现，所有结论必须强绑定真实源码。
-1. **Keystone Structures & State Transitions**:
-   - Define core entities with physical line anchors `[path/to/file.ext#Lstart-Lend]`.
-   - Graph state transition diagram (`stateDiagram-v2`).
-2. **5-Phase Golden Path Sequence Diagram**:
-   - Mermaid `sequenceDiagram` with quoted participant aliases.
-   - Delineate sync vs async hops and error recovery branches.
-3. **Core Algorithm & Invariant Enforcement**:
-   - Detailed walkthrough of how the system solves its core dilemma.
-   - Code snippet (3–8 load-bearing lines) with verified line numbers.
-4. **Limit Scenario & What-If Drill**:
-   - 💥 **What-If Hypothesis**: What disaster occurs if a critical line or lock is removed?
-   - Verified code defense (fsync, single-flight, timeout, or circuit breaker).
+### 2. Generate Deep-Dive Slice (`studies/<repo_name>/traces/<domain>_core.md`)
 
-### Part III: Level 5 — Takeaways & Trade-offs (权衡与可迁移模式)
+#### Part I: Keystone Entities & Lifecycle State Machine
+- **Keystone Structures**: Physical line anchors `[path/to/struct.ext#Lstart-Lend]` with memory layouts and lock protection notes.
+- **State Transition Model (`stateDiagram-v2`)**: Initial state to terminal state, including explicit **forbidden transition guards**.
+
+#### Part II: Load-Bearing Algorithms & Code Anchors
+- **3~8 Load-Bearing Lines**: Essential concurrency control, pointer swapping, or core mathematical calculations.
+- **Triple-Anchor Compliance**: Every code snippet MUST link to `[path/to/file.ext#Lstart-Lend]`.
+
+#### Part III: Destructive Limit Scenario & What-If Drill
+- 💥 **What-If Disaster Hypothesis**: "If line X or lock Y is omitted, how does the system fail?"
+- **Interleaved Concurrent Schedule**: Step-by-step timeline proof of race condition, crash, or data corruption.
+- **Verified Source Defense**: Concrete defense deployed in the live codebase (single-flight, CAS, timeout, WAL replay).
+
+#### Part IV: Level 5 Trade-offs & Borrowable Patterns
 - **Trade-offs**: What was sacrificed to achieve this design?
-- **Borrowable Patterns**: What design pattern can an engineer steal for their own work?
+- **Borrowable Patterns**: 1~2 design patterns the reader can directly adopt in their own projects.
 
 ---
 
 ## 3. Automated Verification & Archival
-Run deterministic checks on the generated slice:
 ```bash
-# 1. Verify code anchors and Mermaid syntax with auto-fix
-repo-mentor verify <target_path> studies/<repo_name>/traces/<domain>.md --fix
+# Verify code anchors and lint Mermaid state diagrams with auto-fix
+repo-mentor verify <target_path> studies/<repo_name>/traces/<domain>_core.md --fix
 
-# 2. Audit against fluff and unanchored assertions
-repo-mentor eval <target_path> studies/<repo_name>/traces/<domain>.md
+# Evaluate against anti-AI fluff linting
+repo-mentor eval <target_path> studies/<repo_name>/traces/<domain>_core.md
 ```
 
-### 4. Update Checklist
-In `studies/<repo_name>/README.md`, mark the domain as explored in the Domain Checklist:
+---
+
+## 4. Update Checklist
+In `studies/<repo_name>/README.md`, mark the domain's state model and limit drill as completed:
 ```markdown
-- [x] **Domain: [Domain Name]** (`[path/to/module/]`) — Explored (Trace, Core & Drill)
+- [x] **Domain: [Domain Name]** (`[path/to/module/]`) — Explored (Trace, Core FSM & What-If Defense)
 ```

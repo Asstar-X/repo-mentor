@@ -137,27 +137,31 @@ The `repo-mentor` CLI provides 8 core subcommands covering the complete codebase
 
 ---
 
-## Agent Skill Interface
+## Modular Agent Skills Suite
 
-`repo-mentor` implements the universal **Agent Skills** specification. Compatible agents discover `SKILL.md` and execute reading tasks with strict technical authority.
+`repo-mentor` implements the universal **Agent Skills** specification following **Andrej Karpathy's minimalist engineering principles**. The suite is structured as **1 Master Orchestrator + 5 Modular Domain Skills**, enforcing strict single-responsibility boundaries and zero information redundancy:
 
-<div align="center">
-  <img src="assets/en2.png" alt="9 Core Skills Workflow" width="900" />
-</div>
+```
+repo-mentor/
+├── SKILL.md                          # [Master Entry] Orchestrates 5-level cognitive zooming and sub-skills
+├── skills/                           # [Modular Skills Suite] 5 dedicated, single-responsibility skills
+│   ├── repo-recon/SKILL.md           # Module 1: Macro architecture reconnaissance & cast modeling (Level 1-2)
+│   ├── repo-trace/SKILL.md           # Module 2: Concrete data journey & golden path call tracing (Level 3)
+│   ├── repo-deepdive/SKILL.md        # Module 3: Keystone FSM, load-bearing code & What-If limit drills (Level 4-5)
+│   ├── repo-verify/SKILL.md          # Module 4: Code anchor audit, Mermaid self-healing & anti-fluff gate
+│   └── repo-export/SKILL.md          # Module 5: Study synthesis & single-file offline HTML compiler
+```
 
-### Slash Command Reference
+### 5 Dedicated Skill Modules & Slash Command Mapping
 
-| Slash Command | Equivalent CLI Action | Purpose | Weight |
-| :--- | :--- | :--- | :---: |
-| `/overview <path>` | `repo-mentor scan + map` | Reconnaissance: pattern triage, module priorities (Tier-0/1/2), and golden execution path. | Macro 15% |
-| `/guide` | `repo-mentor scan --guide` | Smoke-run roadmap: exact build/test commands and golden breakpoint recommendations. | Practical |
-| `/trace <domain>` | `repo-mentor ast --trace` | End-to-end request lifecycle walkthrough; filters out glue code and extracts call chains. | Domain 35% |
-| `/core <domain>` | `repo-mentor ast --symbols` | Data structures, entity models, state machine transitions, and concurrency invariants. | Domain 35% |
-| `/history` | `repo-mentor hotspots` | Git churn archaeology: commit volatility and genesis architectural evolution. | Macro 10% |
-| `/drill <domain>` | `repo-mentor eval --drill` | Limit scenario defense: concurrency races, crash recovery, and failure blast radius. | Domain 30% |
-| `/verify` | `repo-mentor verify` | Deterministic verification: validates every cited code snippet and line number. | Quality Audit |
-| `/export` | `repo-mentor export` | Compiles verified study notes into an interactive, zero-dependency offline HTML report. | Deliverable |
-| `/tracker` | Coverage Gating | Mathematical domain coverage tracking dashboard preventing blind-spot bias. | Mastery |
+| Modular Skill | Primary Command | Zooming Level | Core Responsibility & Boundary |
+| :--- | :--- | :--- | :--- |
+| **[`repo-recon`](skills/repo-recon/SKILL.md)** | `/overview`, `/guide` | **Level 1 & 2** (Macro) | Real-world agony, first-principles tension, 5-archetype classification, cast of 3~5 characters, Git hotspots. **Zero microscopic code lines**. |
+| **[`repo-trace`](skills/repo-trace/SKILL.md)** | `/trace` | **Level 3** (Data Journey) | Single concrete living input walkthrough, station-by-station payload diff, 5-phase golden path sequence, sync/async hops. |
+| **[`repo-deepdive`](skills/repo-deepdive/SKILL.md)** | `/deep-dive`, `/core`, `/drill` | **Level 4 & 5** (Hardcore & Tradeoffs) | Keystone entity structs, lifecycle state machine (`stateDiagram-v2`), 3~8 load-bearing code lines, destructive What-If disaster drills, trade-offs. |
+| **[`repo-verify`](skills/repo-verify/SKILL.md)** | `/verify` | **Quality Gate** (Grounding) | Deterministic static audit of cited physical file paths, line bounds within EOF, Mermaid syntax auto-healing, and 52 banned buzzwords filter. |
+| **[`repo-export`](skills/repo-export/SKILL.md)** | `/export` | **Deliverable** (Whitepaper) | Multi-slice knowledge deduplication and synthesis into a single-file, zero-CDN offline interactive HTML whitepaper. |
+| *Progress Dashboard* | `/tracker` | *Coverage* | Clean binary domain checklist (Explored vs. Blind Spot). |
 
 ### Agent Installation
 

@@ -1,10 +1,12 @@
 # /guide (Alias: /roadmap) — Hands-On Guide & Reading Path
 
+> **Backing Skill**: [`skills/repo-recon/SKILL.md`](../skills/repo-recon/SKILL.md)
+
 Generates an actionable, copy-pasteable local study roadmap for the target codebase: **local build & targeted smoke unit test commands**, **progressive reading order**, **golden breakpoints**, and a **first hands-on hack experiment**.
 
 ---
 
-## Operational Steps
+## Operational Workflow
 
 ### 1. Extract Ground Truth
 From the repository root, run deterministic tools:
@@ -31,7 +33,7 @@ Based on detected ecosystem and project manifests, provide exact commands that r
   ```
 
 #### II. Progressive Reading Order (With Verified Code Anchors)
-Provide a 4-step sequence specifying exactly what to focus on and what boilerplate to skip (enforce `methodology/04-skipping-boilerplate.md`):
+Provide a 4-step sequence specifying exactly what to focus on and what boilerplate to skip:
 1. **Stop 1: Ingress & Entrypoint** `[path/entry.ext#L30-L60]` — Trace how external inputs are unmarshalled into domain Context; skip flag descriptions.
 2. **Stop 2: Core Dispatcher** `[path/scheduler.ext#L80-L120]` — Observe the main scheduling loop, worker pool, and task routing.
 3. **Stop 3: Keystone State & Entity Definitions** `[path/state.ext#L15-L50]` — Inspect core data structures, memory ownership, and state enums.
@@ -48,15 +50,3 @@ Identify four high-value breakpoint locations across the execution lifecycle:
 Suggest a low-risk, easily verifiable hands-on task:
 - e.g., "Add a unit test in `tests/` feeding an out-of-bounds parameter to confirm defensive rejection";
 - or "Add a configuration flag in the config module and verify clean local compilation and startup."
-
----
-
-### Mastery Progress & Blind-Spot Analysis
-- **Global Mastery Progress**: Current score (Macro base 15%–25% + Domain coverage score)
-- **Core Domain Coverage**: $m / k$
-- **Blind-Spot Warning**: List Tier-0 domains not yet covered by `/trace`, `/core`, or `/drill`.
-  > Gating Notice: The hands-on guide assists local onboarding but does not replace domain mastery. All blind spots must be conquered to complete the study.
-
-### Recommended Next Steps
-1. **`/trace <Unexplored Domain>`** — Follow Stop 1–2 to walk through the end-to-end call chain.
-2. **`/core <Unexplored Domain>`** — Jump to Stop 3 to model data structures and state invariants.
