@@ -8,6 +8,9 @@ Aggregates all codebases studied through `repo-mentor`, displaying mathematical 
 
 ### 1. Ingest Tracking Data
 Read local `study_tracker.csv` and active study indexes `studies/<repo_name>/README.md`:
+```bash
+repo-mentor scan --stats || cat study_tracker.csv
+```
 - Repository Name;
 - Primary Ecosystem;
 - Architecture Pattern;
@@ -17,14 +20,14 @@ Read local `study_tracker.csv` and active study indexes `studies/<repo_name>/REA
 
 ---
 
-### 2. Output Global Dashboard & Coverage Matrix
+## 2. Output Global Dashboard & Coverage Matrix
 
-#### I. High-Level Summary
+### I. High-Level Summary
 - **Total Codebases Tracked**: Number of registered projects;
-- **Completed Studies**: Projects reaching 100% domain coverage and limit scenario verification;
+- **Completed Studies**: Projects reaching 100% domain coverage and passing limit scenario verification;
 - **Ecosystem Distribution**: Language breakdown across Go / Rust / Python / TS / Java / C++.
 
-#### II. Active Project: Domain Coverage Matrix
+### II. Active Project: Domain Coverage Matrix
 Display progress and mathematical caps across all $k$ Tier-0 domains:
 
 | Core Functional Domain (Tier-0) | Core Module / Directory | Call Chain (`/trace`) | State Model (`/core`) | Limit Defense (`/drill`) | Domain Mastery | Status |
@@ -34,19 +37,21 @@ Display progress and mathematical caps across all $k$ Tier-0 domains:
 | **3. Persistence & WAL** | `pkg/storage/` | 35% | 0% | 0% | 35% | In Progress |
 | **4. Distributed Consensus** | `pkg/consensus/` | 0% | 0% | 0% | 0% | Unexplored (Blind Spot) |
 
-- **Global Progress**: Macro Base (max 25%) + Weighted Core Domains (max 75%).
-- **Blind-Spot Hard-Cap Alert**: Total progress is mathematically capped below 100% while unexplored domains remain.
+- **Mathematical Progress Formula**:
+  $$\text{Global Progress} = \text{Macro Base (25%)} + \sum_{i=1}^k \left( S(D_i) \times \frac{75\%}{k} \right)$$
+- **Blind-Spot Hard-Cap Alert**: Total progress is mathematically capped below 100% while unexplored Tier-0 domains remain.
 
-#### III. Architecture Pattern Radar
+### III. Architecture Pattern Radar
 Summary of architectural patterns conquered across studies:
 | Architecture Pattern | Projects Studied | Key Competencies Mastered |
 | :--- | :--- | :--- |
-| **Microkernel & Plugins** | Project Name | Registry lifecycle, dynamic extension hooks |
-| **Pipes & Filters** | Project Name | Context propagation, backpressure, stage buffers |
-| **Event-Driven / Actor** | Project Name | Asynchronous channels, decoupled pub/sub |
-| **Layered / Clean Architecture**| Project Name | Unidirectional dependencies, domain decoupling |
+| **Microkernel & Plugins** | Project Name | Registry lifecycle, dynamic extension hooks, SPI contracts |
+| **Pipes & Filters** | Project Name | Context propagation, backpressure buffers, stage transformations |
+| **Event-Driven / Actor** | Project Name | Asynchronous channels, decoupled mailboxes, actor isolation |
+| **Layered / Clean Architecture**| Project Name | Unidirectional dependencies, domain decoupling, interface inversion |
+| **WAL + State Machine** | Project Name | Write-Ahead Log durability, fsync synchronization, deterministic replay |
 
-#### IV. Study History Table
+### IV. Study History Table
 Render formatted table from `study_tracker.csv`.
 
 ---

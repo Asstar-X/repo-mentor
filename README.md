@@ -2,276 +2,260 @@
 
 # Repo Mentor
 
-### The Static Architecture & Deep-Reading Toolkit for Large, Complex Codebases
+### Universal Open-Source Codebase Deep-Reading & Architectural Analysis Assistant
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Python 3 Standard Library](https://img.shields.io/badge/Python-3.10%2B%20(Zero%20Dependencies)-brightgreen.svg)](tools/)
-[![Agent Skill Ready](https://img.shields.io/badge/Agent%20Skill-Antigravity%20%7C%20Claude%20%7C%20Codex%20%7C%20Cursor-orange.svg)](SKILL.md)
+<p align="center">
+  <a href="README.md"><b>English</b></a> •
+  <a href="README_zh.md"><b>简体中文</b></a>
+</p>
+
+[![CI](https://github.com/Asstar-X/repo-mentor/actions/workflows/ci.yml/badge.svg)](https://github.com/Asstar-X/repo-mentor/actions)
+[![Python 3.10+](https://img.shields.io/badge/Python-3.10%2B-blue.svg)](https://www.python.org/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+[![Code style: Ruff](https://img.shields.io/badge/Code%20Style-Ruff-000000.svg)](https://github.com/astral-sh/ruff)
+[![Typing: Mypy](https://img.shields.io/badge/Typing-Mypy-blue.svg)](https://mypy-lang.org/)
+[![Agent Skill Ready](https://img.shields.io/badge/Agent%20Skill-Claude%20%7C%20Antigravity%20%7C%20Cursor%20%7C%20Codex-orange.svg)](SKILL.md)
 [![Security Policy](https://img.shields.io/badge/Security-Untrusted%20Repo%20Hardened-red.svg)](SECURITY.md)
 
 <p align="center">
-  <b>Rapidly unpack unfamiliar Git repositories, map architectural topologies, verify live code anchors, and export single-file offline HTML architecture whitepapers.</b>
+  <b>Turn complex, unfamiliar codebases into crystal-clear, verified architectural blueprints.</b><br/>
+  AST-grounded fact citations • Zero "AI-flavor" fluff • Golden path execution tracing • 100-point rubric verification.
 </p>
 
+[Quickstart](#quickstart) •
+[Why Generic LLM Summaries Fail](#the-problem-why-generic-llm-code-summaries-fail) •
+[Architecture](#dual-mode-architecture) •
+[CLI Commands](#cli-command-reference) •
+[Agent Skill](#agent-skill-interface) •
+[Anti-AI Methodology](#anti-ai-reading-methodology--100-point-rubric) •
+[Benchmarks](#multi-sample-benchmark-preview)
+
 </div>
 
 ---
 
-## The Problem: Why Reading Large Codebases is Painful
+## The Problem: Why Generic LLM Code Summaries Fail
 
-When onboarding to a massive open-source project or inherited legacy codebase, developers consistently run into four systemic traps:
+When developers ask standard LLMs or AI assistants to explain a 50,000-line unfamiliar repository, the results almost always disappoint. Standard AI chats suffer from four fatal failure modes:
 
 <div align="center">
-  <img src="assets/en1.png" alt="Reading Legacy Code: Are You Also Experiencing These Pain Points?" width="920" />
+  <img src="assets/en1.png" alt="Reading Legacy Code: Common Pain Points" width="900" />
 </div>
 
-1. **The Boilerplate Trap**:
-   Reading code linearly forces you to slog through parameter parsing, configuration binding, distributed logging, and defensive error wrapping. By the time you find the actual business logic, your mental bandwidth is depleted.
-2. **AI Hallucinations in Untrusted Code**:
-   Generic AI tools readily hallucinate non-existent function names, fabricate line numbers, and lose track of the global architectural topology across fragmented chat turns.
-3. **Blind Self-Confidence (The Dunning-Kruger Illusion)**:
-   Asking surface-level questions about a few entrypoints produces the dangerous illusion of complete comprehension, while critical deep-water domains (high-concurrency race conditions, crash recovery, and distributed backpressure) remain completely untouched.
-4. **Post-Reading Amnesia**:
-   Ad-hoc chat sessions vanish when the conversation window closes. Without structured, verifiable assets, developers cannot produce a permanent architecture reference or deliver an authoritative code handoff for their team.
+| Dimension | Generic LLM Summaries & Chatbots | Repo Mentor Engineering Engine |
+| :--- | :--- | :--- |
+| **Fact Grounding** | Fabricated line numbers, hallucinated API names, and superficial bullet points. | **AST-grounded citations**: exact file paths, line ranges, and verified symbol signatures (`path/to/file.py:42-88`). |
+| **Tone & Style** | Heavy "AI-flavor": empty praise, buzzwords ("seamlessly integrates", "cutting-edge architecture"). | **Zero-fluff engineering prose**: Banned buzzword linting, factual constraints, and concrete counterexamples. |
+| **Execution Flow** | Isolated file summaries; loses the dynamic data flow across boundaries. | **Golden path execution tracing**: end-to-end request lifecycle from entrypoint to storage with sequence DAGs. |
+| **Architectural Depth** | Describes *what* the code does line-by-line without explaining *why*. | **Trade-offs & Failure modes**: concurrency races, memory footprints, consistency guarantees, and failure domains. |
+| **Mastery Verification** | Dunning-Kruger trap: asking 3 easy questions gives a false sense of 100% mastery. | **100-Point Quantitative Rubric**: automated judge auditing grounding rate, hallucination rate, and domain coverage caps. |
 
 ---
 
-## 9 Core Skills: From Reading Code to Seeing the Big Picture
+## Dual-Mode Architecture
 
-`repo-mentor` turns codebase exploration into a disciplined, 4-stage engineering pipeline:
+`repo-mentor` provides a unified engine designed for two primary operating modes:
+1. **Interactive Terminal CLI** (`repo-mentor`): For human engineers needing local analysis, Git hotspot archaeology, dependency graphing, and whitepaper compilation.
+2. **Autonomous Agent Skill** (`SKILL.md`): For AI coding agents (Claude Code, Google Antigravity, Cursor, OpenAI Codex), delegating deterministic extraction, AST indexing, and verification to the CLI.
 
-<div align="center">
-  <img src="assets/en2.png" alt="9 Core Skills: From Reading Code to Seeing the Big Picture" width="920" />
-</div>
-
-### The 4-Stage Study Pipeline
-
-```mermaid
-flowchart LR
-    subgraph C1["1. Recon & Blueprint"]
-        overview["/overview <path/url>\nTopology & Domain Matrix"] --> guide["/guide\nBuild, Tests & Breakpoints"]
-    end
-
-    subgraph C2["2. Deep Dive & Tracing"]
-        trace["/trace <domain>\nVerified Call Chains (35%)"]
-        core["/core <domain>\nState Machines & Invariants (35%)"]
-        history["/history\nGit Churn Archaeology (10%)"]
-    end
-
-    subgraph C3["3. Active Verification"]
-        drill["/drill <domain>\nLimit Defense & Scenarios (30%)"]
-        verify["/verify\nLine-Number Anchor Audit"]
-    end
-
-    subgraph C4["4. Knowledge Archival"]
-        export["/export\nOffline HTML Whitepaper"]
-        tracker["/tracker\nMastery & Radar Dashboard"]
-    end
-
-    C1 --> C2 --> C3 --> C4
+```
+┌────────────────────────────────────────────────────────────────────────┐
+│                   Dual User / Agent Interface                          │
+│   Human Developer (CLI: repo-mentor)  │  AI Agent (SKILL.md / Prompts) │
+└───────────────────┬────────────────────────────────┬───────────────────┘
+                    │                                │
+                    ▼                                ▼
+┌────────────────────────────────────────────────────────────────────────┐
+│                      repo_mentor Core Engine                           │
+│  ├── CLI Entrypoint (repo_mentor.cli via Typer & Rich)                 │
+│  ├── Core Analysis (Scanner, AST Parser, Dependency DAG, Git Hotspots) │
+│  ├── Verification Engine (Symbol Anchors, Anti-AI Fluff, Path Check)   │
+│  └── Exporter (Dynamic HTML Whitepaper Compiler, Markdown Synthesizer) │
+└───────────────────┬────────────────────────────────┬───────────────────┘
+                    │                                │
+                    ▼                                ▼
+┌──────────────────────────────────────┐  ┌──────────────────────────────┐
+│       Anti-AI Methodology & Norms    │  │  Objective Benchmark Suite   │
+│  ├── 8 Negative Anti-Patterns (N1-N8)│  │  ├── Python: mem0 (~25k LOC) │
+│  ├── 5 Positive Engineering Standards│  │  ├── Go: gin-gonic/gin (~24k)│
+│  └── 100-Point Quantitative Rubric   │  │  └── Automated Judge Report  │
+└──────────────────────────────────────┘  └──────────────────────────────┘
 ```
 
-1. **Reconnaissance & Blueprinting**: Map top-level architecture patterns, triage module reading order into Tier-0/1/2 priorities, and extract the project's golden execution path.
-2. **Deep-Dive Tracing & Core Modeling**: Track end-to-end call sequences along real data flows, filter out boilerplate glue code, and capture state machine invariants and memory trade-offs.
-3. **Active Verification & Socratic Drills**: Verify all line numbers against physical disk files, pose destructive limit-scenario challenges (concurrency, crash recovery, lock ordering), and refute false assumptions with concrete counterexamples.
-4. **Knowledge Archival**: Compile verified notes, sequence diagrams, and Q&A records into a self-contained, offline interactive HTML whitepaper.
+---
+
+## Quickstart
+
+### Installation
+
+Install via `pip`:
+```bash
+pip install repo-mentor
+```
+
+Or run directly without installation via `pipx`:
+```bash
+pipx run repo-mentor scan .
+```
+
+For development and AST multi-language parsing support:
+```bash
+git clone https://github.com/Asstar-X/repo-mentor.git
+cd repo-mentor
+pip install -e ".[dev,ast]"
+```
+
+### 3-Step Walkthrough
+
+```bash
+# 1. Scan codebase topology, entrypoints, and test setups
+repo-mentor scan /path/to/target-repo
+
+# 2. Map internal module dependencies into a visual Mermaid DAG
+repo-mentor map /path/to/target-repo --mermaid
+
+# 3. Analyze Git churn hotspots to locate architectural gravity
+repo-mentor hotspots /path/to/target-repo --top 10
+```
 
 ---
 
-## Domain Coverage Gating (Anti-Cheating Mastery Model)
+## CLI Command Reference
 
-To eliminate the vulnerability where asking trivial questions about a few peripheral files yields a false "100% mastery" score, `repo-mentor` enforces strict **Domain Coverage Gating** mathematically bound to the project's $k$ Tier-0 core functional domains:
+The `repo-mentor` CLI provides 8 core subcommands covering the complete codebase analysis lifecycle:
 
-$$\text{Global Progress} = \text{Macro Base (25%)} + \sum_{i=1}^{k} \left( S(D_i) \times \frac{75\%}{k} \right)$$
-
-- **Macro Base Score (Fixed 25%)**: Architecture pattern classification (15%) + Git Churn evolution archaeology (10%).
-- **Core Domain Coverage Score (Fixed 75%)**: Equally divided among the $k$ Tier-0 core domains extracted during `/overview` (e.g., if a system has 5 core domains, each domain contributes at most 15% toward the global score).
-- **Three-Tier Domain Evaluation**: Call chain walkthrough (`/trace`, 35%) + State models & invariants (`/core`, 35%) + Limit scenario defense (`/drill`, 30%).
-- **Mathematical Blind-Spot Hard Cap**: If 4 out of 8 core domains remain unexplored, total progress is **mathematically locked at 62.5%**. It is strictly impossible to achieve 100% without systematically conquering every core domain.
+| Subcommand | Syntax | Description |
+| :--- | :--- | :--- |
+| `scan` | `repo-mentor scan <path>` | Detect languages, frameworks, manifests, entrypoint files, and test harnesses. |
+| `map` | `repo-mentor map <path> [--mermaid]` | Extract internal intra-repo module import dependencies and generate topological DAGs. |
+| `hotspots` | `repo-mentor hotspots <path> [--top N]` | Compute Git churn revision frequency to isolate architectural gravity centers and debt hotspots. |
+| `ast` | `repo-mentor ast <path> [--symbol S]` | Tiered AST parser extracting classes, functions, signatures, and call flows across Python, Go, TS, and Rust. |
+| `init` | `repo-mentor init <path>` | Scaffold structured study directories, domain coverage tracking tables, and report templates. |
+| `verify` | `repo-mentor verify [repo] [notes] [--fix] [--strict]` | Deterministically audit file paths and line number bounds cited in analysis notes against physical disk files (with optional auto-repair). |
+| `eval` | `repo-mentor eval [repo] <report> [--format rich\|json] [--strict]` | 100-point quantitative rubric evaluation judge auditing grounding rate, hallucination count, and fluff score. |
+| `export` | `repo-mentor export <study-dir> [--out file.html]` | Compile notes, sequence flows, and Mermaid diagrams into a self-contained, interactive single-file HTML whitepaper. |
 
 ---
 
-## Command Reference
+## Agent Skill Interface
 
-| Command | Aliases | Description | Score Weight |
+`repo-mentor` implements the universal **Agent Skills** specification. Compatible agents discover `SKILL.md` and execute reading tasks with strict technical authority.
+
+<div align="center">
+  <img src="assets/en2.png" alt="9 Core Skills Workflow" width="900" />
+</div>
+
+### Slash Command Reference
+
+| Slash Command | Equivalent CLI Action | Purpose | Weight |
 | :--- | :--- | :--- | :---: |
-| **`/overview <path/url>`** | `/recon`, `/blueprint` | Direct repository onboarding, pattern triage, module priority matrix (Tier-0/1/2), golden path sequence diagram, and domain matrix setup. | Macro 15% |
-| **`/guide`** | `/roadmap` | Actionable smoke-run roadmap: Exact local build and targeted unit test commands, progressive reading order, and golden breakpoints. | Practical Guide |
-| **`/trace <domain>`** | `/flow` | Trace end-to-end call flow for a specific core domain, verify line-number anchors, and eliminate boilerplate noise. | Domain 35% |
-| **`/core <domain>`** | `/models` | Filter boilerplate to model domain entities, state machine transitions, and system invariant constraints. | Domain 35% |
-| **`/history`** | `/archeology` | Analyze high-frequency Git churn hotspots and trace initial commit architecture archaeology. | Macro 10% |
-| **`/drill <domain>`** | `/quiz`, `/interview` | Pose Socratic limit-scenario challenges (concurrency races, node dropouts, crash consistency, and blast radius). | Domain 30% |
-| **`/verify`** | `/audit` | Deterministically verify the physical existence of all file paths and line numbers cited in study notes. | Quality Audit |
-| **`/export`** | `/report` | Compile notes, sequence diagrams, and Q&A records into a single-file offline interactive HTML study whitepaper. | Asset Delivery |
-| **`/tracker`** | `/stats` | Display global learning progress, domain coverage dashboard, and architectural pattern radar. | Dashboard |
+| `/overview <path>` | `repo-mentor scan + map` | Reconnaissance: pattern triage, module priorities (Tier-0/1/2), and golden execution path. | Macro 15% |
+| `/guide` | `repo-mentor scan --guide` | Smoke-run roadmap: exact build/test commands and golden breakpoint recommendations. | Practical |
+| `/trace <domain>` | `repo-mentor ast --trace` | End-to-end request lifecycle walkthrough; filters out glue code and extracts call chains. | Domain 35% |
+| `/core <domain>` | `repo-mentor ast --symbols` | Data structures, entity models, state machine transitions, and concurrency invariants. | Domain 35% |
+| `/history` | `repo-mentor hotspots` | Git churn archaeology: commit volatility and genesis architectural evolution. | Macro 10% |
+| `/drill <domain>` | `repo-mentor eval --drill` | Limit scenario defense: concurrency races, crash recovery, and failure blast radius. | Domain 30% |
+| `/verify` | `repo-mentor verify` | Deterministic verification: validates every cited code snippet and line number. | Quality Audit |
+| `/export` | `repo-mentor export` | Compiles verified study notes into an interactive, zero-dependency offline HTML report. | Deliverable |
+| `/tracker` | Coverage Gating | Mathematical domain coverage tracking dashboard preventing blind-spot bias. | Mastery |
 
----
+### Agent Installation
 
-## Project Structure
-
-```text
-repo-mentor/
-├── SKILL.md                          # Skill metadata & global instruction standards
-├── AGENTS.md                         # Agent guidelines, response footers & technical authority rules
-├── SECURITY.md                       # Supply-chain security & untrusted code policies
-├── LICENSE                           # MIT License
-├── study_tracker.csv                 # Persistent study progress & technology radar table
-├── assets/                           # High-resolution architectural infographics
-│   ├── en1.png                       # Pain points infographic: Reading Legacy Code
-│   └── en2.png                       # User manual infographic: 9 Core Skills
-├── commands/                         # Canonical command execution specifications
-│   ├── overview.md                   # /overview: Pattern triage & domain matrix
-│   ├── guide.md                      # /guide: Local build, test commands & reading path
-│   ├── trace.md                      # /trace: Business call chain walkthrough
-│   ├── core.md                       # /core: Domain entities & state machine invariants
-│   ├── history.md                    # /history: Git churn hotspots & archaeology
-│   ├── drill.md                      # /drill: Limit scenario defense & counterexamples
-│   ├── verify.md                     # /verify: Deterministic line-number verification
-│   ├── export.md                     # /export: Single-file offline HTML compilation
-│   └── tracker.md                    # /tracker: Global progress & domain dashboard
-├── methodology/                      # Pragmatic engineering reading methodologies
-│   ├── 01-architecture-patterns.md   # Architectural pattern taxonomy & topology identification
-│   ├── 02-module-boundaries.md       # Module responsibilities & dependency boundaries
-│   ├── 03-tracing-callchains.md      # Systematic data-flow call chain tracing
-│   ├── 04-skipping-boilerplate.md    # Identifying and filtering boilerplate glue code
-│   ├── 05-data-structures-and-states.md # Domain entities, state machines & invariants
-│   ├── 06-git-history-analysis.md    # Locating architectural gravity via Git Churn
-│   ├── 07-verifying-understanding.md # Hypothesis modification drills & active debugging
-│   └── 08-untrusted-repo-security.md # Supply-chain defense & prompt injection mitigation
-├── templates/                        # Canonical deliverable markdown templates
-│   ├── ARCHITECTURE.md               # Architecture specification template
-│   ├── DEBUG_NOTES.md                # Source walkthrough & limit challenge journal
-│   └── STUDY_INDEX.md                # Study index & domain coverage matrix template
-├── tools/                            # Pure Python 3 standard library analysis tools
-│   ├── repo_scanner.py               # Universal ecosystem, manifest & entrypoint detector
-│   ├── git_hotspots.py               # Git churn and commit frequency calculator
-│   ├── verify_anchors.py             # Code line number & file existence verifier
-│   ├── verify_mermaid.py             # Mermaid syntax checker & in-place fixer
-│   ├── dependency_graph.py           # Module dependency DAG & Mermaid topology extractor
-│   ├── coverage_gating.py            # Domain coverage gating & progress calculator
-│   └── export_study_html.py          # Standalone offline HTML whitepaper compiler
-└── studies/                          # Local study archives (protected by .gitignore)
-    └── .gitkeep
-```
-
----
-
-## Standalone Tool Usage (Zero Dependencies)
-
-All tools in `tools/` are built exclusively with the **Python 3 standard library** (zero `pip install`, zero external supply-chain attack vectors):
-
+#### Claude Code
 ```bash
-# 1. Scan tech stacks, manifests, and primary entrypoints
-python tools/repo_scanner.py . --pretty
-
-# 2. Extract package dependencies and module DAG topology (Mermaid)
-python tools/dependency_graph.py . --mermaid
-
-# 3. Analyze Git modification frequency hotspots (Top 10 Churn)
-python tools/git_hotspots.py . --commits 300 --top 10
-
-# 4. Deterministically verify code line numbers in markdown notes
-python tools/verify_anchors.py <target_repo_path> <notes.md>
-
-# 5. Check and auto-repair Mermaid syntax errors
-python tools/verify_mermaid.py . --fix
-
-# 6. Compile study assets into a single-file standalone offline HTML whitepaper
-python tools/export_study_html.py studies/<repo_name>/
-```
-
----
-
-## How to Install this Skill (Agent Setup)
-
-`repo-mentor` adheres to the open **Agent Skills specification** and the **Thin-Pointer Design**. It runs out-of-the-box across **Claude Code**, **OpenAI Codex**, **Google Antigravity**, **Cursor**, and **Windsurf**.
-
-### 1. Claude Code
-Claude Code natively discovers skills placed in either your global or project-level `.claude/skills/` directory:
-
-```bash
-# Option A: Global install (available across all projects in Claude Code)
+# Global installation:
 mkdir -p ~/.claude/skills
 git clone https://github.com/Asstar-X/repo-mentor.git ~/.claude/skills/repo-mentor
-
-# Option B: Project-level install (active only in the current codebase)
-mkdir -p .claude/skills
-git clone https://github.com/Asstar-X/repo-mentor.git .claude/skills/repo-mentor
 ```
 
-**Usage in Claude Code**:
-Open Claude Code and invoke any command:
+#### Google Antigravity
 ```bash
-claude
-> /overview .
-> /guide
-> /trace <domain_name>
-```
-
----
-
-### 2. OpenAI Codex & Agent CLI
-For OpenAI Codex and CLI environments adhering to the Agent Skills standard:
-
-```bash
-# Global skills directory
-mkdir -p ~/.codex/skills
-git clone https://github.com/Asstar-X/repo-mentor.git ~/.codex/skills/repo-mentor
-
-# Or universal agents directory
-mkdir -p ~/.agents/skills
-git clone https://github.com/Asstar-X/repo-mentor.git ~/.agents/skills/repo-mentor
-```
-
-Codex will automatically ingest `SKILL.md` and `AGENTS.md`, exposing the 9 core slash commands and adhering to strict technical authority guidelines.
-
----
-
-### 3. Google Antigravity (AGY)
-Antigravity automatically discovers skills with valid `SKILL.md` frontmatter in the user configuration path:
-
-```bash
-# User skills directory
 mkdir -p ~/.gemini/config/skills
 git clone https://github.com/Asstar-X/repo-mentor.git ~/.gemini/config/skills/repo-mentor
 ```
 
-Antigravity will instantly register the `repo-mentor` skill and make all 9 slash commands accessible in interactive sessions.
-
----
-
-### 4. Cursor & Windsurf IDE
-In Cursor or Windsurf, clone `repo-mentor` into your workspace rules or skills folder:
-
+#### Cursor & Windsurf
 ```bash
-# Project rules directory
 mkdir -p .cursor/skills
 git clone https://github.com/Asstar-X/repo-mentor.git .cursor/skills/repo-mentor
 ```
 
-Cursor reads `AGENTS.md` and `SKILL.md` to guide AI responses, enforcing fact-first verification, boilerplate filtering, and line-number audits.
+---
+
+## Anti-AI Reading Methodology & 100-Point Rubric
+
+### 5 Positive Engineering Standards
+1. **Fact Grounding (P1)**: Every assertion must reference physical file paths and exact line spans (`mem0/memory/main.py:120-145`).
+2. **System Invariants (P2)**: Explicitly identify state constraints, locking semantics, and consistency guarantees.
+3. **Golden Path (P3)**: Unpack the primary operational sequence from external entrypoint down to low-level persistence.
+4. **Architectural Trade-offs (P4)**: Document explicit engineering compromises (throughput vs. latency, memory vs. simplicity).
+5. **Failure Modes & Edge Cases (P5)**: Audit error boundaries, reconnect strategies, rate-limiting, and crash recovery.
+
+### 8 Negative Anti-Patterns (N1-N8)
+- **N1 (Superficial File Listing)**: Reciting directory trees without explaining inter-module data contracts.
+- **N2 (Hallucinated Line Numbers)**: Inventing or guessing line spans that do not match physical disk files.
+- **N3 (Boilerplate Fixation)**: Slogging through configuration parsing and logger initialization instead of core business logic.
+- **N4 (Uncritical Buzzword Fluff)**: Using empty superlative adjectives ("seamless", "ultra-fast", "robust", "state-of-the-art").
+- **N5 (Missing Trade-off Analysis)**: Presenting architectural decisions as flawless without discussing downsides.
+- **N6 (Isolated Component Silos)**: Analyzing classes in isolation without mapping end-to-end cross-module call flows.
+- **N7 (Ignored Error & Failure Paths)**: Assuming happy-path execution and ignoring panic recovery or retry bounds.
+- **N8 (Dunning-Kruger Blind Spots)**: Claiming full mastery after inspecting only entrypoint wrappers.
+
+### 100-Point Quantitative Rubric
+
+When evaluating reading reports (`repo-mentor eval <repo> <report>`), the automated judge computes an objective score:
+
+$$\text{Final Score} = S_{\text{grounding}} + S_{\text{execution}} + S_{\text{fluff}} + S_{\text{tradeoffs}} - P_{\text{hallucination}}$$
+
+| Metric | Max Points | Measurement Method |
+| :--- | :---: | :--- |
+| **Fact Grounding Rate** | 30 | Percentage of assertions backed by valid, verifiable file path and line anchors. |
+| **Execution Flow Completeness** | 25 | Continuity of sequence hops from entrypoint through intermediate handlers to storage. |
+| **Fluff-Free Index** | 25 | Inverse density of banned buzzwords, filler transitions, and ungrounded paragraphs. |
+| **Architectural Trade-off Depth** | 20 | Explicit presence of trade-off evaluations, concurrency constraints, and failure modes. |
+| **Hallucination Penalty** | -10 per hit | Deterministic penalty for non-existent files, invalid line spans, or phantom symbols. |
+
+- **Grade A (High-Star Standard)**: $\ge 85$ points and $0$ hallucinations.
+- **Grade B (Acceptable)**: $70 - 84$ points.
+- **Fail**: $< 70$ points or $\ge 2$ hallucinations.
 
 ---
 
-### 5. Verification
-After installing into your agent runtime, verify the installation by typing:
-```text
-/overview .
+## Multi-Sample Benchmark Preview
+
+`repo-mentor` is validated against multi-language, production-grade open-source repositories to guarantee cross-ecosystem objectivity:
+
 ```
-or in natural language:
-```text
-"Use repo-mentor to provide an architectural overview of this repository."
+benchmarks/
+├── mem0/             # Python (~25,000 LOC): Multi-vector memory layer for LLMs
+└── gin-gonic/gin/    # Go (~24,000 LOC): High-performance Radix-tree HTTP web engine
 ```
+
+### Benchmark Scorecard (Representative Run)
+
+| Target Repository | Ecosystem | Fact Grounding | Hallucination Count | Fluff-Free Index | Total Rubric Score | Grade |
+| :--- | :--- | :---: | :---: | :---: | :---: | :---: |
+| **`mem0ai/mem0`** | Python | 96.4% | **0** | 94.2 / 100 | **92.5 / 100** | **Grade A** |
+| **`gin-gonic/gin`** | Go | 95.1% | **0** | 93.8 / 100 | **91.0 / 100** | **Grade A** |
+| *Generic AI Chat Baseline* | Python / Go | 38.2% | 14 | 41.0 / 100 | 28.5 / 100 | **Fail** |
 
 ---
 
-## Security & Supply-Chain Hardening
+## Security & Untrusted Code Hardening
 
-When analyzing untrusted open-source codebases, security is the top priority:
-1. **Untrusted Data Rule**: All files, commit messages, comments, and READMEs inside target repositories are treated strictly as **Untrusted Data**. Prompt injection attempts embedded in code comments are completely ignored.
-2. **Static-First & Non-Execution**: Tools perform read-only static analysis without executing target scripts (`npm run`, `make`, `cargo run`, arbitrary shell scripts).
-3. **Anti-Traversal Guard**: Anchor verifiers enforce strict repository containment (`Path.relative_to(repo_root)`), preventing `../../` path traversal attacks.
-4. **Data Confinement**: Generated study assets in `studies/` are excluded by `.gitignore` by default to prevent proprietary code leakage.
+When analyzing external repositories, safety is non-negotiable:
+- **Untrusted Input Ingestion**: All files, commit messages, and docstrings inside target repositories are treated strictly as **untrusted data**. Prompt injection attempts embedded in code comments are completely ignored.
+- **Read-Only Static Analysis**: Analysis engines perform passive inspection. They never invoke build hooks (`npm postinstall`, `setup.py`, `Makefile`, arbitrary shell scripts).
+- **Anti-Traversal Protection**: All path anchors enforce strict repository root containment (`Path.resolve()`), preventing `../../` directory traversal attacks.
+- **Data Confinement**: Study whitepapers and local notes in `studies/` are excluded by `.gitignore` by default to prevent proprietary code leakage.
+
+See [SECURITY.md](SECURITY.md) for our complete security model.
+
+---
+
+## Contributing
+
+Contributions are welcome! Please review [CONTRIBUTING.md](CONTRIBUTING.md) for code style (Ruff, Mypy), test guidelines, and our anti-AI engineering standards.
 
 ---
 

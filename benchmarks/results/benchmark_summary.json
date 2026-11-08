@@ -1,0 +1,83 @@
+{
+  "timestamp": "2026-11-08T04:20:00Z",
+  "benchmark_suite_version": "1.0",
+  "all_passed": true,
+  "results": [
+    {
+      "name": "mem0",
+      "language": "Python",
+      "pattern": "Microkernel + Ingestion Pipeline",
+      "repo_path": "/Users/xing/AI/Project/Memory/mem0",
+      "study_path": "/Users/xing/Coding/Skills项目/repo-mentor/studies/mem0/ARCHITECTURE.md",
+      "loc_estimate": "~25,000 LOC",
+      "total_files": 1206,
+      "primary_ecosystem": "Python",
+      "entrypoints": [],
+      "internal_packages": 22,
+      "internal_edges": 41,
+      "evaluation": {
+        "repo_name": "mem0",
+        "target_file": "/Users/xing/Coding/Skills项目/repo-mentor/studies/mem0/ARCHITECTURE.md",
+        "grounding_rate": 100.0,
+        "hallucination_rate": 0.0,
+        "execution_completeness": 100.0,
+        "fluff_free_index": 100.0,
+        "total_score": 100.0,
+        "passed": true,
+        "grade": "Grade A (High-Star)",
+        "dimension_scores": {
+          "D1_Fact_Grounding": 35.0,
+          "D2_Architecture_Tradeoffs": 25.0,
+          "D3_Execution_Flow": 20.0,
+          "D4_Anti_AI_Fluff": 15.0,
+          "D5_Mermaid_Integrity": 5.0
+        },
+        "violations": []
+      },
+      "duration_seconds": 1.11,
+      "status": "PASSED"
+    },
+    {
+      "name": "gin-gonic/gin",
+      "language": "Go",
+      "pattern": "Radix Tree Router + Zero-Alloc Pipeline",
+      "repo_path": "/tmp/benchmark-repos/gin",
+      "study_path": "/Users/xing/Coding/Skills项目/repo-mentor/benchmarks/studies/gin/ARCHITECTURE.md",
+      "loc_estimate": "~24,500 LOC (~78k stars)",
+      "total_files": 130,
+      "primary_ecosystem": "Go",
+      "entrypoints": [
+        {
+          "ecosystem": "Go",
+          "path": "gin.go",
+          "name": "gin.go",
+          "type": "library_entrypoint",
+          "reason": "Matches go.mod module name 'gin'"
+        }
+      ],
+      "internal_packages": 1,
+      "internal_edges": 10,
+      "evaluation": {
+        "repo_name": "gin",
+        "target_file": "/Users/xing/Coding/Skills项目/repo-mentor/benchmarks/studies/gin/ARCHITECTURE.md",
+        "grounding_rate": 100.0,
+        "hallucination_rate": 0.0,
+        "execution_completeness": 100.0,
+        "fluff_free_index": 100.0,
+        "total_score": 100.0,
+        "passed": true,
+        "grade": "Grade A (High-Star)",
+        "dimension_scores": {
+          "D1_Fact_Grounding": 35.0,
+          "D2_Architecture_Tradeoffs": 25.0,
+          "D3_Execution_Flow": 20.0,
+          "D4_Anti_AI_Fluff": 15.0,
+          "D5_Mermaid_Integrity": 5.0
+        },
+        "violations": []
+      },
+      "duration_seconds": 0.05,
+      "status": "PASSED"
+    }
+  ]
+}

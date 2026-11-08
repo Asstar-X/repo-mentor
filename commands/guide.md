@@ -1,16 +1,16 @@
 # /guide (Alias: /roadmap) — Hands-On Guide & Reading Path
 
-Generates an actionable, copy-pasteable local study roadmap for the target codebase: **local build & smoke unit test commands**, **progressive reading order**, **golden breakpoints**, and a **first hands-on hack experiment**.
+Generates an actionable, copy-pasteable local study roadmap for the target codebase: **local build & targeted smoke unit test commands**, **progressive reading order**, **golden breakpoints**, and a **first hands-on hack experiment**.
 
 ---
 
 ## Operational Steps
 
 ### 1. Extract Ground Truth
-From the repository root, run:
+From the repository root, run deterministic tools:
 ```bash
-python tools/repo_scanner.py <target_path>
-python tools/git_hotspots.py <target_path>
+repo-mentor scan <target_path> --entrypoints || python tools/repo_scanner.py <target_path>
+repo-mentor hotspots <target_path> --top 10 || python tools/git_hotspots.py <target_path>
 ```
 Identify test directories, build systems, entrypoints, and modification hotspots.
 
@@ -19,28 +19,30 @@ Identify test directories, build systems, entrypoints, and modification hotspots
 ### 2. Generate Hands-On Study Guide
 
 #### I. Minimal Runnable Verification (Smoke Run Commands)
-Based on detected ecosystem and project manifests, provide exact commands that require no guesswork:
+Based on detected ecosystem and project manifests, provide exact commands that require zero guesswork:
 - **Build / Compilation Command**:
   ```bash
   # Project-specific build command (e.g. go build -o bin/server ./cmd/server)
   ```
-- **Core Unit Test Command**:
+- **Targeted Smoke Unit Test Command**:
   - Select 1–2 representative tests from Tier-0 domains with filter flags, avoiding long-running full test suites.
   ```bash
-  # Project-specific targeted test command (e.g. cargo test core::engine -- --nocapture)
+  # Project-specific targeted test command (e.g. pytest tests/core/test_engine.py -k "test_dispatch" -vv)
   ```
 
 #### II. Progressive Reading Order (With Verified Code Anchors)
-Provide a 4–5 step sequence specifying exactly what to focus on and what boilerplate to skip:
-1. **Stop 1: Ingress & Entrypoint** `[path/entry.go#L30-L60]` — Trace how external inputs are converted into internal Context;
-2. **Stop 2: Core Dispatcher** `[path/scheduler.go#L80-L120]` — Observe the main loop and task dispatch logic;
-3. **Stop 3: State & Entity Definitions** `[path/state.go#L15-L50]` — Inspect core data structures and state enums;
-4. **Stop 4: High-Churn Core Logic** `[path/hotspot.go#L100-L150]` — Study the business logic most frequently modified in recent commits.
+Provide a 4-step sequence specifying exactly what to focus on and what boilerplate to skip (enforce `methodology/04-skipping-boilerplate.md`):
+1. **Stop 1: Ingress & Entrypoint** `[path/entry.ext#L30-L60]` — Trace how external inputs are unmarshalled into domain Context; skip flag descriptions.
+2. **Stop 2: Core Dispatcher** `[path/scheduler.ext#L80-L120]` — Observe the main scheduling loop, worker pool, and task routing.
+3. **Stop 3: Keystone State & Entity Definitions** `[path/state.ext#L15-L50]` — Inspect core data structures, memory ownership, and state enums.
+4. **Stop 4: High-Churn Core Invariant** `[path/hotspot.ext#L100-L150]` — Study the business logic most frequently modified in recent commits.
 
 #### III. Recommended Golden Breakpoints
-Identify the two most information-dense breakpoint locations:
-- **Breakpoint 1 (Dispatch Pivot)**: Set at `[path/file.go#Lxx]` to step into task decomposition and dispatch stacks;
-- **Breakpoint 2 (Defensive Guard)**: Set at `[path/file.go#Lyy]` to inspect rejection of invalid inputs or illegal state transitions.
+Identify four high-value breakpoint locations across the execution lifecycle:
+- **Breakpoint 1 (Ingress Pivot)**: Set at `[path/entry.ext#Lxx]` to inspect raw request unmarshalling and auth context.
+- **Breakpoint 2 (Dispatch Pivot)**: Set at `[path/scheduler.ext#Lyy]` to step into queue routing, lease allocation, and timeout propagation.
+- **Breakpoint 3 (Guard Pivot)**: Set at `[path/engine.ext#Lzz]` to inspect state machine invariants and mutex acquisitions.
+- **Breakpoint 4 (Durability Pivot)**: Set at `[path/wal.ext#Lww]` to step into disk fsync or network commit acknowledgements.
 
 #### IV. First Hands-On Experiment (First Hack)
 Suggest a low-risk, easily verifiable hands-on task:

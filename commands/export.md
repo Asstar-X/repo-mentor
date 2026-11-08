@@ -6,11 +6,21 @@ Compiles accumulated study assets in `studies/<repo_name>/` (system positioning,
 
 ## Operational Steps
 
-### 1. Run Compilation Tool
+### 1. Pre-Export Quality Gate Audit
+Before exporting, confirm that all study assets satisfy the High-Star quality gates:
 ```bash
-python tools/export_study_html.py studies/<repo_name>/
+repo-mentor verify <target_path> studies/<repo_name>/ARCHITECTURE.md
+repo-mentor eval studies/<repo_name>/ --check-fluff
 ```
-The tool automatically synthesizes and semantically structures:
+Ensure zero broken code anchors and zero banned buzzwords.
+
+---
+
+### 2. Run Compilation Tool
+```bash
+repo-mentor export studies/<repo_name>/ || python tools/export_study_html.py studies/<repo_name>/
+```
+The export engine automatically synthesizes and semantically structures:
 - `studies/<repo_name>/README.md`
 - `studies/<repo_name>/ARCHITECTURE.md`
 - `studies/<repo_name>/DEBUG_NOTES.md`
@@ -22,24 +32,24 @@ The tool automatically synthesizes and semantically structures:
 
 - **Output File**: `studies/<repo_name>/dist/index.html`.
 - **Three Progressive Engineering Sections**:
-  - **I. System Positioning & Architecture**:
-    - 1.1 Development Background & Problems Solved;
-    - 1.2 Core Business Flow & Architecture Diagram (Mermaid proportional zoom);
-    - 1.3 Core Directory Structure & Module Division;
-    - 1.4 Module Reading Priority Order (Tier-0 Must Read / Tier-1 On-Demand / Tier-2 Skip);
-    - 1.5 Study Mastery & Uncovered Domain Backlog.
-  - **II. Core Code Walkthrough & Q&A Records**:
-    - Direct Q&A cards (N records, lossless compilation), indexed in the left sidebar from Q01 to QN, presenting upfront technical conclusions, verified code anchors `[path#Lxx-Lyy]`, and objective confidence levels.
-  - **III. Limit Scenarios & Architectural Defense**:
-    - 3.1 Challenge Guide;
-    - 3.2 Crash Recovery & Data Consistency;
-    - 3.3 High Concurrency & Lock Contention;
-    - 3.4 Extensibility & Blast Radius;
-    - 3.5 Performance Bottlenecks & Design Trade-offs;
-    - Testing deep structural comprehension with destructive failure scenarios, architectural focus, source-backed answers, and counterexamples.
-- **Two-Column Layout**: Left sticky sidebar navigation synchronizes seamlessly with right content via Scrollspy.
-- **Paper Monochrome Aesthetic**: Minimalist, compact, high-density black-and-white engineering layout with full print and PDF export support (`@media print`).
-- **Mermaid Proportional Zoom Engine**: Uncompressed diagram viewer with `[ Zoom In + ]`, `[ Zoom Out - ]`, `[ 150% HD ]`, and `[ 100% Reset ]` controls, supporting smooth horizontal scrolling.
+  - **I. System Positioning & Macro Architecture**:
+    - 1.1 Core Engineering Problem & Value Proposition;
+    - 1.2 Macro Architecture Topology (Mermaid with protocol/process boundaries);
+    - 1.3 3-Tier Module Priority Triage Matrix (Tier-0 / Tier-1 / Tier-2);
+    - 1.4 Golden Path Sequence Diagram with verified code anchors;
+    - 1.5 Study Mastery & Blind-Spot Coverage Matrix.
+  - **II. Core Code Walkthrough & State Machine Invariants**:
+    - Keystone entity mental models, lifecycle state machines, forbidden transition guards, and system invariant code anchors;
+    - Direct Q&A walkthrough cards with verified line bounds `[path#Lstart-Lend]` and 3-tier confidence labeling (`[Verified Fact]`, `[Engineering Inference]`, `[Unverified Hypothesis]`).
+  - **III. Limit Scenarios, Trade-offs & Technical Debt**:
+    - 3.1 Architectural Design Trade-offs (what was sacrificed and why);
+    - 3.2 Objective Technical Debt Audit (God Objects, lock contention, missing backpressure);
+    - 3.3 Crash Recovery & Persistence Boundaries;
+    - 3.4 Concurrency Contention & TOCTOU Race Counterexamples;
+    - 3.5 Extensibility & Blast Radius.
+- **Two-Column Responsive Layout**: Left sticky sidebar navigation synchronizes seamlessly with right content via Scrollspy.
+- **Paper Monochrome Aesthetic**: Minimalist, compact, high-density black-and-white engineering layout with print and PDF export support (`@media print`).
+- **Mermaid Proportional Zoom Engine**: Interactive diagram viewer with `[ Zoom In + ]`, `[ Zoom Out - ]`, `[ 150% HD ]`, and `[ 100% Reset ]` controls, supporting smooth horizontal scrolling.
 
 ---
 

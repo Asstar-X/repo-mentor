@@ -1,6 +1,6 @@
 # /core (Alias: /models) — Core Entities, State Machines & Invariants
 
-Focuses on a designated core functional domain (e.g. `/core pkg/storage` or `/core scheduler_entities`), filtering boilerplate glue code to model critical data entities, state machine transitions, and system invariants.
+Focuses on a designated core functional domain (e.g. `/core pkg/storage` or `/core scheduler_entities`), filtering boilerplate glue code to model critical domain ontologies, lifecycle state machines, forbidden transition guards, and system invariants.
 
 ---
 
@@ -8,40 +8,46 @@ Focuses on a designated core functional domain (e.g. `/core pkg/storage` or `/co
 
 ### 1. Map to Target Functional Domain
 - Confirm which domain $D_i$ in the Core Functional Domain Matrix this command corresponds to.
-- If the domain's state model is already analyzed, notify the user that its score is saturated (35%) and recommend limit drills or switching to an unexplored blind spot.
+- If the domain's state model is already analyzed, notify the user that its score is saturated (35%) and recommend limit drills (`/drill`) or switching to an unexplored blind spot.
 
 ### 2. Filter Boilerplate Noise
-Adhere to `methodology/04-skipping-boilerplate.md`:
+Adhere strictly to `methodology/04-skipping-boilerplate.md` (prohibit N7 Boilerplate Domination):
 - Omit CLI argument flags and environment variable loading;
 - Omit repetitive error handling wrappers and tracing spans;
 - Omit boilerplate struct copying and DTO field mappings.
 
-### 3. Output Core Modeling Report
+### 3. Extract Symbols & Generate Core Modeling Report
+Invoke AST analysis tools:
+```bash
+repo-mentor ast <target_path> --symbols || grep -rn "type.*struct" <target_path>
+```
+
 Adhere to `methodology/05-data-structures-and-states.md`:
 
-#### I. Core Entity Definitions
-Display 2–3 key struct/class definitions carrying the primary business logic (with verified line-number links):
-- Explain the business purpose and modeling intent of each core field;
-- Note whether fields are immutable, guarded by mutexes, or subject to memory pool constraints.
+#### I. Keystone Entity Definitions
+Display 2–3 key struct/class definitions carrying primary domain rules (with verified line-number links):
+- Explain the business modeling intent of each core field;
+- Note memory representation (contiguous array, heap pointer, pooled buffer);
+- Note concurrency protection: guarded by mutex, atomic CAS, or immutable Value Object.
 
-#### II. State Machine Transitions
-If tasks or requests follow a lifecycle state machine, diagram with Mermaid:
-```mermaid
-stateDiagram-v2
-    [*] --> Initial
-    Initial --> Processing: Task Received
-    Processing --> Succeeded: Validated & Finished
-    Processing --> Failed: Error or Timeout
-    Succeeded --> [*]
-```
-> **Notice**: Never use C++ `::` scope operators in transition labels (use `.` instead, e.g. `AllocStatus.NEVER`) to prevent Mermaid parser errors. Code blocks must be flush with margin.
-Specify which state transitions are illegal and where the code defends against invalid transitions.
+#### II. State Machine Transitions & Forbidden Guards
+If tasks or requests follow a lifecycle state machine, diagram with Mermaid `stateDiagram-v2`:
+- Flush left margin ````mermaid`.
+- Never use C++ `::` scope operators in transition labels (use `.` instead, e.g. `AllocStatus.NEVER`).
+- **Forbidden Transitions**: Enumerate illegal transitions (e.g. `COMPLETED -> RUNNING`) and quote the physical code guard enforcing rejection:
+  ```go
+  // [pkg/engine/task.go#L112-L120]
+  if !allowedTransitions[t.state][nextState] {
+      return ErrIllegalStateTransition
+  }
+  ```
 
 #### III. System Invariants
-List 2–3 fundamental invariant rules that must never be violated, highlighting where locks, transactional commits, or assertions enforce them.
+List 2–3 fundamental invariant rules that must never break at runtime:
+- Point to the physical code anchor (lock acquisition order, atomic CAS loop, or transactional commit) enforcing each invariant.
 
-#### IV. Architectural Trade-offs
-Objectively analyze the engineering trade-offs chosen by the authors (e.g. resident memory vs. zero allocation, strict consistency vs. throughput).
+#### IV. Architectural Trade-offs & Technical Debt Audit
+Objectively analyze the engineering trade-offs chosen by the authors (e.g. resident memory vs. zero allocation, strict consistency vs. throughput), and flag technical debt without rationalizing flaws (prohibit N8).
 
 ---
 
