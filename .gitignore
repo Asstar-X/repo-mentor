@@ -12,6 +12,8 @@ htmlcov/
 studies/*
 !studies/.gitkeep
 .repo_sources/
+benchmarks/results/
+benchmarks/studies/
 
 # OS artifacts
 .DS_Store

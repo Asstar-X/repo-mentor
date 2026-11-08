@@ -1,2 +1,1 @@
 Repo_Name,Language,Pattern,Progress,Started_At,Last_Active,Status,Notes
-claude-mem,TypeScript,Event-Driven Microkernel / Out-of-Process Sidecar,20.2%,2026-11-08,2026-11-08,in_progress,Completed Domain 1 call chain trace (/trace hook-spool 35%); Macro base 15.0% + Domain 1 5.25% = 20.2%

@@ -384,24 +384,17 @@ class TestCLIEdgeCases:
 class TestDynamicHTMLExportIntegrity:
     """Verifies that HTML export is dynamic and completely free of hardcoded DeepInfer strings."""
 
-    def test_export_mem0_and_check_cleanliness(self):
-        study_path = Path("/Users/xing/Coding/Skills项目/repo-mentor/studies/mem0")
-        if not study_path.is_dir():
-            pytest.skip("mem0 study directory not found")
-
-        out_html = compile_study_html(study_path)
-        assert Path(out_html).is_file()
-        content = Path(out_html).read_text(encoding="utf-8").lower()
-
-        # Strictly assert zero canned strings
-        assert "deepinfer" not in content
-        assert "driver/worker adapter" not in content
-        assert "pre-allocated pools" not in content
-
-    def test_export_gin_and_check_cleanliness(self):
-        study_path = Path("/Users/xing/Coding/Skills项目/repo-mentor/benchmarks/studies/gin")
-        if not study_path.is_dir():
-            pytest.skip("gin study directory not found")
+    def test_export_cleanliness_synthetic(self, tmp_path: Path):
+        study_path = tmp_path / "sample_study"
+        study_path.mkdir(parents=True, exist_ok=True)
+        (study_path / "ARCHITECTURE.md").write_text(
+            "# Sample Engine Architecture\n\nModular actor engine implementation.\n",
+            encoding="utf-8",
+        )
+        (study_path / "DEBUG_NOTES.md").write_text(
+            "# Sample Debug Notes\n\nNotes on crash recovery drills.\n",
+            encoding="utf-8",
+        )
 
         out_html = compile_study_html(study_path)
         assert Path(out_html).is_file()
