@@ -23,8 +23,8 @@ from benchmarks.run_benchmark import (
 
 def test_benchmark_mem0_sample():
     mem0_target = next(t for t in BENCHMARK_TARGETS if t.name == "mem0")
-    if not mem0_target.repo_path.exists():
-        pytest.skip(f"mem0 repository not present at {mem0_target.repo_path}")
+    if not mem0_target.repo_path.exists() or not mem0_target.study_path.exists():
+        pytest.skip(f"mem0 repository or study assets not present")
 
     res = run_single_benchmark(mem0_target)
     assert res["status"] == "PASSED"
@@ -42,8 +42,8 @@ def test_benchmark_mem0_sample():
 
 def test_benchmark_gin_sample():
     gin_target = next(t for t in BENCHMARK_TARGETS if "gin" in t.name)
-    if not gin_target.repo_path.exists():
-        pytest.skip(f"gin repository not present at {gin_target.repo_path}")
+    if not gin_target.repo_path.exists() or not gin_target.study_path.exists():
+        pytest.skip(f"gin repository or study assets not present")
 
     res = run_single_benchmark(gin_target)
     assert res["status"] == "PASSED"
@@ -130,6 +130,9 @@ def test_benchmark_markdown_report_generation():
 
 
 def test_benchmark_main_end_to_end():
+    for t in BENCHMARK_TARGETS:
+        if not t.repo_path.exists() or not t.study_path.exists():
+            pytest.skip(f"Benchmark target {t.name} repo or study missing")
     exit_code = main()
     assert exit_code == 0
 

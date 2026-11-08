@@ -1,13 +1,48 @@
-# 01. Architectural Pattern Recognition & Macro Layering
+# 01. Architectural Pattern Recognition & Macro Layering (5-Level Cognitive Zooming)
 
 ## Objective
-Establish an engineering-grade methodology for identifying the macro architectural pattern of an unfamiliar codebase. Ground top-level comprehension in structural invariant evidence rather than superficial folder names, and eliminate artificial "AI-flavor" abstractions.
+Establish an engineering-grade methodology for identifying the macro architectural pattern of an unfamiliar codebase through the **5-Level Cognitive Zooming** framework (Why ➔ Strategy ➔ Example ➔ Deep-Dive ➔ Takeaway). 
+
+Ground top-level comprehension first in **problem space, real-world pain, and fundamental tension**, then map into **character roles and invariants**, completely eliminating premature line-number dumps and artificial "AI-flavor" abstractions.
 
 ---
 
-## 1. Architectural Topologies & Structural Signatures
+## 1. Cognitive Rule Zero: Never Dump Lines Before Problem Space
+A fatal failure mode in AI-generated architecture reports is jumping straight to micro-level file lines and call stacks before explaining **why the project exists**.
 
-Software architectures converge on a small set of foundational topologies driven by their primary engineering constraints:
+### The 2 Immutable Cognitive Constraints for Level 1 & 2:
+1. **Forbidden in Level 1 (Why)**: No internal source filenames, no function names, and no line numbers. Explain the real-world pain, the core mission, and the first-principles engineering tension in pure, uncompromising human language.
+2. **Forbidden in Level 2 (Strategy)**: No microscopic implementation lines or system call details. Focus strictly on:
+   - **The Real-World Metaphor** (e.g. "a stenographer in the terminal + a background executive secretary + a local vault");
+   - **The Cast of Characters** (3~5 core role definitions mapped to top-level directories);
+   - **The Coarse-Grained Flowchart**.
+
+---
+
+## 2. Defining Problem Space & First-Principles Tension (Level 1)
+
+Every software project is born out of a specific engineering agony. To understand its architecture, identify:
+
+### 2.1 The Real-World Agony (What pain forced this code into existence?)
+- What repetitive, error-prone, or computationally prohibitive obstacle did developers face without this tool?
+- What is its **Black-Box Contract**?
+  - Ingress: What raw input enters the boundary?
+  - Egress: What final output is delivered?
+  - Invariant Side-Effect: What state mutation does it leave behind?
+
+### 2.2 The First-Principles Tension (The Engineering Dilemma)
+Architectural complexity is not accidental; it is forced by conflicting constraints. Every codebase attempts to balance a core tension:
+- `Extreme Low Latency` **vs** `Durable Crash Resilience`
+- `Ephemeral Stateless Client` **vs** `Long-Term Semantic Memory`
+- `Zero External Dependencies` **vs** `Rich Multi-Format Capability`
+
+> **Rule**: When analyzing an architecture, ask: *"What disaster happens if we implement this with a naive 30-line script?"* The answer to that question reveals the true load-bearing pillars of the architecture.
+
+---
+
+## 3. The Cast of Characters & Macro Topologies (Level 2)
+
+### 3.1 Foundational Architectural Topologies
 
 | Architectural Topology | Primary Constraint Solved | Codebase Signatures (Files & Symbols) | Runtime Control & Data Flow |
 | :--- | :--- | :--- | :--- |
@@ -18,37 +53,15 @@ Software architectures converge on a small set of foundational topologies driven
 | **Clean / Layered DDD** | Isolation of core domain from transport/DB | Pure entities without I/O imports, repository interfaces (`IRepository`), dependency inversion | Transport calls domain use-cases; domain invokes outward storage via abstract interfaces. |
 | **Workflow Orchestrator** | Multi-step distributed task execution | DAG scheduling, task state machines, retry policies, distributed leases | Orchestrator parses declarative spec, commits steps to storage, and polls/dispatches workers. |
 
----
+### 3.2 The Cast of Characters Table
+Rather than reciting file listings, map the system into a small theatrical cast:
 
-## 2. Real Architecture vs. Superficial Directory Structure
-
-A major symptom of shallow AI analysis is mistaking directory names for architectural truth:
-- **The "Plugin" Illusion**: A repository contains a directory named `plugins/`, but every file is statically imported into `main.py` via hardcoded `switch` statements. This is **monolithic dispatch**, not a true microkernel. True microkernels provide dynamic discovery, contract interfaces, and decoupled lifecycles.
-- **The "Clean Architecture" Illusion**: A project defines `controllers/`, `services/`, and `models/`, but service methods execute raw SQL strings directly and controller objects leak HTTP session structs deep into domain math. This is a **procedural monolith**, not layered architecture.
-- **The "Event-Driven" Illusion**: An application defines event classes, but every event publisher immediately calls `await handler.handle(event)` synchronously within an ambient database transaction. This is **synchronous observer wiring**, lacking true message buffering or actor isolation.
-
-### Verification Rule: Look for the Structural Invariants
-Before declaring an architecture pattern, inspect:
-1. **Entrypoint Instantiation**: How are dependencies assembled in `main()` / bootstrap files? Are components instantiated via factory registries, dependency injection containers, or static singletons?
-2. **Interface Abstraction**: Does the domain engine import third-party client libraries (e.g., `redis`, `boto3`, `pgx`) directly, or does it call an abstract storage contract?
-3. **Boundary Crossings**: Where do network/process hops occur? Mark boundaries where synchronous RPC transitions to asynchronous message queues or worker pools.
-
----
-
-## 3. Negative Anti-Patterns to Eliminate
-
-### ❌ N1: Directory Parroting (目录机械复述)
-- **Symptom**: Iterating through top-level directories and translating folder names into literal explanations (e.g., "*`utils/` stores utilities, `controllers/` handles controllers, `models/` contains data models*").
-- **Engineering Verdict**: Zero information gain. A software engineer can read directory names in 2 seconds. The report must explain **how components interact**, **why dependencies flow in a specific direction**, and **where algorithmic gravity resides**.
-- **Gate Rule**: If any section lists directories without identifying their priority tier, dependency direction, and core/glue classification, it is rejected.
-
-### ❌ N4: Phony Static Boxes (静态假架构图)
-- **Symptom**: Drawing a Mermaid box diagram where nodes are merely high-level names and arrows possess no dynamic semantics (neither call sequence, nor data mutation, nor protocol boundaries).
-- **Engineering Verdict**: Static boxes without protocol labels or flow directions fail to assist debugging or operational tracing.
-- **Gate Rule**: Every architectural topology diagram **MUST** explicitly delineate:
-  - Protocol boundaries (e.g., `HTTP/gRPC/CLI Ingress`);
-  - Process/thread boundaries (e.g., `IPC/Channel/Thread-Pool Hop`);
-  - Directed data mutation flow (e.g., `Raw Payload -> Validated DTO -> Domain Entity -> WAL Entry`).
+| Role Name | Human Persona | Single Core Responsibility | Mapped Directory | Process / Boundary |
+| :--- | :--- | :--- | :--- | :--- |
+| **Role A** | The Collector | Captures raw events, verifies protocol, exits immediately | `src/cli/` | Short-lived process |
+| **Role B** | The Mailbox | Buffers events atomically without memory corruption | `src/shared/spool/` | Disk filesystem queue |
+| **Role C** | The Worker | Asynchronously processes, deduplicates, and classifies | `src/services/worker/` | Long-running daemon |
+| **Role D** | The Vault | Provides durable indexing, retrieval, and schema persistence | `src/services/storage/` | SQLite / RocksDB / Disk |
 
 ---
 
@@ -59,31 +72,41 @@ When documenting macro topology in `ARCHITECTURE.md`, use the following validate
 ```mermaid
 graph TD
     subgraph Ingress["Ingress Boundary (Transport / Protocol)"]
-        CLI["CLI / REST / RPC Ingress<br/>[src/api/v1#L40-L120]"]
+        CLI["Role A: Collector (CLI / REST / RPC)<br/>[src/api/v1]"]
+    end
+
+    subgraph Intermediate["Buffer / Quarantine Barrier"]
+        Mailbox["Role B: Mailbox (Atomic Spool)<br/>[src/shared/spool]"]
     end
 
     subgraph CoreEngine["Core Engine Boundary (Stateful / Thread-Safe)"]
-        Dispatcher["Dispatch Scheduler<br/>[src/engine/dispatch#L15-L80]"]
-        StateMachine["State Machine Engine<br/>[src/engine/fsm#L50-L110]"]
+        Worker["Role C: Worker / Processor<br/>[src/engine/worker]"]
     end
 
     subgraph Persistence["Durability Boundary (I/O & External Storage)"]
-        WAL["Write-Ahead Log (WAL)<br/>[src/storage/wal#L20-L95]"]
-        StateDB["Snapshot KV Storage<br/>[src/storage/kv#L30-L75]"]
+        Vault["Role D: Storage Vault<br/>[src/storage/db]"]
     end
 
-    CLI -->|"1. Decode & Validate (Sync)"| Dispatcher
-    Dispatcher -->|"2. State Transition (Atomic CAS)"| StateMachine
-    StateMachine -->|"3. Sync Append (Block until fsync)"| WAL
-    StateMachine -.->|"4. Async Compaction / Snapshot"| StateDB
+    CLI -->|"1. Raw Ingress (Sync, <25ms)"| Mailbox
+    Mailbox -.->|"2. Async Poll / Watcher"| Worker
+    Worker -->|"3. Transactional Write"| Vault
 ```
 
 ---
 
-## 5. Verification Checklist
+## 5. Negative Anti-Patterns to Eliminate
 
-Before finalizing macro architecture conclusions, verify:
-- [ ] Is the classified pattern justified by physical code symbols (e.g., `AppendEntry`, `PipelineStage`, `PluginRegistry`) rather than directory names?
-- [ ] Are protocol, network, and process boundaries clearly identified in the topology diagram?
-- [ ] Are directory parroting (N1) and phony static boxes (N4) completely absent?
-- [ ] Does every major node cite at least one verified file and line range anchor?
+### ❌ N1: Directory Parroting (目录机械复述)
+- **Symptom**: Iterating through top-level directories and translating folder names into literal explanations (e.g., "*`utils/` stores utilities, `controllers/` handles controllers*").
+- **Remedy**: Translate every directory into its **Character Role** and **Data Ownership**.
+
+### ❌ N4: Phony Static Boxes (静态假架构图)
+- **Symptom**: Drawing a Mermaid box diagram where nodes are merely high-level names and arrows possess no dynamic semantics.
+- **Remedy**: Every arrow must declare:
+  1. Sequence number;
+  2. Protocol or transition mechanism (`IPC`, `fsync`, `HTTP POST`);
+  3. Directional data mutation.
+
+### ❌ N9: Premature Grounding Overload (认知早熟/强行下沉代码行)
+- **Symptom**: Forcing line numbers and function calls on the reader before defining the system's real-world pain point, metaphor, and character roles.
+- **Remedy**: Enforce strict quarantine: No microscopic line numbers in Level 1 and Level 2.

@@ -16,6 +16,24 @@ framework_version: 1.2.0
 
 ---
 
+## 0. The 5-Level Cognitive Zooming Framework
+
+All analysis in `repo-mentor` follows the **5-Level Cognitive Zooming** framework (from macro to micro):
+
+```
+[Level 1: Why]        Problem Space & First-Principles Tension (No code lines; real-world pain & tension)
+      ⬇️
+[Level 2: Strategy]   Metaphor, Cast of Characters & Macro Topology (The Cast, 3~5 core human roles)
+      ⬇️
+[Level 3: Example]    Concrete Walkthrough: A Day in the Life of Data (Trace ONE concrete event & payload diff)
+      ⬇️
+[Level 4: Deep Dive]  Keystone Invariants, Core Algorithms & AST Fact Anchors (Exact code lines & limits)
+      ⬇️
+[Level 5: Takeaway]   Architecture Trade-offs & Transposable Patterns (Engineering lessons to take away)
+```
+
+---
+
 ## 1. Unified Command Reference
 
 | Command | Aliases | Description & Architectural Focus | CLI Tool Equivalent |
@@ -61,7 +79,7 @@ framework_version: 1.2.0
 
 ---
 
-## 3. The 8 Negative Anti-Patterns (The Negative Taxonomy N1–N8)
+## 3. The 9 Negative Anti-Patterns (The Negative Taxonomy N1–N9)
 
 Generic AI code explanations routinely suffer from eight characteristic pathologies. In `repo-mentor`, violating any of these patterns incurs immediate penalty or disqualification:
 
@@ -75,6 +93,7 @@ Generic AI code explanations routinely suffer from eight characteristic patholog
 | **N6** | **Floating Anchors**<br/>(浮动无根引用) | Citing bare file names (`engine.py`) or nonexistent symbols without exact start/end line bounds. | Hallucination or laziness; cannot be verified by automated tools. | Unanchored assertions or broken line bounds fail verification gate. |
 | **N7** | **Boilerplate Domination**<br/>(胶水代码反客为主) | Spending pages analyzing CLI flags (`argparse`/`cobra`), config loading, or logger setups. | Avoiding difficult algorithmic cores by focusing on easy glue code. | Explaining CLI flags or configuration beyond 3 summary lines is prohibited. |
 | **N8** | **Debt Rationalization**<br/>(缺陷美化与盲目崇拜) | Praising God Objects, global mutable locks, or swallowed errors as "*clever lightweight design*". | Sycophancy and lack of technical critical discernment. | Study assets must feature an objective `Trade-offs & Technical Debt` audit. |
+| **N9** | **Premature Grounding Overload**<br/>(认知早熟/行号过度前置) | Dumping microscopic code lines, function calls, and system calls before establishing the real-world pain point (Why), metaphor, cast of characters, and concrete walkthrough data journey. | Inverting cognitive learning hierarchy; induces reader cognitive overload and disorientation. | Level 1 and Level 2 must not contain internal code line numbers. Concrete data scenario must precede detailed code traces. |
 
 ---
 

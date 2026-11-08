@@ -16,11 +16,22 @@ Use symbol and call hierarchy extraction to identify the entry trigger in the In
 repo-mentor ast <target_path> --calls || grep -rn "func.*Handler" <target_path>
 ```
 
-### 3. Drafting Phase: Map 5-Phase Golden Path Execution Flow
-Follow the execution path across all 5 canonical phases:
+### 3. Drafting Phase: Map 5-Phase Golden Path Execution Flow (Level 3 & 4)
+
+Follow `methodology/03-tracing-callchains.md`:
+
+#### Part A: The Concrete Scenario & Payload Diff (Level 3: Walkthrough)
+> 💡 **Cognitive Rule**: 读者在看具体代码前，必须看到一份**真实具体的数据**在各组件间流转变形的全过程。
+1. **Declare One Specific Concrete Input**:
+   - Provide an exact, concrete input payload (e.g. specific CLI command with arguments, exact JSON request body, or exact test error output).
+2. **Step-by-Step Data Journey**:
+   - Trace the payload across characters (Ingress ➔ Spool/Buffer ➔ Processing ➔ Persistence).
+   - Document the **Payload Diff** at each station (what gets sanitized, what gets extracted, what hash or timestamp is attached).
+
+#### Part B: The 5-Phase Golden Path & Code Anchors (Level 4: Deep Dive)
+Map the concrete journey into the 5 canonical phases:
 $$\text{Phase 1: Ingress} \longrightarrow \text{Phase 2: Dispatch} \longrightarrow \text{Phase 3: Engine} \longrightarrow \text{Phase 4: Persistence/IO} \longrightarrow \text{Phase 5: Response}$$
 
-Adhere strictly to `methodology/03-tracing-callchains.md`:
 1. **Mermaid Sequence Diagram**:
    - Flush left with margin ````mermaid`.
    - Quoted participant aliases: `participant E as "Core Engine (src/engine.go#L40)"`.

@@ -86,8 +86,24 @@ def run_single_benchmark(target: BenchmarkTarget) -> Dict[str, Any]:
         console.print(f"[bold red]Repository not found at path:[/bold red] {target.repo_path}")
         return {
             "name": target.name,
+            "language": target.language,
+            "pattern": target.pattern,
             "status": "SKIPPED_MISSING_REPO",
-            "repo_path": str(target.repo_path)
+            "repo_path": str(target.repo_path),
+            "study_path": str(target.study_path),
+            "loc_estimate": target.loc_estimate
+        }
+
+    if not target.study_path.exists():
+        console.print(f"[bold red]Study report not found at path:[/bold red] {target.study_path}")
+        return {
+            "name": target.name,
+            "language": target.language,
+            "pattern": target.pattern,
+            "status": "SKIPPED_MISSING_STUDY",
+            "repo_path": str(target.repo_path),
+            "study_path": str(target.study_path),
+            "loc_estimate": target.loc_estimate
         }
 
     # 1. Topology scan
@@ -234,18 +250,27 @@ def main() -> int:
         ev = r.get("evaluation", {})
         score = ev.get("total_score", 0.0)
         passed = r.get("status") == "PASSED"
-        if not passed:
+        is_skipped = str(r.get("status", "")).startswith("SKIPPED")
+        if not passed and not is_skipped:
             all_passed = False
+
+        if passed:
+            status_badge = "[bold green]PASS[/bold green]"
+        elif is_skipped:
+            status_badge = "[bold yellow]SKIP[/bold yellow]"
+        else:
+            status_badge = "[bold red]FAIL[/bold red]"
+
         t.add_row(
             r["name"],
-            r["language"],
+            r.get("language", "Unknown"),
             f"{ev.get('grounding_rate', 0)}%",
             f"{ev.get('hallucination_rate', 0)}%",
             f"{ev.get('execution_completeness', 0)}%",
             f"{ev.get('fluff_free_index', 0)}/100",
             f"{score}/100",
             ev.get("grade", "N/A"),
-            "[bold green]PASS[/bold green]" if passed else "[bold red]FAIL[/bold red]"
+            status_badge
         )
 
     console.print(t)

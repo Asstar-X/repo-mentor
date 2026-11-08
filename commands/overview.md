@@ -36,42 +36,35 @@ repo-mentor hotspots <target_path> --commits 300 --top 15 || python tools/git_ho
 
 ---
 
-### 3. Generate Architecture Recon Report
+### 3. Generate Architecture Recon Report (5-Level Cognitive Zooming Framework)
 
 Adhering strictly to `methodology/01-architecture-patterns.md`, `02-module-boundaries.md`, and the Anti-AI Quality Standard:
 
-#### I. System Positioning & Macro Topology
-- **Core Engineering Mission**: Real-world problem solved, input triggers, and durable output side effects.
-- **Pattern Classification**: Classify based on structural code signatures (Microkernel, Pipes & Filters, Event-Driven/Actor, WAL+State Machine, Layered DDD, Workflow Orchestrator).
-- **Macro Topology Diagram (Mermaid)**:
-  - Delineate protocol boundaries (REST/gRPC/CLI Ingress), process/thread boundaries, and storage/durability boundaries.
+#### Part I: Level 1 (Why — Problem Space & First-Principles Tension)
+> 💡 **Cognitive Rule**: 这一节**严禁堆砌内部代码文件名或函数名**！用纯粹的业务常识建立认知锚点。
+- **Real-World Agony**: What painful friction or disaster forced this project into existence?
+- **Black-Box Contract**:
+  - What goes in (Input Events)?
+  - What comes out (Output Deliverables)?
+  - What invariant side-effect is left behind?
+- **The First-Principles Tension**: What core dilemma is the system balancing (e.g. `Extreme Speed vs. Zero-Loss Durability`)? Why would a naive implementation fail?
+
+#### Part II: Level 2 (Strategy — Metaphor, Cast of Characters & Macro Topology)
+> 💡 **Cognitive Rule**: 用生活隐喻打底，全系统只抽象出 3~5 个核心角色。
+- **The Real-World Metaphor**: One-sentence intuitive life analogy (e.g., "terminal stenographer + background secretary + local vault").
+- **The Cast of Characters Table**:
+  | Role Name | Human Persona | Core Responsibility | Mapped Directory | Boundary Type |
+  | :--- | :--- | :--- | :--- | :--- |
+- **Coarse-Grained Macro Topology (Mermaid)**:
+  - Delineate protocol boundaries, process/thread hops, and storage vaults;
   - Comply with Mermaid rules: flush left margin ````mermaid`, double-quoted node labels `Node["Name (path#Lxx)"]`, no reserved keywords as node IDs.
   - Prohibit N4 (Phony Static Boxes without flow directions or boundaries).
 
-#### II. 3-Tier Module Reading Priority Matrix
-Triage all packages into three strict tiers (prohibit N3 Flat Enumeration):
-- **Tier-0 Core Domain Engine (Must Read, Full Coverage)**: Algorithmic core, state machines, invariant guards.
-- **Tier-1 Dispatch & Adapters (Secondary, Read On-Demand)**: Protocol codecs, controllers, storage adapters.
-- **Tier-2 Glue & Plumbing (Filter / Skim)**: CLI flags, config loading, logging, utility helpers (prohibit N7 Boilerplate Domination).
+#### Part III: Module Triage & Hotspots
+- **3-Tier Module Reading Priority Matrix** (Tier-0 Core, Tier-1 Adapters, Tier-2 Glue).
+- **Top Git Churn Hotspots**: Rank Top 10 frequently modified core files via `repo-mentor hotspots`.
 
-#### III. Directory & Module Responsibilities Matrix
-| Module / Directory Path | Priority Tier | Domain Responsibility | Core Logic? | Dependency Direction & Constraints |
-| :--- | :---: | :--- | :---: | :--- |
-
-#### IV. Golden Path Sequence Diagram
-Pick the single high-value workflow defining the system's existence:
-- Graph Mermaid `sequenceDiagram` across Ingress -> Dispatch -> Engine -> Persistence -> Response;
-- Use quoted participant aliases: `participant E as "Core Engine (src/engine.go#L40)"`;
-- Prohibit N5 (Happy Path Bias): include at least one validation failure or retry branch.
-
-#### V. Top Git Churn Hotspots
-Rank Top 10 frequently modified core files via `repo-mentor hotspots` and classify as Healthy Core vs. Architectural Debt.
-
-#### VI. Architectural Design Trade-offs & Technical Debt Audit
-- Document intentional design trade-offs (e.g. latency vs. durability, resident memory vs. throughput).
-- Objectively audit architectural technical debt (God Objects, coarse lock contention, unbounded queues) without rationalizing flaws (prohibit N8).
-
-#### VII. Core Functional Domain Matrix Baseline
+#### Part IV: Core Functional Domain Matrix Baseline
 Extract $k$ indispensable Tier-0 core functional domains ($k \in [3, 8]$) and initialize `README.md`:
 
 | Core Functional Domain (Tier-0) | Core Module / Directory | Call Chain (`/trace`) | State Model (`/core`) | Limit Defense (`/drill`) | Domain Mastery | Status |

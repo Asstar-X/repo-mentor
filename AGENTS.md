@@ -8,9 +8,20 @@ This document establishes the operational doctrine and technical standards for A
 
 ---
 
-## 1. Thin-Pointer Architecture (Single Source of Truth)
+## 1. Thin-Pointer Architecture & 5-Level Cognitive Zooming
 
-All agent runtimes must load domain methodology and execution rules directly from canonical repository assets:
+All agent runtimes must load domain methodology and execution rules directly from canonical repository assets. 
+
+Furthermore, agents **MUST** strictly adhere to the **5-Level Cognitive Zooming Framework** in every study deliverable:
+1. **Level 1 (Why)**: Define the real-world agony, black-box contract, and first-principles tension. **Strictly zero internal code line numbers**.
+2. **Level 2 (Strategy)**: Provide the real-world metaphor, the Cast of Characters table (human persona ⟷ directory), and coarse-grained flow.
+3. **Level 3 (Example)**: Walk through **ONE concrete, living input event** and show the data journey and payload diff across components.
+4. **Level 4 (Deep Dive)**: Anchor keystone invariants, core algorithms, AST-verified code lines, and destructive What-If defenses.
+5. **Level 5 (Takeaway)**: Audit architectural trade-offs (sacrifices vs gains) and identify transposable design patterns.
+
+> ⚠️ **Anti-Pattern N9 Enforcement**: Any report that dumps code lines or AST signatures before completing Levels 1, 2, and 3 violates Agent Protocol and must be rejected.
+
+---
 
 ### 1.1 Operational Workflows & Commands (`commands/`)
 - [`commands/overview.md`](commands/overview.md) — `/overview [path/url]`: Macro architecture classification, 3-tier module priority triage (Tier-0/1/2), topology diagram, and $k$-domain baseline setup.
