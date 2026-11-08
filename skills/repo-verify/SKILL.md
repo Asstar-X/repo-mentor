@@ -1,37 +1,38 @@
 ---
 name: repo-verify
-description: Automated code anchor verification, Mermaid syntax linting and self-healing, and anti-AI fluff quality gate. Use after writing or modifying study documentation to verify physical existence of referenced lines, ensure valid Mermaid diagrams, and eliminate banned AI buzzwords and hallucinations.
+description: >-
+  代码事实真实性审计、Mermaid 图表自愈与反 AI 套话质检门禁技能。用于在编写或修改研读文档后，自动化静态校验所引用代码文件与行号的物理存在性、语法自愈纠偏 Mermaid 架构图、拦截 52 个反 AI 虚夸词，执行百分制量化门禁。
 license: MIT
 ---
 
-# Repo Verify — Code Anchor Audit, Mermaid Self-Healing & Anti-Fluff Gate
+# Repo Verify — 代码锚点真实性与反 AI 套话质检门禁
 
 `repo-verify` 是代码库研读成果的确定性质量检验门禁。它的使命是帮助开发者与 Agent **彻底根除大模型胡编乱造虚假代码行、死链、损坏的 Mermaid 图表以及毫无技术价值的“AI味”吹捧套话**，确保研读报告达到 100% 工业级代码事实真实验证。
 
-**Tradeoff:** 零容忍幻觉与模糊套话，严格执行自动化拦截；未通过质量门禁的文档一律拒绝放行。
-**Personality:** 冷酷无情的编译器与质检法官——不听主观辩解，只看静态代码事实验证通过率与规则扣分项。
+**取舍 (Tradeoff):** 零容忍幻觉与模糊套话，严格执行自动化拦截；未通过质量门禁的文档一律拒绝放行。  
+**人设 (Personality):** 冷酷无情的编译器与质检法官——不听主观辩解，只看静态代码事实验证通过率与规则扣分项。
 
 ---
 
-## 1. Triple-Anchor Verification (三锚点真实性静态校验)
+## 1. 三锚点真实性静态校验 (Triple-Anchor Verification)
 
 **引用的每一行代码必须在磁盘上真实存在，严禁任何代码行号幻觉。**
 
 文档中所有代码引用格式必须符合 `[path/to/file.ext#Lstart-Lend]`，质检引擎将执行三道静态门卡：
-1. **Gate 1: 物理文件存在性 (File Existence)**：
+1. **门禁 1: 物理文件存在性 (File Existence)**：
    - 引用的文件路径必须在目标代码库根目录下实际存在；
    - 引用了不存在的虚拟文件直接判定为**致命幻觉**（一票否决扣 100 分）。
-2. **Gate 2: 行号边界合法性 (Line Bounds)**：
+2. **门禁 2: 行号边界合法性 (Line Bounds)**：
    - `start_line` 必须 $\ge 1$ 且 $\le \text{EOF}$；
    - `end_line` 必须 $\ge \text{start_line}$ 且 $\le \text{EOF}$；
    - 禁止倒置行号（如 `L100-L20`）或超出文件实际总行数。
-3. **Gate 3: 语义符号对齐 (Symbol Grounding & Drift Tolerance)**：
+3. **门禁 3: 语义符号对齐 (Symbol Grounding & Drift Tolerance)**：
    - 行号范围内必须包含文档所声称的函数名、类名或核心变量；
    - 允许 $\pm 5$ 行以内的正常小范围版本漂移，超出漂移范围将告警并触发自动修正 (`--fix`)。
 
 ---
 
-## 2. Mermaid Diagram Linting & Auto-Healing (图表语法校验与自愈)
+## 2. Mermaid 图表语法校验与自愈 (Diagram Linting & Auto-Healing)
 
 **绝不产出报错爆红的 Mermaid 架构图。常见的大模型语法低级错误必须 100% 拦截并自动修复。**
 
@@ -51,7 +52,7 @@ license: MIT
 
 ---
 
-## 3. Anti-AI Fluff Linting (52 个反 AI 虚夸词库过滤)
+## 3. 52 个反 AI 虚夸词库过滤 (Anti-AI Fluff Linting)
 
 **剔除商业吹捧与学究式冗余废话。技术报告只认事实与数据。**
 
@@ -65,7 +66,7 @@ license: MIT
 
 ---
 
-## 4. 100-Point Quantitative Rubric (百分制量化质检卡)
+## 4. 百分制量化质检卡 (100-Point Quantitative Rubric)
 
 运行评估命令时，根据以下量化评分卡生成综合成绩单：
 
@@ -79,7 +80,7 @@ license: MIT
 
 ---
 
-## 5. Goal-Driven Execution (确定性工具链)
+## 5. 确定性工具链执行 (Goal-Driven Execution)
 
 在完成任何研读文档后，必须执行确定性质检与自愈命令：
 

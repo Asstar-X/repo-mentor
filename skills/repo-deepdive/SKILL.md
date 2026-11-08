@@ -1,19 +1,20 @@
 ---
 name: repo-deepdive
-description: In-depth analysis of keystone entities, lifecycle state machines, load-bearing algorithms, and destructive What-If limit drills. Use when diving into Level 4 micro-implementations, inspecting memory invariants, concurrency locks, failure recovery, or auditing Level 5 architectural trade-offs.
+description: >-
+  关键实体、状态机模型、承重算法与破坏性演练技能。用于深入 Level 4 微观代码实现，剖析常驻内存数据结构，构建生命周期状态机与非法跃迁 Guard，提取 3~8 行带有真实代码锚点的核心算法，构造 What-If 极端破坏性灾难推演，并提炼 Level 5 架构妥协与可迁移模式。
 license: MIT
 ---
 
-# Repo Deep-Dive — Keystone Entities, State Machines & Limit Drills
+# Repo Deep-Dive — 关键状态机、核心算法与破坏性演练
 
-`repo-deepdive` 是代码库精读体系的微观硬核手术刀。它的使命是帮助开发者**穿透繁琐的胶水代码，直击最核心的数据结构、状态机跃迁模型、承重算法、以及系统在极限压力下的破坏性防御推演**，完成认知变焦中的 **Level 4 (Deep Dive)** 与 **Level 5 (Takeaway)**。
+`repo-deepdive` 是代码库精读体系的微观硬核手术刀。它的使命是帮助开发者**穿透繁琐的胶水代码，直击最核心的数据结构、状态机跃迁模型、承重算法、以及系统在极限压力下的破坏性防御推演**，完成认知变焦中的 **Level 4 (Deep Dive 硬核源码)** 与 **Level 5 (Takeaway 架构权衡)**。
 
-**Tradeoff:** 偏向 20% 承重结构与极端失效场景的深度推演，放弃对琐碎样板代码的逐行解释。
-**Personality:** 苛刻的资深系统架构师——对表面的优雅保持怀疑；重点审查锁粒度、状态不变式、极端并发竞态与崩溃自愈能力。
+**取舍 (Tradeoff):** 偏向 20% 承重结构与极端失效场景的深度推演，坚决放弃对琐碎样板代码的逐行解释。  
+**人设 (Personality):** 苛刻的资深系统架构师——对表面的优雅保持怀疑；重点审查锁粒度、状态不变式、极端并发竞态与崩溃自愈能力。
 
 ---
 
-## 1. Keystone Entities & Lifecycle FSM (核心实体与生命周期状态机)
+## 1. 核心实体与生命周期状态机 (Level 4: FSM)
 
 **系统的本质是状态的流转。先搞懂内存中的常驻结构与状态转移，再谈业务逻辑。**
 
@@ -27,11 +28,11 @@ license: MIT
 
 ---
 
-## 2. Load-Bearing Algorithms & Triple-Anchor (承重算法与三锚点法则)
+## 2. 承重算法与三锚点法则 (Triple-Anchor Rule)
 
 **不讲空话，所有微观结论必须强绑定到真实物理代码行。**
 
-1. **承重算法代码抽取 (3~8 Load-Bearing Lines)**：
+1. **承重算法代码抽取 (3~8 行核心代码)**：
    - 严禁贴出上百行的庞大函数；
    - 仅截取最核心的 3~8 行承重代码（如双检锁逻辑、环形缓冲区指针移动、CAS 争抢点）；
 2. **三锚点法则 (Triple-Anchor Rule)**：
@@ -42,7 +43,7 @@ license: MIT
 
 ---
 
-## 3. Destructive Limit Scenarios & What-If Drills (破坏性演练与极限界推演)
+## 3. 破坏性演练与极限推演 (What-If Drills)
 
 **检验真正读懂代码的唯一标准，是知道如果去掉某行保护，系统会怎么死。**
 
@@ -60,7 +61,7 @@ license: MIT
 
 ---
 
-## 4. Architectural Trade-offs & Borrowable Patterns (Level 5: 架构权衡与可迁移模式)
+## 4. 架构权衡与可迁移模式 (Level 5: Takeaway)
 
 **代码读完不是终点，内化为读者的工程内功才是终点。**
 
@@ -72,7 +73,7 @@ license: MIT
 
 ---
 
-## 5. 怎么做 vs 不要怎么做 (Contrast Table)
+## 5. 怎么做 vs 不要怎么做 (对比清单)
 
 | 绝对不要（业余/反模式） | 必须做到（名师/深度标准） |
 | :--- | :--- |
@@ -82,7 +83,7 @@ license: MIT
 
 ---
 
-## 6. Goal-Driven Execution (确定性工具链)
+## 6. 确定性工具链执行 (Goal-Driven Execution)
 
 进行微观下钻时，通过 AST 工具精确核验符号与行号：
 

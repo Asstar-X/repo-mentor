@@ -1,84 +1,62 @@
-# [Project Name] Source Walkthrough & Debug Journal
+# [项目名称] 源码走读与调试手记
 
-> **Target Repository**: `[Local Path or Target Name]`  
-> **Date**: YYYY-MM-DD  
-> **Auditor**: [Engineer / Agent]  
-> **Verification Standard**: GitHub High-Star Anti-AI Standard
+> **目标仓库**: `[本地路径或仓库标识]`  
+> **研读日期**: YYYY-MM-DD  
+> **研读人员**: [工程师 / Agent]  
+> **质检标准**: 工业级反 AI 虚夸词标准 & AST 源码事实强锚定
 
 ---
 
-## 1. Local Debugging & Smoke Run Harness
+## 1. 本地调试与最小化冒烟单测环境
 
-### 1.1 Minimal Runnable Test & Smoke Commands
+### 1.1 最小可运行验证与冒烟测试命令
 ```bash
-# 1. Compile / Build local binaries
-[Exact build command, e.g.: go build -o bin/server ./cmd/server]
+# 1. 编译 / 构建本地二进制或依赖
+[具体的本地构建命令，例如: go build -o bin/server ./cmd/server]
 
-# 2. Targeted smoke test execution (Tier-0 core engine test)
-[Exact test command, e.g.: pytest tests/core/test_engine.py -k "test_dispatch" -vv -s]
+# 2. 目标核心冒烟单测 (针对 Tier-0 核心引擎单测)
+[具体的定向单测命令，例如: pytest tests/core/test_engine.py -k "test_dispatch" -vv -s]
 
-# 3. Targeted test with race detector / memory sanitizer (if applicable)
-[e.g.: go test -race -v ./pkg/engine -run TestConcurrentDispatch]
+# 3. 带竞态检测或内存检查的单测命令 (如适用)
+[例如: go test -race -v ./pkg/engine -run TestConcurrentDispatch]
 ```
 
-### 1.2 Golden Breakpoint Stack & Stepping Locations
-Trace live stack frame transitions by setting breakpoints at three critical pivots:
+### 1.2 黄金调试断点堆栈与单步调试位置
+通过在 4 个关键枢纽设置断点，追踪动态栈帧跃迁：
 
 ```text
-1. [Ingress Pivot]     : [src/api/handler.ext:L45]   - Inspect raw DTO unmarshalling & auth context.
-2. [Dispatch Pivot]    : [src/core/scheduler.ext:L80] - Inspect queue routing, lease acquisition & timeouts.
-3. [Guard Pivot]       : [src/core/engine.ext:L125]  - Step into invariant assertions and mutex critical sections.
-4. [Durability Pivot]  : [src/storage/wal.ext:L60]   - Step into disk fsync and byte serialization buffers.
+1. [接入枢纽]     : [src/api/handler.ext:L45]    - 检查原始 DTO 解码与鉴权上下文。
+2. [分发调度]     : [src/core/scheduler.ext:L80] - 检查队列路由、租约分配与超时传递。
+3. [状态守卫]     : [src/core/engine.ext:L125]   - 单步步入状态机断言与 Mutex 临界区。
+4. [落盘持久化]   : [src/storage/wal.ext:L60]    - 单步步入磁盘 fsync 与字节序列化缓冲区。
 ```
 
 ---
 
-## 2. Keystone Structures & State Mutation Observations
+## 2. 核心结构体与常驻状态突变观测
 
-### 2.1 State Mutation & Concurrency Checks
-- **Struct / Class**: `[StructName]` [`[src/core/types.ext#L20-L50]`](file:///[path]#L20-L50)
-  - *Observed Mutability*: [Verified Fact: Mutated exclusively under `m.mu.Lock()`].
-  - *Memory Allocation*: [Pooled via sync.Pool / Heap allocated / Value copy].
-  - *Lifecycle Boundaries*: [Created by WorkerPool at startup, retained across requests].
+### 2.1 状态突变与并发安全检查
+- **核心结构体 / 类**: `[StructName]` [`[src/core/types.ext#L20-L50]`](file:///[path]#L20-L50)
+  - *观测到的可变性*: [已验证事实: 仅在持有 `m.mu.Lock()` 时发生可变修改]。
+  - *内存分配模型*: [经由 sync.Pool 复用 / 堆分配 / 值传递拷贝]。
+  - *生命周期边界*: [由 WorkerPool 在初始化时创建，在整个请求生命周期中常驻]。
 
-### 2.2 Gotchas, Subtle Edge Cases & Architectural Debt
-- **[Verified Fact] Gotcha 1: [Silent Error Swallowing / Fallback]**
-  - *Location*: [`[src/engine/worker.ext#L145-L152]`](file:///[path]#L145-L152)
-  - *Behavior*: When an external storage write fails with `ErrConnectionClosed`, the worker swallows the error and logs a warning, risking silent data loss under network partitions.
-- **[Verified Fact] Gotcha 2: [Unbounded Queue Growth]**
-  - *Location*: [`[src/queue/inmemory.ext#L35-L42]`](file:///[path]#L35-L42)
-  - *Behavior*: Worker queue uses an unbuffered channel / dynamic slice without backpressure; memory grows monotonically under burst traffic.
-
----
-
-## 3. Counter-Factual Challenge Drills (Limit Scenarios)
-
-### Drill 1: [Scenario Name, e.g. Mid-Transaction SIGKILL Crash Recovery]
-1. **Hypothesis**:
-   - If the process is abruptly killed via SIGKILL after modifying in-memory index state but prior to completing the second storage write, what is the recovery behavior upon reboot?
-2. **Source Code Investigation**:
-   - *Recovery Entrypoint*: [`[src/storage/recovery.ext#L30-L75]`](file:///[path]#L30-L75).
-   - *Observed Behavior*: [Verified Fact: The recovery routine reads the WAL from checkpoint offset $N$; uncommitted memory transactions are discarded cleanly].
-3. **Assessment**:
-   - `[Verified Fact]` Idempotent replay guarantees zero corruption.
-   - `[Engineering Inference]` Replay time scales linearly with uncompacted log size; large WAL backlogs will delay cold startup.
-
-### Drill 2: [Scenario Name, e.g. Extensibility & Blast Radius of New Driver]
-1. **Hypothesis**:
-   - If swapping the local disk storage engine for an S3-compatible object store, which files require modification?
-2. **Impacted Modules**:
-   - [`src/storage/s3_adapter.ext`](file:///[path]): New adapter implementing `storage.DurabilityEngine`.
-   - [`src/config/storage.ext`](file:///[path]): Configuration flags for S3 endpoint and credentials.
-   - Core engine `src/core/engine.ext` remains **100% untouched**.
-3. **Assessment**:
-   - `[Verified Fact]` Storage abstraction is cleanly decoupled via interface. Extensibility blast radius is strictly contained within `src/storage/`.
+### 2.2 暗坑、边界极端情况与架构技术债
+- **[已验证事实] 暗坑 1: [隐匿吞掉异常 / 粗暴回退]**
+  - *源码位置*: [`[src/engine/worker.ext#L145-L152]`](file:///[path]#L145-L152)
+  - *运行时行为*: 当外部存储写入报错 `ErrConnectionClosed` 时，Worker 吞掉异常并仅打出 Warning 日志，在网络分区下存在静默丢数据风险。
+- **[已验证事实] 暗坑 2: [无界队列内存膨胀]**
+  - *源码位置*: [`[src/queue/inmemory.ext#L35-L42]`](file:///[path]#L35-L42)
+  - *运行时行为*: Worker 队列采用无缓冲 Channel 或无界动态切片，缺乏背压机制；在突发流量冲击下内存单调暴涨。
 
 ---
 
-## 4. Verification & Confidence Summary
+## 3. 反事实推演与破坏性极限演练 (What-If Drills)
 
-| Claim / Observation | Evidence Anchor | Confidence Tier | Invalidation Condition |
-| :--- | :--- | :---: | :--- |
-| Core dispatch runs in bounded threadpool | [`[src/core/pool.ext#L30]`](file:///[path]#L30) | `[Verified Fact]` | If pool size dynamically expands without upper limit |
-| WAL fsync blocks caller thread | [`[src/storage/wal.ext#L75]`](file:///[path]#L75) | `[Verified Fact]` | If async channel buffer separates caller from fsync |
-| Potential OOM under sustained 10k QPS | [`[src/queue/inmem.ext#L35]`](file:///[path]#L35) | `[Engineering Inference]` | If hidden backpressure middleware drops excess load |
+### 演练 1: [演练场景名称，例如：事务途中遭遇 SIGKILL 崩溃恢复]
+1. **灾难假设**:
+   - 如果进程在修改内存索引之后、完成第二次磁盘写入之前，被操作系统 `kill -9` 强杀，重启后的自愈行为是什么？
+2. **源码排查与事实证据**:
+   - *恢复入口*: [`[src/storage/recovery.ext#L30-L75]`](file:///[path]#L30-L75)。
+   - *重放机制*: 恢复逻辑通过读取 WAL 最后一个确认提交的位点进行回放；未完成二次落盘的事务被检测为孤儿记录并触发 Rollback。
+   - *验证结论*: [已验证事实: 系统在断电或 SIGKILL 场景下保证最终一致性，无脏数据残留]。

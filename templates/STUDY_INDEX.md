@@ -1,55 +1,36 @@
-# [Project Name] — Architecture Study Index & Coverage Checklist
+# [项目名称] — 架构研读索引与领域覆盖度看板
 
-> **Study Status**: `[in_progress / completed]`  
-> **Target Ecosystem**: `[Go / Rust / Python / TypeScript / Java / C++]`  
-> **Cognitive Framework**: 5-Level Cognitive Zooming (Why ➔ Strategy ➔ Example ➔ Deep-Dive ➔ Takeaway)  
-> **Quality Standard**: Zero-Fluff Engineering Standard & AST Fact Grounded
-
----
-
-## 1. Study Asset Catalog
-
-- **[Architecture Specification (ARCHITECTURE.md)](ARCHITECTURE.md)**: Level 1 (Why & Tension) + Level 2 (Metaphor & Characters) + Level 4 (Keystone FSM & Algorithms) + Level 5 (Trade-offs).
-- **[Source Walkthrough & Debug Journal (DEBUG_NOTES.md)](DEBUG_NOTES.md)**: Local build & targeted smoke test commands, golden breakpoint stack, and What-If challenge logs.
-- **Domain Deep-Dive Slices (`traces/`)**:
-  - [Domain 1 Deep-Dive (traces/domain_1.md)](traces/domain_1.md): Level 3 Concrete Walkthrough + Level 4 Implementation.
-  - [Domain 2 Deep-Dive (traces/domain_2.md)](traces/domain_2.md)
+> **研读状态**: `[进行中 (in_progress) / 已完成 (completed)]`  
+> **目标语言生态**: `[Go / Rust / Python / TypeScript / Java / C++]`  
+> **认知变焦模型**: 5 级变焦闭环 (Why 现实原罪 ➔ Strategy 剧本角色 ➔ Example 具象案例 ➔ Deep-Dive 硬核源码 ➔ Takeaway 架构权衡)  
+> **质量规范**: 反 AI 虚夸词标准 & AST 源码事实强锚定
 
 ---
 
-## 2. Core Functional Domain Checklist (Explored vs. Blind Spots)
+## 1. 研读资产索引目录
 
-A project cannot be certified as understood if critical core domains remain unexamined. 
-
-| Core Functional Domain | Primary Directory / Module | Exploration Status | Core Finding / Key Invariant |
-| :--- | :--- | :---: | :--- |
-| **1. [Domain Name 1]** | `[src/domain_1/]` | `[Explored / Blind Spot]` | [One-sentence invariant, e.g. Single-flight drain queue] |
-| **2. [Domain Name 2]** | `[src/domain_2/]` | `[Explored / Blind Spot]` | [One-sentence invariant] |
-| **3. [Domain Name 3]** | `[src/domain_3/]` | `[Explored / Blind Spot]` | [One-sentence invariant] |
-| **4. [Domain Name 4]** | `[src/domain_4/]` | `[Explored / Blind Spot]` | [One-sentence invariant] |
-
-> ⚠️ **Blind-Spot Warning**:  
-> If any core domain is marked as `Blind Spot`, the codebase has not been mastered. Run `/deep-dive <domain>` to eliminate the blind spot.
+- **[架构全景白皮书 (ARCHITECTURE.md)](ARCHITECTURE.md)**: Level 1 (现实原罪与第一性矛盾) + Level 2 (生活隐喻与剧本角色表) + Level 4 (核心实体与算法) + Level 5 (架构得失权衡)。
+- **[源码走读与调试手记 (DEBUG_NOTES.md)](DEBUG_NOTES.md)**: 本地编译与冒烟单测命令、黄金断点调用栈、反事实推演手记。
+- **领域调用链与深度切片 (`traces/`)**:
+  - [领域 1 数据旅程切片 (traces/domain_1_trace.md)](traces/domain_1_trace.md): Level 3 具象用例数据旅程 + 时序图。
+  - [领域 1 核心算法与极限切片 (traces/domain_1_core.md)](traces/domain_1_core.md): Level 4 状态机与承重算法。
 
 ---
 
-## 3. Key Technical Indicators & Architectural Radar
+## 2. 核心功能领域二元看板 (已探索 vs 未探索盲区)
 
-| Dimension | Assessment & Metric | Grounded Evidence / Anchor |
-| :--- | :--- | :--- |
-| **Codebase Scale** | [e.g. 24,500 LOC (Go 82%, C 18%)] | Static scan report via `repo-mentor scan` |
-| **Test Coverage & Harness** | [e.g. Comprehensive unit & fuzz tests] | Test fixtures located in `tests/` or `*_test.go` |
-| **Top 1 Git Hotspot** | `[src/core/dispatcher.ext#L1]` | Most frequently modified file over last 300 commits |
-| **Concurrency Model** | [e.g. Worker pool + sync.RWMutex] | Threading & lock patterns in core modules |
-| **Durability Guarantee** | [e.g. Sequential WAL with synchronous fsync] | Invariant verified in `src/storage/wal.ext` |
-| **External Dependencies** | [e.g. Embedded SQLite, Zero network RPC] | Package manifest inspection (`go.mod` / `pyproject.toml`) |
+真实的技术掌握度应当以关键链路领域是否被端到端彻底打通来衡量：
+
+| 核心功能领域 (Tier-0) | 映射的核心模块 / 目录 | 数据旅程 (`/trace`) | 状态机模型 (`/deep-dive`) | 极限场景防御 (`/drill`) | 探索状态 |
+| :--- | :--- | :---: | :---: | :---: | :--- |
+| **1. [领域 1 名称]** | `[src/module1/]` | [x] 已完成 | [x] 已完成 | [x] 已完成 | 已探索 (Explored) |
+| **2. [领域 2 名称]** | `[src/module2/]` | [ ] 待追踪 | [ ] 待下钻 | [ ] 待推演 | ⚠️ 未探索盲区 (Blind Spot) |
+| **3. [领域 3 名称]** | `[src/module3/]` | [ ] 待追踪 | [ ] 待下钻 | [ ] 待推演 | ⚠️ 未探索盲区 (Blind Spot) |
 
 ---
 
-## 4. Quality Gate Verification
+## 3. 下一步研读决策建议
 
-Before publishing this study:
-- [ ] **Gate 1 (Anchor Verification)**: 100% of line-number anchors exist on physical disk (`repo-mentor verify`).
-- [ ] **Gate 2 (Mermaid Syntax)**: All diagrams render cleanly with quoted participant aliases.
-- [ ] **Gate 3 (Anti-AI Fluff Linter)**: Zero banned buzzwords or ungrounded fluff paragraphs detected (`repo-mentor eval`).
-- [ ] **Gate 4 (Zero Blind Spots)**: All core functional domains in Section 2 are marked as `Explored`.
+1. **消灭盲区**: 针对未勾选的 Tier-0 领域运行 `/trace <domain>` 穿透数据旅程；
+2. **硬核下钻**: 针对复杂状态机运行 `/deep-dive <domain>` 提取代码锚点与 What-If 推演；
+3. **闭环质检**: 运行 `repo-mentor verify . ARCHITECTURE.md` 验证事实真实性，最后执行 `repo-mentor export .` 导出单文件 HTML 白皮书。

@@ -1,23 +1,23 @@
-# /tracker — Study Progress & Domain Checklist
+# /tracker — 研读进度与领域二元看板
 
-Displays the learning progress across core functional domains using a clean, binary checklist (Explored vs. Blind Spot).
+以清晰的二元清单（已探索 vs 盲区）展示核心领域的覆盖进度，杜绝虚假打分。
 
 ---
 
-## 1. Domain Coverage Checklist
+## 1. 核心领域覆盖度看板
 
-Rather than arbitrary float formulas, real mastery is measured by whether the critical path domains have been explored end-to-end:
+真实的技术掌握度应当以关键链路领域是否被端到端彻底打通来衡量：
 
 ```markdown
-### Core Functional Domains Checklist
-- [x] **Macro Architecture & First Tension (Level 1 & 2)**: Explored via `repo-recon` in `ARCHITECTURE.md`
-- [x] **Domain 1: [Domain Name]** (`[path/to/module]`) — Explored via `repo-trace` & `repo-deepdive`
-- [ ] **Domain 2: [Domain Name]** (`[path/to/module]`) — ⚠️ Unexplored (Blind Spot)
-- [ ] **Domain 3: [Domain Name]** (`[path/to/module]`) — ⚠️ Unexplored (Blind Spot)
+### 核心功能领域清单 (Tier-0)
+- [x] **宏观架构与第一性矛盾 (Level 1 & 2)**: 已在 `ARCHITECTURE.md` 完成 (基于 `repo-recon`)
+- [x] **领域 1: [领域名称]** (`[path/to/module]`) — 已探索 (基于 `repo-trace` 与 `repo-deepdive`)
+- [ ] **领域 2: [领域名称]** (`[path/to/module]`) — ⚠️ 未探索盲区
+- [ ] **领域 3: [领域名称]** (`[path/to/module]`) — ⚠️ 未探索盲区
 ```
 
 ---
 
-## 2. Next Action
-- If any Tier-0 domain remains unchecked: run `/trace <domain>` or `/deep-dive <domain>` to eliminate the blind spot.
-- When all core domains are checked: run `/verify` followed by `/export`.
+## 2. 下一步决策
+- 若仍存在未勾选的 Tier-0 盲区：运行 `/trace <domain>` 与 `/deep-dive <domain>` 消灭盲区；
+- 当所有核心领域均已勾选：运行 `/verify` 进行全量门禁审计，随后执行 `/export` 编译白皮书。

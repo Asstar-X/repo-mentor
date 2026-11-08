@@ -1,19 +1,20 @@
 ---
 name: repo-trace
-description: End-to-end data journey and golden path call chain tracing. Use when tracing how a concrete input payload transforms across system components, identifying sync/async hops, documenting payload diffs, and mapping error recovery branches (Level 3).
+description: >-
+  端到端数据旅程与调用链追踪技能。用于追踪一份真实鲜活的输入事件如何在各组件间流转变形，记录各站点的载荷差分（Payload Diff），刻画同步/异步跨界跳跃，并还原异常穿透与回滚分支（Level 3 具象案例）。严禁快乐路径偏见。
 license: MIT
 ---
 
-# Repo Trace — Concrete Data Journey & Golden Path Tracing
+# Repo Trace — 具象用例数据旅程与调用链追踪
 
-`repo-trace` 是深入代码库微观世界前的数据显微镜。它的使命是帮助开发者**跳出静态文件的孤岛迷宫，跟随一份真实具体的数据样本，亲历其在系统各个模块间的变形与跨界流转**，完成认知变焦中的 **Level 3 (Example)**。
+`repo-trace` 是深入代码库微观世界前的数据显微镜。它的使命是帮助开发者**跳出静态文件的孤岛迷宫，跟随一份真实具体的数据样本，亲历其在系统各个模块间的变形与跨界流转**，完成认知变焦中的 **Level 3 (Example 具象案例)**。
 
-**Tradeoff:** 偏向单条端到端黄金链路的真实变形追踪，放弃对所有边角分支的穷举。
-**Personality:** 数据法医与侦探——拒绝抽象概念漂移，只关心具体字节在何时、被哪个模块、改造成了什么形态。
+**取舍 (Tradeoff):** 偏向单条端到端黄金链路的真实变形追踪，坚决放弃对所有边角分支的无意义穷举。  
+**人设 (Personality):** 数据法医与侦探——拒绝抽象概念漂移，只关心具体字节在何时、被哪个模块、改造成了什么形态。
 
 ---
 
-## 1. A Day in the Life (单一真实输入原则)
+## 1. 单一真实输入原则 (A Day in the Life)
 
 **读者在看具体代码行前，必须看到一份活生生的真实输入在系统里流转变形。**
 
@@ -26,28 +27,28 @@ license: MIT
 
 ---
 
-## 2. Station-by-Station Payload Diff (站点数据变形差分)
+## 2. 站点数据变形差分 (Station-by-Station Payload Diff)
 
 **步步追踪数据形态的生老病死。每一个站点必须明确指出“进来了什么”与“变成了什么”。**
 
 追踪过程中，必须划分出 4 大标准中继站，并输出形态变化差分 (Diff)：
-1. **Station 1: Ingress (入口网关/接入层)**
+1. **中继站 1: Ingress (入口网关/接入层)**
    - 原始形态：Raw Buffer / HTTP Request / CLI Args
    - 加工动作：协议解码、基础校验、脱敏清洗、时间戳与 Trace ID 注入
    - 变形产物：Internal Command / Context Object
-2. **Station 2: Buffer / Spool (缓冲与排队层，若有)**
-   - 暂存形态：Channel / Memory RingBuffer / WAL (Write-Ahead Log)
+2. **中继站 2: Buffer / Spool (缓冲与排队层，若有)**
+   - 暂存形态：Channel / Memory RingBuffer / WAL (预写日志)
    - 关键变化：追加序列号、内存对齐、持久化防丢标记
-3. **Station 3: Processing (核心业务引擎/计算核)**
+3. **中继站 3: Processing (核心业务引擎/计算核)**
    - 核心处理：业务决策、AST 变换、状态机流转、张量计算
    - 变形产物：Execution Plan / Mutation Delta / Log Entry
-4. **Station 4: Persistence / Egress (落盘与出站)**
+4. **中继站 4: Persistence / Egress (落盘与出站)**
    - 出站形态：DB Row / Fsync Payload / HTTP Response JSON
    - 最终交付：外界可见的不可逆状态变更
 
 ---
 
-## 3. 5-Phase Golden Path Sequence (5 阶段序列时序图)
+## 3. 5 阶段时序图 (5-Phase Golden Path Sequence)
 
 **用 Mermaid 时序图还原调用链路，必须显式区分同步与异步跨界。**
 
@@ -63,11 +64,11 @@ license: MIT
 
 ---
 
-## 4. Eliminate Happy-Path Bias (消除快乐路径偏见)
+## 4. 消除快乐路径偏见 (Eliminate Happy-Path Bias)
 
 **只讲正常流程等于没讲。健壮架构的精髓 80% 藏在异常防御与重试回滚中。**
 
-### 怎么做 vs 不要怎么做 (Contrast Table)
+### 怎么做 vs 不要怎么做 (对比清单)
 
 | 绝对不要（业余/快乐路径） | 必须做到（名师/深度追踪） |
 | :--- | :--- |
@@ -77,7 +78,7 @@ license: MIT
 
 ---
 
-## 5. Goal-Driven Execution (确定性工具链)
+## 5. 确定性工具链执行 (Goal-Driven Execution)
 
 追踪调用链路时，先通过 AST 工具定位目标符号与真实调用关系：
 

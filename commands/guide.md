@@ -1,52 +1,52 @@
-# /guide (Alias: /roadmap) — Hands-On Guide & Reading Path
+# /guide (别名: /roadmap) — 本地实操指南与阅读路线
 
-> **Backing Skill**: [`skills/repo-recon/SKILL.md`](../skills/repo-recon/SKILL.md)
+> **支撑技能**: [`skills/repo-recon/SKILL.md`](../skills/repo-recon/SKILL.md)
 
-Generates an actionable, copy-pasteable local study roadmap for the target codebase: **local build & targeted smoke unit test commands**, **progressive reading order**, **golden breakpoints**, and a **first hands-on hack experiment**.
+为目标代码库生成一份立即可复制运行的本地实操研读路线图：**本地极简构建与定向冒烟单元测试命令**、**渐进式阅读次序**、**黄金调试断点推荐**，以及一个**低风险的动手改造实验**。
 
 ---
 
-## Operational Workflow
+## 执行工作流
 
-### 1. Extract Ground Truth
-From the repository root, run deterministic tools:
+### 1. 提取物理事实
+在仓库根目录下运行确定性分析命令：
 ```bash
 repo-mentor scan <target_path>
 repo-mentor hotspots <target_path> --top 10
 ```
-Identify test directories, build systems, entrypoints, and modification hotspots.
+准确定位测试目录、构建系统、入口点与高频修改热点。
 
 ---
 
-### 2. Generate Hands-On Study Guide
+### 2. 生成本地研读实操指南
 
-#### I. Minimal Runnable Verification (Smoke Run Commands)
-Based on detected ecosystem and project manifests, provide exact commands that require zero guesswork:
-- **Build / Compilation Command**:
+#### 一、 最小可运行验证 (冒烟运行命令)
+基于检测到的语言生态与项目清单文件，提供零猜测的确定性命令：
+- **构建 / 编译命令**：
   ```bash
-  # Project-specific build command (e.g. go build -o bin/server ./cmd/server)
+  # 项目具体的构建命令 (例如: go build -o bin/server ./cmd/server)
   ```
-- **Targeted Smoke Unit Test Command**:
-  - Select 1–2 representative tests from Tier-0 domains with filter flags, avoiding long-running full test suites.
+- **目标核心冒烟单测命令**：
+  - 从 Tier-0 核心领域中挑选 1–2 个代表性测试用例，带上过滤参数，避免运行全量冗长测试：
   ```bash
-  # Project-specific targeted test command (e.g. pytest tests/core/test_engine.py -k "test_dispatch" -vv)
+  # 项目具体的定向单测命令 (例如: pytest tests/core/test_engine.py -k "test_dispatch" -vv -s)
   ```
 
-#### II. Progressive Reading Order (With Verified Code Anchors)
-Provide a 4-step sequence specifying exactly what to focus on and what boilerplate to skip:
-1. **Stop 1: Ingress & Entrypoint** `[path/entry.ext#L30-L60]` — Trace how external inputs are unmarshalled into domain Context; skip flag descriptions.
-2. **Stop 2: Core Dispatcher** `[path/scheduler.ext#L80-L120]` — Observe the main scheduling loop, worker pool, and task routing.
-3. **Stop 3: Keystone State & Entity Definitions** `[path/state.ext#L15-L50]` — Inspect core data structures, memory ownership, and state enums.
-4. **Stop 4: High-Churn Core Invariant** `[path/hotspot.ext#L100-L150]` — Study the business logic most frequently modified in recent commits.
+#### 二、 渐进式代码阅读路线 (附带代码锚点)
+给出清晰的 4 站阅读次序，明确指出该关注什么、跳过什么样板代码：
+1. **第一站：接入与入口** `[path/entry.ext#L30-L60]` — 观察外部输入如何解组为领域 Context；跳过命令行 Flag 描述。
+2. **第二站：核心调度器** `[path/scheduler.ext#L80-L120]` — 观察主调度循环、Worker 池与任务路由。
+3. **第三站：常驻状态与实体结构** `[path/state.ext#L15-L50]` — 审视核心数据结构、内存持有关系与状态枚举。
+4. **第四站：高频变更业务逻辑** `[path/hotspot.ext#L100-L150]` — 研读近期提交中最频繁修改的核心算法。
 
-#### III. Recommended Golden Breakpoints
-Identify four high-value breakpoint locations across the execution lifecycle:
-- **Breakpoint 1 (Ingress Pivot)**: Set at `[path/entry.ext#Lxx]` to inspect raw request unmarshalling and auth context.
-- **Breakpoint 2 (Dispatch Pivot)**: Set at `[path/scheduler.ext#Lyy]` to step into queue routing, lease allocation, and timeout propagation.
-- **Breakpoint 3 (Guard Pivot)**: Set at `[path/engine.ext#Lzz]` to inspect state machine invariants and mutex acquisitions.
-- **Breakpoint 4 (Durability Pivot)**: Set at `[path/wal.ext#Lww]` to step into disk fsync or network commit acknowledgements.
+#### 三、 推荐黄金断点位置 (Golden Breakpoints)
+在执行生命周期中推荐 4 个极具观察价值的调试断点：
+- **断点 1 (接入枢纽)**：设在 `[path/entry.ext#Lxx]`，观察原始请求解码与鉴权上下文。
+- **断点 2 (调度分发)**：设在 `[path/scheduler.ext#Lyy]`，单步步入任务入队、租约分配与超时传递。
+- **断点 3 (状态守卫)**：设在 `[path/engine.ext#Lzz]`，观察状态机不变式检查与 Mutex 锁获取。
+- **断点 4 (落盘持久化)**：设在 `[path/wal.ext#Lww]`，步入磁盘 fsync 或网络提交确认。
 
-#### IV. First Hands-On Experiment (First Hack)
-Suggest a low-risk, easily verifiable hands-on task:
-- e.g., "Add a unit test in `tests/` feeding an out-of-bounds parameter to confirm defensive rejection";
-- or "Add a configuration flag in the config module and verify clean local compilation and startup."
+#### 四、 首个动手改造实验 (First Hack)
+设计一个低风险、可在本地迅速验证的动手小任务：
+- 例如：“在 `tests/` 中新增一个测试用例，故意传入越界参数，观察系统的防御性拦截逻辑”；
+- 或者：“在配置模块中增加一个试验性参数，验证本地能否正常编译并输出对应的调试日志”。

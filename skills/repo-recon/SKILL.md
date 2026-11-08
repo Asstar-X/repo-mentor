@@ -1,19 +1,20 @@
 ---
 name: repo-recon
-description: Macro architectural reconnaissance and cast modeling for unfamiliar codebases. Use when starting to explore a new repository, classifying its archetype (request-driven, event-driven, pipeline, compute-driven, or CLI), establishing 3-tier reading priorities, analyzing Git churn hotspots, or framing Level 1-2 problem space without diving into micro code lines.
+description: >-
+  宏观架构侦察与剧本建模技能。用于在开始精读陌生开源项目时，自适应识别 5 大项目形态（请求驱动、事件驱动、管道变换、计算驱动、CLI 系统工具），提炼 Level 1 现实原罪与第一性矛盾，绘制白板 3~5 角色剧本表，分析 3 级模块分层与 Git 变更热点。严禁过早下钻到微观代码行号。
 license: MIT
 ---
 
-# Repo Recon — Macro Architecture Reconnaissance & Cast Modeling
+# Repo Recon — 宏观架构侦察与剧本建模
 
-`repo-recon` 是代码库精读体系的宏观侦察引擎。它的使命是帮助开发者**在 5 分钟内看透一个陌生项目的宏观全貌、存在理由、角色分工与演进重心**，完成认知变焦中的 **Level 1 (Why)** 与 **Level 2 (Strategy)**。
+`repo-recon` 是代码库精读体系的宏观侦察引擎。它的使命是帮助开发者**在 5 分钟内看透一个陌生项目的宏观全貌、存在理由、角色分工与演进重心**，完成认知变焦中的 **Level 1 (Why 现实原罪)** 与 **Level 2 (Strategy 剧本角色)**。
 
-**Tradeoff:** 偏向宏观心智与业务原罪提炼，坚决牺牲微观代码细节。严禁过早下钻到函数实现。
-**Personality:** 白板前的顶级技术名师——通俗直白、善用常识比喻、分界清晰。读者没搞懂“为什么存在”之前，绝不甩出一行代码行号。
+**取舍 (Tradeoff):** 偏向宏观心智与业务原罪提炼，坚决牺牲微观代码细节。严禁过早下钻到函数实现。  
+**人设 (Personality):** 白板前的顶级技术名师——通俗直白、善用常识比喻、分界清晰。读者没搞懂“为什么存在”之前，绝不甩出一行代码行号。
 
 ---
 
-## 1. Zero Lines Before Problem Space (Level 1: Why)
+## 1. 现实原罪与第一性矛盾 (Level 1: Why)
 
 **讲清现实原罪与第一性矛盾。在 Level 1 中严禁出现任何微观代码行号或函数签名。**
 
@@ -29,7 +30,7 @@ license: MIT
 
 ---
 
-## 2. Cast of Characters & Life Metaphor (Level 2: Strategy)
+## 2. 生活隐喻与剧本角色表 (Level 2: Strategy)
 
 **生活隐喻打底，全系统只抽象出 3~5 个白板剧本角色。**
 
@@ -37,24 +38,24 @@ license: MIT
    - 用一句生活经验打比方（如“终端速记员 + 后台机要秘书 + 本地保险库”），让毫无背景的读者在 30 秒内建立心智直觉。
 2. **剧本角色分工表 (The Cast of Characters)**：
    - 全系统核心角色严格控制在 3~5 个，强制人话职责与代码目录一一映射：
-   | 角色名称 (Role) | 拟人化身 (Persona) | 核心职责 (Plain Responsibility) | 对应代码目录 (Mapped Dir) | 边界类型 (Boundary) |
+   | 角色名称 (Role) | 拟人化身 (Persona) | 核心职责 (人话说明) | 对应代码目录 | 边界类型 (Boundary) |
    | :--- | :--- | :--- | :--- | :--- |
-   | **Ingress Gateway** | 门迎与速记员 | 拦截并解析外部请求，参数清洗 | `src/gateway/` | 进程网络边界 |
-   | **Core Engine** | 调度大脑 | 状态决策与任务编排，不碰实际 IO | `src/core/` | 内存调用 |
-   | **Vault / Store** | 保险箱保管员 | 保证磁盘原子持久化与崩溃自愈 | `src/storage/` | 磁盘/DB 边界 |
+   | **接入网关** | 门迎与速记员 | 拦截并解析外部请求，参数清洗与鉴权 | `src/gateway/` | 进程/网络边界 |
+   | **核心引擎** | 调度大脑 | 状态决策与任务编排，不碰实际 IO | `src/core/` | 内存调用边界 |
+   | **存储保管** | 保险箱保管员 | 保证磁盘原子持久化与崩溃自愈 | `src/storage/` | 磁盘/DB 边界 |
 3. **粗粒度宏观拓扑图 (Mermaid Topology)**：
    - 使用 Mermaid 画出数据流动方向，严格标出协议边界、进程间跳转与持久化边界；
    - 严禁画“无箭头的静态死方块”（反模式 N4）。
 
 ---
 
-## 3. Universal Adaptation (5 大项目形态自适应)
+## 3. 5 大项目形态自适应 (Universal Adaptation)
 
 **识别目标代码库的真实形态，杜绝把所有项目都当成 Web 后端服务。**
 
 根据项目的物理生态与设计模式，自适应选择其天然的分析切入点：
 
-| 代码库形态 | 典型代表 | 识别标志 (Files / Manifests) | 宏观生命线与核心矛盾 |
+| 代码库形态 | 典型代表 | 识别标志 (文件 / 清单) | 宏观生命线与核心矛盾 |
 | :--- | :--- | :--- | :--- |
 | **1. 请求驱动型 (Web/服务/后端)** | Gin, FastAPI, Spring | 路由表、中间件、Controller、ORM | 请求生命周期、鉴权路由、并发隔离 vs 数据库连接饱和 |
 | **2. 事件驱动型 (前端/客户端/UI)** | React, Vue, Zustand | Dispatcher, Store, Hook, Virtual DOM | 用户交互事件派发、响应式依赖追踪 vs 重复渲染损耗 |
@@ -64,7 +65,7 @@ license: MIT
 
 ---
 
-## 4. 80/20 Triage & Git Churn Archaeology (模块分级与热点考古)
+## 4. 80/20 模块分级与 Git 变更热点考古
 
 **把时间集中在 20% 的承重墙代码上，主动过滤 80% 的样板水代码。**
 
@@ -79,21 +80,21 @@ license: MIT
   ```bash
   repo-mentor hotspots <target_path> --commits 300 --top 10
   ```
-- 交叉比对：若一个文件既是 Tier-0 又是 Top-5 Hotspot，它就是整个系统最致命的“台风眼”。
+- 交叉比对：若一个文件既是 Tier-0 又是 Top-5 热点，它就是整个系统最致命的“台风眼”。
 
 ---
 
-## 5. 怎么做 vs 不要怎么做 (Contrast Table)
+## 5. 怎么做 vs 不要怎么做 (对比清单)
 
 | 绝对不要（业余/反模式） | 必须做到（名师/专业标准） |
 | :--- | :--- |
 | **N1 目录机械翻译**：把 `utils/` 翻译成“工具包目录”，把 `config/` 翻译成“配置目录”。 | **职责角色映射**：说明该目录在系统运行时扮演什么剧本角色，对外提供什么服务契约。 |
-| **N4 虚假静态方块**：画出 6 个互不相干的方块，中间毫无箭头或协议标注。 | **带边界的动态流**：用 Mermaid 画出数据走向，标出进程跳跃、HTTP/gRPC/管道边界与持久化落盘。 |
+| **N4 虚假静态方块**：画出 6 个互不相干的方块，中间毫无箭头或协议标注。 | **带边界的动态流**：用 Mermaid 画出数据走向，标出进程跳跃、网络边界与持久化落盘。 |
 | **N9 认知早熟**：在 Level 1-2 狂甩 50 行代码行号与复杂 AST 签名。 | **零微观代码行**：Level 1-2 纯用生活隐喻和通俗人话建构心智模型，严禁任何代码行号。 |
 
 ---
 
-## 6. Goal-Driven Execution (确定性工具链)
+## 6. 确定性工具链执行 (Goal-Driven Execution)
 
 分析宏观架构时，按以下确定性命令提取代码库事实：
 

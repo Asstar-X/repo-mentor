@@ -1,53 +1,53 @@
-# /deep-dive (Aliases: /core, /drill) — Keystone Entities, State Machines & Limit Drills
+# /deep-dive (别名: /core, /drill) — 核心状态机、承重算法与极限演练
 
-> **Backing Skill**: [`skills/repo-deepdive/SKILL.md`](../skills/repo-deepdive/SKILL.md)
+> **支撑技能**: [`skills/repo-deepdive/SKILL.md`](../skills/repo-deepdive/SKILL.md)
 
-Executes cognitive **Level 4 (Deep Dive)** & **Level 5 (Takeaway)**: inspects keystone entity structures, models lifecycle state machines (FSM), extracts 3~8 load-bearing code lines with verified AST anchors, runs destructive What-If disaster drills, and audits architectural trade-offs.
+执行认知变焦中的 **Level 4 (Deep Dive 硬核源码)** 与 **Level 5 (Takeaway 架构权衡)**：剖析常驻核心实体内存布局、构建生命周期状态机模型 (FSM)、提取 3~8 行带有真实代码锚点的核心算法、构造时序交错的破坏性 What-If 极限推演，并提炼架构权衡与可迁移模式。
 
 ---
 
-## Operational Workflow
+## 执行工作流
 
-### 1. Inspect Keystone Entities & Symbols
+### 1. 审视核心实体结构与符号
 ```bash
-# Locate keystone structs, classes, or state machines in target domain
+# 定位目标领域的核心结构体、类定义或状态枚举
 repo-mentor ast <target_path> --symbol <KeystoneStruct>
 ```
 
-### 2. Generate Deep-Dive Slice (`studies/<repo_name>/traces/<domain>_core.md`)
+### 2. 生成深度切片报告 (`studies/<repo_name>/traces/<domain>_core.md`)
 
-#### Part I: Keystone Entities & Lifecycle State Machine
-- **Keystone Structures**: Physical line anchors `[path/to/struct.ext#Lstart-Lend]` with memory layouts and lock protection notes.
-- **State Transition Model (`stateDiagram-v2`)**: Initial state to terminal state, including explicit **forbidden transition guards**.
+#### 第一部分：核心实体与生命周期状态机 (FSM)
+- **核心实体结构**：标注物理文件路径 `[path/to/struct.ext#Lstart-Lend]`，说明关键字段内存持有关系与并发锁保护。
+- **状态迁移模型 (`stateDiagram-v2`)**：明确从初始状态到终态的所有跃迁，显式指出**非法跃迁防护守卫 (Forbidden Guard)**。
 
-#### Part II: Load-Bearing Algorithms & Code Anchors
-- **3~8 Load-Bearing Lines**: Essential concurrency control, pointer swapping, or core mathematical calculations.
-- **Triple-Anchor Compliance**: Every code snippet MUST link to `[path/to/file.ext#Lstart-Lend]`.
+#### 第二部分：承重算法与真实代码锚点 (Triple-Anchor)
+- **3~8 行核心算法**：只截取最精炼的核心算法逻辑（如双检锁、指针位移、CAS 争抢点）。
+- **三锚点强规范**：每个代码块必须精确挂载到 `[path/to/file.ext#Lstart-Lend]`。
 
-#### Part III: Destructive Limit Scenario & What-If Drill
-- 💥 **What-If Disaster Hypothesis**: "If line X or lock Y is omitted, how does the system fail?"
-- **Interleaved Concurrent Schedule**: Step-by-step timeline proof of race condition, crash, or data corruption.
-- **Verified Source Defense**: Concrete defense deployed in the live codebase (single-flight, CAS, timeout, WAL replay).
+#### 第三部分：破坏性极限场景推演 (What-If Drills)
+- 💥 **What-If 灾难假设**：“如果把某行关键锁或超时保护去掉，系统会怎么死？”
+- **时序交错反例证明**：构造包含 T1、T2、T3 的多线程交错时间线，证明竞态死锁或内存泄漏。
+- **实时源码防御验证**：指出作者在真实代码中部署了何种护城河（如 CAS 重试、Singleflight 合并、WAL 幂等重放）。
 
-#### Part IV: Level 5 Trade-offs & Borrowable Patterns
-- **Trade-offs**: What was sacrificed to achieve this design?
-- **Borrowable Patterns**: 1~2 design patterns the reader can directly adopt in their own projects.
+#### 第四部分：Level 5 架构权衡与可迁移模式
+- **架构权衡 (Trade-offs)**：作者为了换取核心指标，刻意牺牲了什么？技术债在何处？
+- **可迁移模式 (Borrowable Patterns)**：提炼 1~2 个读者下周在自己的业务中可以直接借鉴的设计模式。
 
 ---
 
-## 3. Automated Verification & Archival
+## 3. 自动化质量验证与归档
 ```bash
-# Verify code anchors and lint Mermaid state diagrams with auto-fix
+# 静态校验代码锚点与状态图语法（开启自动修正）
 repo-mentor verify <target_path> studies/<repo_name>/traces/<domain>_core.md --fix
 
-# Evaluate against anti-AI fluff linting
+# 运行反 AI 套话与 100 分制裁判评估
 repo-mentor eval <target_path> studies/<repo_name>/traces/<domain>_core.md
 ```
 
 ---
 
-## 4. Update Checklist
-In `studies/<repo_name>/README.md`, mark the domain's state model and limit drill as completed:
+## 4. 更新领域进度
+在 `studies/<repo_name>/README.md` 中，将该领域的状态机与极限推演标记为已探索：
 ```markdown
-- [x] **Domain: [Domain Name]** (`[path/to/module/]`) — Explored (Trace, Core FSM & What-If Defense)
+- [x] **领域: [领域名称]** (`[path/to/module/]`) — 已探索 (数据旅程、核心状态机与极限防御)
 ```

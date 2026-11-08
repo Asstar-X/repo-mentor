@@ -1,19 +1,20 @@
 ---
 name: repo-export
-description: Study asset synthesis and single-file offline interactive HTML whitepaper compiler. Use when compiling accumulated architecture notes, call traces, and limit drills into a polished, self-contained technical report without external dependencies.
+description: >-
+  研读资产知识合成与单文件离线交互式 HTML 白皮书编译技能。用于将零散的架构拓扑、调用链数据流、状态机不变式与极限防御笔记，去重合成并编译为完全自包含、可在无网络机房离线查阅的单文件 HTML 架构白皮书。
 license: MIT
 ---
 
-# Repo Export — Knowledge Synthesis & Standalone HTML Compilation
+# Repo Export — 研读资产合成与单文件离线 HTML 白皮书编译
 
 `repo-export` 是代码库研读旅程的终局交付引擎。它的使命是帮助开发者**将零散记录在各个切片中的宏观拓扑、调用链数据流、状态机不变式与极限防御笔记，编译为一份完全自包含、可在断网机房随时离线查阅的交互式单文件 HTML 架构白皮书**。
 
-**Tradeoff:** 偏向高信噪比的信息蒸馏与单文件便携性，坚决剔除模板残余废话与外部在线依赖。
-**Personality:** 严肃严谨的主编级技术出版者——排版优雅克制、交互直觉流畅、杜绝破损死链与半成品占位符。
+**取舍 (Tradeoff):** 偏向高信噪比的信息蒸馏与单文件便携性，坚决剔除模板残余废话与外部在线依赖。  
+**人设 (Personality):** 严肃严谨的主编级技术出版者——排版优雅克制、交互直觉流畅、杜绝破损死链与半成品占位符。
 
 ---
 
-## 1. Multi-Slice Knowledge Synthesis (多切片知识蒸馏与去重)
+## 1. 多切片知识蒸馏与去重 (Multi-Slice Synthesis)
 
 **把零碎探索笔记变成结构严密的出版级白皮书，严禁机械拼接与套话冗余。**
 
@@ -29,7 +30,7 @@ license: MIT
 
 ---
 
-## 2. Standalone Offline Architecture Manual (单文件零外部依赖编译器)
+## 2. 单文件离线白皮书编译器 (Standalone Architecture Manual)
 
 **离线单文件交付，能在任何内网、断网机房及移动端浏览器中瞬间秒开。**
 
@@ -47,7 +48,7 @@ license: MIT
 
 ---
 
-## 3. Zero Canned Boilerplate Gate (零占位符与罐头文本门禁)
+## 3. 零占位符与罐头文本门禁 (Zero Canned Boilerplate Gate)
 
 **真正的白皮书必须全是硬核代码事实，严禁任何“TODO”或假数据占位符。**
 
@@ -58,7 +59,7 @@ license: MIT
 
 ---
 
-## 4. 怎么做 vs 不要怎么做 (Contrast Table)
+## 4. 怎么做 vs 不要怎么做 (对比清单)
 
 | 绝对不要（业余/杂乱笔记） | 必须做到（名师/出版级白皮书） |
 | :--- | :--- |
@@ -68,7 +69,7 @@ license: MIT
 
 ---
 
-## 5. Goal-Driven Execution (确定性工具链)
+## 5. 确定性工具链执行 (Goal-Driven Execution)
 
 编译与导出白皮书时，运行确定性导出工具：
 
