@@ -148,7 +148,7 @@ repo-mentor/
 │   ├── repo-recon/SKILL.md           # 项目概览: 使命痛点、开箱验证、宏观拓扑与演进热点 (/overview)
 │   ├── repo-core/SKILL.md            # 向内看自身: 核心实现与内部逻辑深度剖析 (/core)
 │   ├── repo-trace/SKILL.md           # 向外看应用: 上下文使用场景与调用脉络追踪 (/trace)
-│   ├── repo-drill/SKILL.md           # 名师考核: 提炼灵魂考题抽查答辩与批改 (/drill)
+│   ├── repo-drill/SKILL.md           # 硬核抽查: 提炼核心问题抽查答辩与复盘 (/drill)
 │   ├── repo-verify/SKILL.md          # 质量门禁: 代码锚点真实性与事实审计 (/verify)
 │   └── repo-export/SKILL.md          # 成果交付: 架构白皮书合成与离线交互式导出 (/export)
 ├── methodology/                      # [方法论底座] 7 篇通用代码精读与架构推演实战指南
@@ -162,7 +162,7 @@ repo-mentor/
 | **[`repo-recon`](skills/repo-recon/SKILL.md)** | `/overview` | **全局全景** | 现实痛点与使命契约、开箱即验（构建与单测）、代码组织与架构拓扑、Git 热点与切入路线。 |
 | **[`repo-core`](skills/repo-core/SKILL.md)** | `/core` | **向内看自身** | 纯人话讲透它干什么、内部处理主线、承重切片与设计意图、特殊与边界防护。 |
 | **[`repo-trace`](skills/repo-trace/SKILL.md)** | `/trace` | **向外看应用** | 实际业务触发场景、最上游触发源、上下游协同拓扑图、具象实例流经差分、异常传播。 |
-| **[`repo-drill`](skills/repo-drill/SKILL.md)** | `/drill` | **名师考核** | 提炼 2~3 道直击本质的考题（意图/流转/失效），互动答辩客观批改，破除虚假掌握感。 |
+| **[`repo-drill`](skills/repo-drill/SKILL.md)** | `/drill` | **硬核抽查** | 提炼 2~3 道切中要害的问题（意图/流转/失效），互动答辩客观复盘，检验真实掌握度。 |
 | **[`repo-verify`](skills/repo-verify/SKILL.md)** | `/verify` | **质量门禁** | 自动化静态校验文档中引用的物理文件与行号范围，自愈 Mermaid 图表语法。 |
 | **[`repo-export`](skills/repo-export/SKILL.md)** | `/export` | **成果交付** | 将积累的各切片笔记去重合成，编译输出单文件零外部依赖的离线交互式 HTML 架构白皮书。 |
 

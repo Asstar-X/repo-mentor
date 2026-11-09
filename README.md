@@ -148,7 +148,7 @@ repo-mentor/
 │   ├── repo-recon/SKILL.md           # Project Onboarding: Mission, instant validation, topology & hotspots (/overview)
 │   ├── repo-core/SKILL.md            # Looking Inward: Core implementation & internal logic deep dive (/core)
 │   ├── repo-trace/SKILL.md           # Looking Outward: Contextual usage scenarios & call path tracing (/trace)
-│   ├── repo-drill/SKILL.md           # Master Examination: Socratic quizzing & oral defense (/drill)
+│   ├── repo-drill/SKILL.md           # Peer Quiz: Sharp questioning & interactive review (/drill)
 │   ├── repo-verify/SKILL.md          # Quality Gate: Code anchor audit & factual verification (/verify)
 │   └── repo-export/SKILL.md          # Deliverable: Study synthesis & offline HTML whitepaper compiler (/export)
 ├── methodology/                      # [Engineering Guides] 7 Universal code reading methodologies
@@ -162,7 +162,7 @@ repo-mentor/
 | **[`repo-recon`](skills/repo-recon/SKILL.md)** | `/overview` | **System Global** | Real-world agony, instant validation (build & smoke test), architecture topology, Git hotspots, and reading roadmap. |
 | **[`repo-core`](skills/repo-core/SKILL.md)** | `/core` | **Looking Inward** | Plain-language purpose, inner step-by-step logic, load-bearing snippets, design intent, and boundary defenses. |
 | **[`repo-trace`](skills/repo-trace/SKILL.md)** | `/trace` | **Looking Outward** | Concrete trigger scenario, root trigger event, upstream/downstream topology, sample data journey, error propagation. |
-| **[`repo-drill`](skills/repo-drill/SKILL.md)** | `/drill` | **Master Examination** | 2~3 probing Socratic questions (Why/Journey/What-If), interactive grading, and factual debunking. |
+| **[`repo-drill`](skills/repo-drill/SKILL.md)** | `/drill` | **Peer Quiz** | 2~3 sharp questions (Why/Journey/What-If), interactive review, and factual debunking. |
 | **[`repo-verify`](skills/repo-verify/SKILL.md)** | `/verify` | **Quality Gate** | Deterministic static audit of cited physical file paths, line bounds within EOF, and Mermaid syntax auto-healing. |
 | **[`repo-export`](skills/repo-export/SKILL.md)** | `/export` | **Deliverable** | Multi-slice knowledge deduplication and synthesis into a single-file, zero-CDN offline interactive HTML whitepaper. |
 
