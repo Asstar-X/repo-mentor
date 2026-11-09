@@ -7,6 +7,9 @@ license: MIT
 
 # Repo Verify — 代码锚点真实性与质检门禁
 
+> **核心职责**: **Verifying reality is your job, never the user's.**  
+> （核实真实性是你的天职，绝不是用户的。）
+
 `repo-verify` 是代码库研读成果的确定性质量检验门禁。它的使命是确保研读文档中的每一处代码引用、流程图和核心论断都严格基于代码库的真实事实，消除文件不存在、行号越界和图表语法损坏。
 
 ---

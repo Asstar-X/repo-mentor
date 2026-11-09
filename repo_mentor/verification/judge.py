@@ -160,9 +160,9 @@ class RubricJudge:
             d1_score = 0.0
 
         # D2: Architecture & Trade-offs (25 pts)
-        # Tier triage (10 pts), Trade-offs / Debt (10 pts), State machine / Invariants (5 pts)
+        # Module triage (10 pts), Trade-offs / Debt (10 pts), State machine / Invariants (5 pts)
         d2_score = 0.0
-        has_tier_triage = bool(re.search(r'Tier-0.*(?:Tier-1|Tier-2)|模块优先级|阅读分流', content, re.DOTALL))
+        has_tier_triage = bool(re.search(r'Tier-0.*(?:Tier-1|Tier-2)|模块优先级|阅读分流|核心模块|模块分工|代码全景|架构组织|核心组件|Core Components?|Key Modules?|Module Breakdown', content, re.DOTALL))
         if has_tier_triage:
             d2_score += 10.0
 
@@ -181,14 +181,14 @@ class RubricJudge:
         if has_tradeoffs:
             d2_score += 10.0
 
-        has_invariants = bool(re.search(r'不变式|Invariants?|State Machine|状态机|实体心智模型|生命周期', content, re.IGNORECASE))
+        has_invariants = bool(re.search(r'不变式|Invariants?|State Machine|状态机|实体心智模型|生命周期|状态流转|规则约束|边界防线|设计约束|State Lifecycle', content, re.IGNORECASE))
         if has_invariants:
             d2_score += 5.0
 
         # D3: Execution Flow Continuity (20 pts)
         # Golden path flow (10 pts), Verified diagram hops (10 pts)
         d3_score = 0.0
-        has_golden_path = bool(re.search(r'黄金路径|Golden Path|端到端全景|Call Chain|调用链路', content, re.IGNORECASE))
+        has_golden_path = bool(re.search(r'黄金路径|Golden Path|端到端全景|Call Chain|调用链路|核心流程|主流程|核心工作流|调用脉络|数据流向|Execution Flow', content, re.IGNORECASE))
         if has_golden_path:
             d3_score += 10.0
         d3_score += (overall_epc / 100.0) * 10.0

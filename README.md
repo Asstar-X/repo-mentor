@@ -28,7 +28,7 @@
 [CLI Commands](#cli-command-reference) •
 [Agent Skill](#agent-skill-interface) •
 [Anti-AI Methodology](#anti-ai-reading-methodology--100-point-rubric) •
-[Benchmarks](#multi-sample-benchmark-preview)
+[Security & Hardening](#security--untrusted-code-hardening)
 
 </div>
 
@@ -228,17 +228,16 @@ $$\text{Final Score} = S_{\text{grounding}} + S_{\text{execution}} + S_{\text{fl
 
 ---
 
-## Multi-Sample Validation Scorecard
+## Fact Quality & Verification Matrix
 
-`repo-mentor` is validated against multi-language, production-grade open-source repositories to guarantee cross-ecosystem objectivity:
+`repo-mentor` enforces strict deterministic standards across all generated documentation:
 
-### Benchmark Scorecard (Representative Run)
-
-| Target Repository | Ecosystem | Fact Grounding | Hallucination Count | Fluff-Free Index | Total Rubric Score | Grade |
-| :--- | :--- | :---: | :---: | :---: | :---: | :---: |
-| **`mem0ai/mem0`** | Python | 96.4% | **0** | 94.2 / 100 | **92.5 / 100** | **Grade A** |
-| **`gin-gonic/gin`** | Go | 95.1% | **0** | 93.8 / 100 | **91.0 / 100** | **Grade A** |
-| *Generic AI Chat Baseline* | Python / Go | 38.2% | 14 | 41.0 / 100 | 28.5 / 100 | **Fail** |
+| Evaluation Dimension | Core Quality Criteria | Standard | Penalty Rule |
+| :--- | :--- | :---: | :--- |
+| **Fact Grounding Rate** | Cited physical files and line ranges must strictly exist on disk | $\ge 90\%$ | -10 pts per missing file or out-of-bounds line |
+| **Fluff-Free Index (FFI)** | Zero vacuous marketing jargon, theatrical metaphors, or empty praise | $\ge 90 / 100$ | -5 pts per banned buzzword, -8 pts per ungrounded fluff paragraph |
+| **Execution Flow** | Continuous end-to-end call path without fabricated intermediate hops | $\ge 80\%$ | Penalized on broken diagram transitions or disconnected hops |
+| **Mermaid Integrity** | Strict syntactic correctness and offline rendering compatibility | $100\%$ | Direct auto-repair on unquoted parens, reserved keywords, or colons |
 
 ---
 

@@ -7,6 +7,9 @@ license: MIT
 
 # Repo Recon — 项目概览与快速上手
 
+> **核心职责**: **Make them get the point and see it run within 30 seconds.**  
+> （30 秒内让人搞懂它干啥，并亲手跑通验证。）
+
 `repo-recon` 是代码库研读的宏观入口，目标是用大白话帮助开发者在最短时间内建立全局视角、搞懂系统意图、在本地跑通验证，并知道从哪里切入阅读代码。
 
 ---

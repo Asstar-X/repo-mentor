@@ -7,6 +7,9 @@ license: MIT
 
 # Repo Drill — 硬核问题抽查与答辩复盘
 
+> **核心职责**: **Test why it was built and where it breaks, never syntax.**  
+> （考底层取舍和崩溃边界，绝不考死记硬背。）
+
 `repo-drill` 用于在读完代码后**检验自己是不是真的吃透了，破除“以为看懂了，一问细节就卡壳”的假象**。
 
 **取舍 (Tradeoff):** 聚焦检验核心设计意图与边界情况，绝不考死记硬背的代码语法或琐碎细节。  

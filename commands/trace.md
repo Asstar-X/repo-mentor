@@ -1,6 +1,7 @@
 # /trace — 上下文使用场景与调用脉络追踪
 
-> **支撑技能**: [`skills/repo-trace/SKILL.md`](../skills/repo-trace/SKILL.md)
+> **支撑技能**: [`skills/repo-trace/SKILL.md`](../skills/repo-trace/SKILL.md)  
+> **核心职责**: **Follow a living data sample, never read dead symbols in isolation.** (拽着真实数据样本走全流程，绝不孤立看死符号。)
 
 专注于**看目标在外部场景怎么用**：像真人同事梳理业务流一样，用通俗大白话讲透它用在哪里、真实场景下谁调它、下游交给了谁、拿个具体例子怎么跑、异常时怎么处理。
 

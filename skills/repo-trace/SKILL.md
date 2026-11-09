@@ -7,6 +7,9 @@ license: MIT
 
 # Repo Trace — 上下文使用场景与调用脉络追踪
 
+> **核心职责**: **Follow a living data sample, never read dead symbols in isolation.**  
+> （拽着真实数据样本走全流程，绝不孤立看死符号。）
+
 `repo-trace` 用于看清一个对象在整个系统大图里**用在哪里、什么实际场景下被谁调起来、下游把结果交给了谁、拿个具体例子怎么跑、异常时怎么处理**。
 
 **取舍 (Tradeoff):** 聚焦目标在外部链路里的上下游关系，不深入其内部私有逻辑的细节实现。  

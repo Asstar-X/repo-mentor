@@ -1,6 +1,7 @@
 # /drill — 硬核问题抽查与答辩复盘
 
-> **支撑技能**: [`skills/repo-drill/SKILL.md`](../skills/repo-drill/SKILL.md)
+> **支撑技能**: [`skills/repo-drill/SKILL.md`](../skills/repo-drill/SKILL.md)  
+> **核心职责**: **Test why it was built and where it breaks, never syntax.** (考底层取舍和崩溃边界，绝不考死记硬背。)
 
 读完代码后检验自己是不是真吃透了。针对目标抛出 2~3 个接地气、直击要害的问题（设计意图、流转形态、极端情况），并对你的回答进行客观专业的复盘交流。
 

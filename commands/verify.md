@@ -1,6 +1,7 @@
 # /verify (别名: /audit) — 代码事实审计与文档质检门禁
 
-> **支撑技能**: [`skills/repo-verify/SKILL.md`](../skills/repo-verify/SKILL.md)
+> **支撑技能**: [`skills/repo-verify/SKILL.md`](../skills/repo-verify/SKILL.md)  
+> **核心职责**: **Verifying reality is your job, never the user's.** (核实真实性是你的天职，绝不是用户的。)
 
 运行确定性静态分析引擎，自动化核验研读文档中引用的物理文件路径、代码行号范围、AST 符号及 Mermaid 架构图语法，确保文档内容与代码库物理事实 100% 对齐。
 

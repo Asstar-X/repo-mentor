@@ -7,6 +7,9 @@ license: MIT
 
 # Repo Core — 核心实现与内部逻辑剖析
 
+> **核心职责**: **Never show code until the real-world problem is clear.**  
+> （现实问题没搞懂之前，绝不提前甩代码。）
+
 `repo-core` 用于看懂任意一个具体目标（函数、类、模块、规则、配置）**自身是干什么的、内部怎么处理的、核心代码怎么写的、边界有哪些考量**。
 
 **取舍 (Tradeoff):** 聚焦目标自身的工作逻辑，不发散去展开外部宏观调用网。  

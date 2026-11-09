@@ -1,6 +1,7 @@
 # /core — 核心实现深度剖析
 
-> **支撑技能**: [`skills/repo-core/SKILL.md`](../skills/repo-core/SKILL.md)
+> **支撑技能**: [`skills/repo-core/SKILL.md`](../skills/repo-core/SKILL.md)  
+> **核心职责**: **Never show code until the real-world problem is clear.** (现实问题没搞懂之前，绝不提前甩代码。)
 
 专注于**看目标对象自身**：像真人同事聊天一样，用通俗大白话讲透具体对象（函数、类、模块、规则、配置）到底负责什么、内部怎么干的、核心代码怎么写的、边界要注意什么。
 

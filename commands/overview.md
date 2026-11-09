@@ -1,6 +1,7 @@
 # /overview (别名: /recon) — 项目概览与快速上手
 
-> **支撑技能**: [`skills/repo-recon/SKILL.md`](../skills/repo-recon/SKILL.md)
+> **支撑技能**: [`skills/repo-recon/SKILL.md`](../skills/repo-recon/SKILL.md)  
+> **核心职责**: **Make them get the point and see it run within 30 seconds.** (30 秒内让人搞懂它干啥，并亲手跑通验证。)
 
 像资深同事交底一样，用大白话讲清项目是干啥的、解决什么麻烦、怎么在本地一行命令跑起来、核心目录各管啥、从哪几个文件切入最顺畅。
 

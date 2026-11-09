@@ -77,9 +77,9 @@ BANNED_BUZZWORDS: List[Tuple[str, str, str]] = [
 
 COMPILED_BANNED = [(re.compile(p, re.IGNORECASE), cat, expl) for p, cat, expl in BANNED_BUZZWORDS]
 
-# Trade-offs / Failure Modes Section Pattern
+# Trade-offs / Failure Modes / Design Considerations Section Pattern
 TRADEOFFS_HEADING_RE = re.compile(
-    r'###?.*(?:Trade-offs?|架构设计权衡|权衡|决策反思|Technical Debt|技术债|Failure Modes?|异常冒泡|故障防御|Limit Scenarios?)',
+    r'###?.*(?:Trade-offs?|架构设计权衡|权衡|决策反思|Technical Debt|技术债|Failure Modes?|异常冒泡|故障防御|Limit Scenarios?|设计考量|设计取舍|边界处理|边界考量|踩坑点|注意事项|Design Considerations?|Edge Cases?|Failure Scenarios?)',
     re.IGNORECASE
 )
 
