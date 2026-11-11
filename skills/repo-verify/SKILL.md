@@ -1,7 +1,7 @@
 ---
 name: repo-verify
 description: >-
-  代码事实真实性审计与 Mermaid 图表自愈质检门禁技能。用于在编写或修改研读文档后，自动化静态校验所引用代码文件与行号的物理存在性、语法自愈纠偏 Mermaid 架构图，确保 100% 事实锚定。
+  代码事实真实性审计与 Mermaid 图表自愈质检门禁技能。用于在编写或修改研读文档后，自动化静态校验所引用代码文件与行号的物理存在性、语法自愈纠偏 Mermaid 架构图，确保 100% 事实锚定。Fact-grounding audit and quality gate for study notes: statically verify that cited file paths and line numbers physically exist, and auto-heal Mermaid diagram syntax.
 license: MIT
 ---
 
@@ -72,3 +72,9 @@ repo-mentor eval <target_path> studies/<repo_name>/
 - [ ] 引用的代码行号均在文件总行数范围内；
 - [ ] 文档中嵌入的 Mermaid 图表经校验无语法错误且可正常渲染；
 - [ ] 关键技术结论均有真实文件或代码事实作为支撑。
+
+---
+
+## 参考资源（按需加载）
+
+- [方法论 07：三重锚定事实核验与安全边界](../../methodology/07-factual-grounding-security.md)

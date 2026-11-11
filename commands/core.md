@@ -1,6 +1,11 @@
+---
+description: 核心实现深度剖析（/repo-core 的可选短别名）。用大白话讲透目标的职责、主线逻辑、核心代码与边界注意点。
+argument-hint: <目标对象>
+---
+
 # /core — 核心实现深度剖析
 
-> **支撑技能**: [`skills/repo-core/SKILL.md`](../skills/repo-core/SKILL.md)  
+> **对应技能**: [`/repo-core`](../skills/repo-core/SKILL.md)（技能名即命令名；本文件是可选短别名，需拷入平台命令目录后生效）  
 > **核心职责**: **Never show code until the real-world problem is clear.** (现实问题没搞懂之前，绝不提前甩代码。)
 
 专注于**看目标对象自身**：像真人同事聊天一样，用通俗大白话讲透具体对象（函数、类、模块、规则、配置）到底负责什么、内部怎么干的、核心代码怎么写的、边界要注意什么。
@@ -11,8 +16,8 @@
 
 ### 1. 定位目标对象
 ```bash
-# 查看目标对象的符号定义与位置
-repo-mentor ast <target_path> --symbol <TargetSymbol>
+# 提取目标文件的符号定义与位置（类、函数、签名、行号）
+repo-mentor ast <target_path> <file_or_dir>
 ```
 
 ### 2. 生成核心剖析（保存至 `studies/<repo_name>/traces/<target>_core.md`）

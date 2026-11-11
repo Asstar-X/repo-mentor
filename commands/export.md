@@ -1,6 +1,10 @@
-# /export (别名: /report) — 离线 HTML 架构白皮书编译导出
+---
+description: 离线 HTML 架构白皮书编译导出（/repo-export 的可选短别名）。将研读资产合成为零外部依赖的单文件交互白皮书。
+---
 
-> **支撑技能**: [`skills/repo-export/SKILL.md`](../skills/repo-export/SKILL.md)  
+# /export — 离线 HTML 架构白皮书编译导出
+
+> **对应技能**: [`/repo-export`](../skills/repo-export/SKILL.md)（技能名即命令名；本文件是可选短别名，需拷入平台命令目录后生效）  
 > **核心职责**: **Distill the essence into courseware, never dump raw notes.** (把精华萃取成精品课件，绝不交杂乱草稿。)
 
 将积累在 `studies/<repo_name>/` 下的所有研读资产去重合成，编译为一份完全自包含、可在无网络机房离线查阅的单文件 HTML 交互式架构白皮书。

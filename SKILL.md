@@ -1,10 +1,8 @@
 ---
 name: repo-mentor
-description: >-
-  通用代码库精读助手。无论是源码库、AI项目、Skills规则、配置文件还是系统工具，像真人同事聊天一样用大白话讲透原理，提供向内剖析自身实现（/core）、向外追踪使用场景（/trace）、硬核问题抽查复盘（/drill）、全局快速破冰（/overview）的精读支持。
-allowed-tools: Read, Write, Edit, Glob, Grep, RunCommand, AskUserQuestion
+description: 通用代码库精读助手。无论是源码库、AI项目、Skills规则、配置文件还是系统工具，像真人同事聊天一样用大白话讲透原理，提供向内剖析自身实现（/repo-core）、向外追踪使用场景（/repo-trace）、硬核问题抽查复盘（/repo-drill）、全局快速破冰（/repo-recon）的精读支持。Universal codebase deep-reading assistant: plain-language explanations with machine-verified code citations. Use when reading unfamiliar repositories — /repo-recon for onboarding, /repo-core for internals, /repo-trace for usage scenarios, /repo-drill for mastery checks, /repo-verify for fact auditing, /repo-export for offline whitepapers.
+tools: Read, Write, Edit, Glob, Grep, Bash, AskUserQuestion
 license: MIT
-framework_version: 2.3.0
 ---
 
 # Repo Mentor — 通用代码库精读助手
@@ -33,20 +31,40 @@ framework_version: 2.3.0
 
 把“它自己怎么写的”与“别人怎么用它的”清晰分开：
 
-- **`/core <目标>`（看它自己）**：
+- **`/repo-core <目标>`（看它自己）**：
   讲它到底负责什么、内部按哪几步展开、关键代码怎么写的、有什么容易踩坑的边界。
-- **`/trace <目标>`（看它怎么被用）**：
+- **`/repo-trace <目标>`（看它怎么被用）**：
   讲别人在什么场景下调它、最上游是谁触发的、处理完交给了谁、拿一个具体例子跑一遍前后变化、出错了怎么反馈。
 
 ---
 
-## 3. 核心命令一览
+## 3. 核心命令一览（技能名即命令名）
 
 | 命令 | 一句话说明 | 对应子技能 |
 | :--- | :--- | :--- |
-| **`/overview`** | **项目是干啥的、怎么跑起来**：痛点、开箱验证命令、核心目录职责、从哪几个文件切入。 | [`skills/repo-recon`](skills/repo-recon/SKILL.md) |
-| **`/core <目标>`** | **这块东西自己是干啥的、怎么实现的**：通俗讲透职责、主线逻辑、关键代码片断与注意点。 | [`skills/repo-core`](skills/repo-core/SKILL.md) |
-| **`/trace <目标>`** | **它在真实场景中怎么用的**：谁在什么场景调它、结果给谁、实例走读、异常怎么向外传。 | [`skills/repo-trace`](skills/repo-trace/SKILL.md) |
-| **`/drill [目标]`** | **搭档抽查答辩**：出 2~3 个最接地气、最考验有没有真懂的核心问题，客观交流与复盘。 | [`skills/repo-drill`](skills/repo-drill/SKILL.md) |
-| **`/verify`** | **静态核验代码引用**：自动校验文档中引用的文件路径与行号是否真实，修复 Mermaid 图表语法。 | [`skills/repo-verify`](skills/repo-verify/SKILL.md) |
-| **`/export`** | **整理导出离线白皮书**：将研读笔记编译合并为单个离线交互式 HTML 页面。 | [`skills/repo-export`](skills/repo-export/SKILL.md) |
+| **`/repo-recon`** | **项目是干啥的、怎么跑起来**：痛点、开箱验证命令、核心目录职责、从哪几个文件切入。 | [`skills/repo-recon`](skills/repo-recon/SKILL.md) |
+| **`/repo-core <目标>`** | **这块东西自己是干啥的、怎么实现的**：通俗讲透职责、主线逻辑、关键代码片断与注意点。 | [`skills/repo-core`](skills/repo-core/SKILL.md) |
+| **`/repo-trace <目标>`** | **它在真实场景中怎么用的**：谁在什么场景调它、结果给谁、实例走读、异常怎么向外传。 | [`skills/repo-trace`](skills/repo-trace/SKILL.md) |
+| **`/repo-drill [目标]`** | **搭档抽查答辩**：出 2~3 个最接地气、最考验有没有真懂的核心问题，客观交流与复盘。 | [`skills/repo-drill`](skills/repo-drill/SKILL.md) |
+| **`/repo-verify`** | **静态核验代码引用**：自动校验文档中引用的文件路径与行号是否真实，修复 Mermaid 图表语法。 | [`skills/repo-verify`](skills/repo-verify/SKILL.md) |
+| **`/repo-export`** | **整理导出离线白皮书**：将研读笔记编译合并为单个离线交互式 HTML 页面。 | [`skills/repo-export`](skills/repo-export/SKILL.md) |
+
+---
+
+## 4. 参考资源索引（按需加载，不要一次性全读）
+
+方法论指南（`methodology/`）：
+
+- [01 项目全景侦察与开箱验证](methodology/01-project-overview.md) — `/repo-recon` 的完整打法
+- [02 向内剖析：核心实现与承重切片](methodology/02-reading-core-logic.md) — `/repo-core` 的切片方法
+- [03 向外追踪：链路场景与数据流转](methodology/03-tracing-data-flow.md) — `/repo-trace` 的追踪步骤
+- [04 核心数据结构与状态不变式](methodology/04-state-and-invariants.md) — 深挖状态机时参考
+- [05 Git 变更热点与演进考古](methodology/05-git-churn-hotspots.md) — 用 churn 定位架构重心
+- [06 硬核问题抽查与答辩复盘](methodology/06-drill-and-mastery.md) — `/repo-drill` 的出题与复盘标准
+- [07 代码事实强锚定与沙箱安全](methodology/07-factual-grounding-security.md) — `/repo-verify` 的门禁细则
+
+交付格式模板（`templates/`）：
+
+- [ARCHITECTURE.md](templates/ARCHITECTURE.md) — 架构白皮书结构参考
+- [DEBUG_NOTES.md](templates/DEBUG_NOTES.md) — 调试笔记与极限演练结构参考
+- [STUDY_INDEX.md](templates/STUDY_INDEX.md) — 研读工作区索引结构参考

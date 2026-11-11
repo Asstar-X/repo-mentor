@@ -24,25 +24,16 @@ Stress-tests:
 
 from __future__ import annotations
 
-import os
-import subprocess
-import tempfile
 from pathlib import Path
-import pytest
+
 from typer.testing import CliRunner
 
 from repo_mentor.cli import app
+from repo_mentor.core.dependency import DependencyAnalyzer
 from repo_mentor.core.parser import (
     SymbolIndex,
-    PythonASTExtractor,
-    GoSymbolLexer,
-    RustSymbolLexer,
-    TypeScriptSymbolLexer,
 )
-from repo_mentor.core.dependency import DependencyAnalyzer
-from repo_mentor.core.scanner import scan_repo
 from repo_mentor.export.html_compiler import compile_study_html
-
 
 runner = CliRunner()
 
@@ -134,7 +125,7 @@ class SpecialWorker(BaseWorker[str]):
         assert index.parse_file(comments_file) is True
 
     def test_go_symbols_and_imports(self, tmp_path: Path):
-        go_code = '''
+        go_code = """
 package server
 
 import (
@@ -160,7 +151,7 @@ func (e *Engine) ServeHTTP(ctx context.Context) error {
 func NewEngine() *Engine {
     return &Engine{port: 8080}
 }
-'''
+"""
         go_file = tmp_path / "server.go"
         go_file.write_text(go_code, encoding="utf-8")
 
@@ -183,7 +174,7 @@ func NewEngine() *Engine {
         assert "github.com/gin-gonic/gin/internal/fs" in imps
 
     def test_rust_symbols_and_imports(self, tmp_path: Path):
-        rs_code = '''
+        rs_code = """
 use std::collections::HashMap;
 use tokio::sync::Mutex;
 
@@ -209,7 +200,7 @@ impl ConfigPool {
 pub fn create_default_pool() -> ConfigPool {
     ConfigPool::new(10)
 }
-'''
+"""
         rs_file = tmp_path / "pool.rs"
         rs_file.write_text(rs_code, encoding="utf-8")
 
@@ -229,7 +220,7 @@ pub fn create_default_pool() -> ConfigPool {
         assert "std::collections::HashMap" in imps
 
     def test_typescript_symbols_and_imports(self, tmp_path: Path):
-        ts_code = '''
+        ts_code = """
 import { EventEmitter } from "events";
 import * as path from "path";
 
@@ -250,7 +241,7 @@ export class GatewayService implements IService {
 export function createGateway(): GatewayService {
     return new GatewayService();
 }
-'''
+"""
         ts_file = tmp_path / "gateway.ts"
         ts_file.write_text(ts_code, encoding="utf-8")
 
@@ -274,28 +265,34 @@ class TestDependencyDAG:
     """Stress-testing intra-repo dependency analysis."""
 
     def test_go_internal_package_mapping(self, tmp_path: Path):
-        (tmp_path / "go.mod").write_text("module github.com/sample/app\n\ngo 1.22\n", encoding="utf-8")
-        
+        (tmp_path / "go.mod").write_text(
+            "module github.com/sample/app\n\ngo 1.22\n", encoding="utf-8"
+        )
+
         render_dir = tmp_path / "render"
         render_dir.mkdir()
-        (render_dir / "render.go").write_text("package render\ntype Renderer struct{}\n", encoding="utf-8")
-        
+        (render_dir / "render.go").write_text(
+            "package render\ntype Renderer struct{}\n", encoding="utf-8"
+        )
+
         binding_dir = tmp_path / "binding"
         binding_dir.mkdir()
-        (binding_dir / "binding.go").write_text("package binding\ntype Binder struct{}\n", encoding="utf-8")
-        
+        (binding_dir / "binding.go").write_text(
+            "package binding\ntype Binder struct{}\n", encoding="utf-8"
+        )
+
         fs_dir = tmp_path / "internal" / "fs"
         fs_dir.mkdir(parents=True)
         (fs_dir / "fs.go").write_text(
             'package fs\nimport "github.com/sample/app/render"\nvar _ = render.Renderer{}\n',
-            encoding="utf-8"
+            encoding="utf-8",
         )
-        
+
         server_dir = tmp_path / "server"
         server_dir.mkdir()
         (server_dir / "server.go").write_text(
             'package server\nimport (\n\t"github.com/sample/app/binding"\n\t"github.com/sample/app/internal/fs"\n)\n',
-            encoding="utf-8"
+            encoding="utf-8",
         )
 
         analyzer = DependencyAnalyzer(tmp_path)
@@ -313,20 +310,19 @@ class TestDependencyDAG:
         pkg_dir = tmp_path / "mypkg"
         pkg_dir.mkdir()
         (pkg_dir / "__init__.py").write_text("", encoding="utf-8")
-        
+
         mem_dir = pkg_dir / "memory"
         mem_dir.mkdir()
         (mem_dir / "__init__.py").write_text("", encoding="utf-8")
         (mem_dir / "main.py").write_text(
-            "from mypkg.configs import Config\nfrom mypkg.storage import Store\n",
-            encoding="utf-8"
+            "from mypkg.configs import Config\nfrom mypkg.storage import Store\n", encoding="utf-8"
         )
-        
+
         cfg_dir = pkg_dir / "configs"
         cfg_dir.mkdir()
         (cfg_dir / "__init__.py").write_text("", encoding="utf-8")
         (cfg_dir / "settings.py").write_text("class Config: pass\n", encoding="utf-8")
-        
+
         storage_dir = pkg_dir / "storage"
         storage_dir.mkdir()
         (storage_dir / "__init__.py").write_text("", encoding="utf-8")

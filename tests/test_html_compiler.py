@@ -1,6 +1,8 @@
 """tests.test_html_compiler: Tests for dynamic single-file HTML whitepaper compiler."""
 
+import re
 import tempfile
+from importlib import resources
 from pathlib import Path
 
 from repo_mentor.export.html_compiler import (
@@ -112,3 +114,21 @@ sequenceDiagram
         assert "Architecture Diagram #2" in html_code
         assert "zoomMermaid" in html_code
         assert "btn-zoom" in html_code
+
+        # Fully offline: zero external script/style references, mermaid inlined.
+        assert re.search(r"<script[^>]+src=", html_code) is None
+        assert re.search(r'<link[^>]+href="http', html_code) is None
+        assert "jsdelivr" not in html_code
+        assert "cdnjs" not in html_code
+        assert "unpkg" not in html_code
+        assert "mermaid.initialize" in html_code
+        assert len(html_code) > 1_000_000
+
+
+def test_vendored_mermaid_asset_exists():
+    asset = resources.files("repo_mentor.export").joinpath("assets/mermaid.min.js")
+    assert asset.is_file()
+    content = asset.read_text(encoding="utf-8")
+    assert content.startswith("/*!")
+    assert "MIT" in content[:600]
+    assert len(content) > 1_000_000

@@ -1,7 +1,7 @@
 ---
 name: repo-core
 description: >-
-  核心实现深度剖析技能。用于在阅读项目时深入分析任何具体对象（函数、类、模块、Skill规则、配置），像真人同事聊天一样，用通俗大白话讲透“它负责什么、内部怎么处理的、核心代码怎么写的、边界上要注意什么”。
+  核心实现深度剖析技能。用于在阅读项目时深入分析任何具体对象（函数、类、模块、Skill规则、配置），像真人同事聊天一样，用通俗大白话讲透“它负责什么、内部怎么处理的、核心代码怎么写的、边界上要注意什么”。Deep-dive into any concrete target (function, class, module, skill rule, config): plain-language purpose, internal steps, load-bearing code, and boundary defenses.
 license: MIT
 ---
 
@@ -52,3 +52,10 @@ license: MIT
 - [ ] 是否讲透了做啥、内部怎么干的、核心代码和边界防线；
 - [ ] 引用代码是否带有真实可点击的文件与行号链接；
 - [ ] 回复中是否彻底杜绝了 `[已验证事实]` 标签、Checklist 自查列表与伪进度条。
+
+---
+
+## 参考资源（按需加载）
+
+- [方法论 02：向内剖析——核心实现与承重切片](../../methodology/02-reading-core-logic.md)
+- [方法论 04：核心数据结构与状态不变式](../../methodology/04-state-and-invariants.md)

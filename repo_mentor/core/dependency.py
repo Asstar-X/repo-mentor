@@ -13,14 +13,35 @@ import json
 import os
 import re
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Set, Tuple
+from typing import Any
 
-IGNORED_DIRS: Set[str] = {
-    ".git", ".svn", ".hg", "node_modules", "target", "vendor",
-    "__pycache__", ".venv", "venv", "env", ".idea", ".vscode",
-    "dist", "build", "out", "bin", "obj", ".next", ".nuxt",
-    ".cache", "coverage", ".pytest_cache", ".mypy_cache",
-    ".cargo", ".agents", ".claude"
+IGNORED_DIRS: set[str] = {
+    ".git",
+    ".svn",
+    ".hg",
+    "node_modules",
+    "target",
+    "vendor",
+    "__pycache__",
+    ".venv",
+    "venv",
+    "env",
+    ".idea",
+    ".vscode",
+    "dist",
+    "build",
+    "out",
+    "bin",
+    "obj",
+    ".next",
+    ".nuxt",
+    ".cache",
+    "coverage",
+    ".pytest_cache",
+    ".mypy_cache",
+    ".cargo",
+    ".agents",
+    ".claude",
 }
 
 
@@ -42,15 +63,15 @@ class DependencyAnalyzer:
 
     def __init__(self, repo_dir: str | Path):
         self.repo_root = Path(repo_dir).resolve()
-        self.manifests: List[Dict[str, Any]] = []
-        self.internal_modules: Set[str] = set()
-        self.edges: List[Dict[str, Any]] = []
+        self.manifests: list[dict[str, Any]] = []
+        self.internal_modules: set[str] = set()
+        self.edges: list[dict[str, Any]] = []
 
-    def _parse_go_mod(self, file_path: Path) -> Dict[str, Any]:
+    def _parse_go_mod(self, file_path: Path) -> dict[str, Any]:
         content = file_path.read_text(encoding="utf-8", errors="replace")
         module_name = ""
-        direct_deps: List[str] = []
-        indirect_deps: List[str] = []
+        direct_deps: list[str] = []
+        indirect_deps: list[str] = []
 
         mod_match = re.search(r"^module\s+([^\s\n\r]+)", content, re.MULTILINE)
         if mod_match:
@@ -88,13 +109,13 @@ class DependencyAnalyzer:
             "root_module": module_name,
             "direct_dependencies": direct_deps,
             "indirect_dependencies": indirect_deps,
-            "path": str(file_path.relative_to(self.repo_root).as_posix())
+            "path": str(file_path.relative_to(self.repo_root).as_posix()),
         }
 
-    def _parse_cargo_toml(self, file_path: Path) -> Dict[str, Any]:
+    def _parse_cargo_toml(self, file_path: Path) -> dict[str, Any]:
         content = file_path.read_text(encoding="utf-8", errors="replace")
         pkg_name = ""
-        dependencies: List[str] = []
+        dependencies: list[str] = []
         in_package = False
         in_deps = False
 
@@ -127,10 +148,10 @@ class DependencyAnalyzer:
             "type": "Rust",
             "module": pkg_name or file_path.parent.name,
             "dependencies": dependencies,
-            "path": str(file_path.relative_to(self.repo_root).as_posix())
+            "path": str(file_path.relative_to(self.repo_root).as_posix()),
         }
 
-    def _parse_package_json(self, file_path: Path) -> Dict[str, Any]:
+    def _parse_package_json(self, file_path: Path) -> dict[str, Any]:
         try:
             data = json.loads(file_path.read_text(encoding="utf-8", errors="replace"))
         except Exception:
@@ -145,13 +166,13 @@ class DependencyAnalyzer:
             "module": name,
             "dependencies": deps,
             "dev_dependencies": dev_deps,
-            "path": str(file_path.relative_to(self.repo_root).as_posix())
+            "path": str(file_path.relative_to(self.repo_root).as_posix()),
         }
 
-    def _parse_pyproject_toml(self, file_path: Path) -> Dict[str, Any]:
+    def _parse_pyproject_toml(self, file_path: Path) -> dict[str, Any]:
         content = file_path.read_text(encoding="utf-8", errors="replace")
         pkg_name = ""
-        dependencies: List[str] = []
+        dependencies: list[str] = []
 
         m_name = re.search(r'name\s*=\s*["\']([^"\']+)["\']', content)
         if m_name:
@@ -175,10 +196,10 @@ class DependencyAnalyzer:
             "type": "Python",
             "module": pkg_name or file_path.parent.name,
             "dependencies": dependencies,
-            "path": str(file_path.relative_to(self.repo_root).as_posix())
+            "path": str(file_path.relative_to(self.repo_root).as_posix()),
         }
 
-    def _discover_go_internal_edges(self, go_mod_info: Dict[str, Any]) -> None:
+    def _discover_go_internal_edges(self, go_mod_info: dict[str, Any]) -> None:
         """Parses Go source files to detect internal package imports."""
         root_module = go_mod_info.get("root_module", "")
         if not root_module:
@@ -205,17 +226,19 @@ class DependencyAnalyzer:
                     clean_target = subpkg.strip("/")
                     self.internal_modules.add(source_pkg)
                     self.internal_modules.add(clean_target)
-                    self.edges.append({
-                        "source": source_pkg,
-                        "target": clean_target,
-                        "is_internal": True,
-                        "ecosystem": "Go"
-                    })
+                    self.edges.append(
+                        {
+                            "source": source_pkg,
+                            "target": clean_target,
+                            "is_internal": True,
+                            "ecosystem": "Go",
+                        }
+                    )
 
     def _discover_python_internal_edges(self) -> None:
         """Parses Python source files to detect internal package and sub-package edges."""
         # Detect top-level packages (directories containing __init__.py or containing py files)
-        py_packages: Set[str] = set()
+        py_packages: set[str] = set()
         for item in self.repo_root.iterdir():
             if item.is_dir() and item.name not in IGNORED_DIRS and not item.name.startswith("."):
                 if (item / "__init__.py").is_file() or any(item.glob("*.py")):
@@ -249,24 +272,30 @@ class DependencyAnalyzer:
                     if isinstance(node, ast.ImportFrom) and node.module:
                         mod_parts = node.module.split(".")
                         if mod_parts[0] in py_packages:
-                            target_mod = ".".join(mod_parts[:2]) if len(mod_parts) >= 2 else mod_parts[0]
+                            target_mod = (
+                                ".".join(mod_parts[:2]) if len(mod_parts) >= 2 else mod_parts[0]
+                            )
                     elif isinstance(node, ast.Import):
                         for alias in node.names:
                             mod_parts = alias.name.split(".")
                             if mod_parts[0] in py_packages:
-                                target_mod = ".".join(mod_parts[:2]) if len(mod_parts) >= 2 else mod_parts[0]
+                                target_mod = (
+                                    ".".join(mod_parts[:2]) if len(mod_parts) >= 2 else mod_parts[0]
+                                )
 
                     if target_mod and target_mod != source_mod:
                         self.internal_modules.add(source_mod)
                         self.internal_modules.add(target_mod)
-                        self.edges.append({
-                            "source": source_mod,
-                            "target": target_mod,
-                            "is_internal": True,
-                            "ecosystem": "Python"
-                        })
+                        self.edges.append(
+                            {
+                                "source": source_mod,
+                                "target": target_mod,
+                                "is_internal": True,
+                                "ecosystem": "Python",
+                            }
+                        )
 
-    def analyze(self, internal_only: bool = False) -> Dict[str, Any]:
+    def analyze(self, internal_only: bool = False) -> dict[str, Any]:
         """Runs comprehensive dependency analysis across manifests and source code."""
         # 1. Discover manifests up to depth 3
         for root, dirs, files in os.walk(self.repo_root):
@@ -305,16 +334,18 @@ class DependencyAnalyzer:
                 is_internal = d in self.internal_modules
                 if internal_only and not is_internal:
                     continue
-                self.edges.append({
-                    "source": src,
-                    "target": d,
-                    "is_internal": is_internal,
-                    "ecosystem": m.get("type", "Unknown")
-                })
+                self.edges.append(
+                    {
+                        "source": src,
+                        "target": d,
+                        "is_internal": is_internal,
+                        "ecosystem": m.get("type", "Unknown"),
+                    }
+                )
 
         # Deduplicate edges
-        seen_edges: Set[Tuple[str, str]] = set()
-        unique_edges: List[Dict[str, Any]] = []
+        seen_edges: set[tuple[str, str]] = set()
+        unique_edges: list[dict[str, Any]] = []
         for e in self.edges:
             pair = (e["source"], e["target"])
             if pair not in seen_edges:
@@ -326,20 +357,22 @@ class DependencyAnalyzer:
             "repo_root": str(self.repo_root),
             "manifest_count": len(self.manifests),
             "manifests": self.manifests,
-            "internal_modules": sorted(list(self.internal_modules)),
+            "internal_modules": sorted(self.internal_modules),
             "edges": unique_edges,
             "is_monorepo": len(self.manifests) > 1,
-            "internal_edge_count": sum(1 for e in unique_edges if e["is_internal"])
+            "internal_edge_count": sum(1 for e in unique_edges if e["is_internal"]),
         }
 
-    def generate_mermaid_dag(self, analysis: Optional[Dict[str, Any]] = None, max_external: int = 15) -> str:
+    def generate_mermaid_dag(
+        self, analysis: dict[str, Any] | None = None, max_external: int = 15
+    ) -> str:
         """Converts dependency analysis into a clean, valid Mermaid graph TD."""
         data = analysis or self.analyze()
         internal_mods = data.get("internal_modules", [])
         edges = data.get("edges", [])
 
         if not internal_mods and not edges:
-            return "```mermaid\ngraph TD\n    None[\"No package manifests or internal modules detected\"]\n```"
+            return '```mermaid\ngraph TD\n    None["No package manifests or internal modules detected"]\n```'
 
         lines = ["```mermaid", "graph TD"]
 
@@ -354,7 +387,7 @@ class DependencyAnalyzer:
 
         # Render edges
         ext_count = 0
-        rendered_edges: Set[Tuple[str, str]] = set()
+        rendered_edges: set[tuple[str, str]] = set()
 
         for edge in edges:
             s_name = edge["source"]
@@ -382,13 +415,15 @@ class DependencyAnalyzer:
         return "\n".join(lines)
 
 
-def analyze_dependencies(repo_dir: str | Path, internal_only: bool = False) -> Dict[str, Any]:
+def analyze_dependencies(repo_dir: str | Path, internal_only: bool = False) -> dict[str, Any]:
     """Functional entrypoint for dependency analysis."""
     analyzer = DependencyAnalyzer(repo_dir)
     return analyzer.analyze(internal_only=internal_only)
 
 
-def generate_mermaid(repo_dir: str | Path, internal_only: bool = False, max_external: int = 15) -> str:
+def generate_mermaid(
+    repo_dir: str | Path, internal_only: bool = False, max_external: int = 15
+) -> str:
     """Functional entrypoint for generating a Mermaid DAG string."""
     analyzer = DependencyAnalyzer(repo_dir)
     analysis = analyzer.analyze(internal_only=internal_only)

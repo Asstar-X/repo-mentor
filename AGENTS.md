@@ -1,7 +1,3 @@
----
-framework_version: 2.3.0
----
-
 # 智能体执行准则：Repo Mentor
 
 > **核心职责**: **Reconstruct the author's mental model, never recite their syntax.**  
@@ -28,16 +24,16 @@ framework_version: 2.3.0
 
 ---
 
-## 2. 核心命令映射
+## 2. 核心命令映射（技能名即命令名）
 
 | 命令 | 一句话说明 | 对应子技能 |
 | :--- | :--- | :--- |
-| **`/overview`** | **项目是干啥的、怎么跑起来**：解决什么麻烦、开箱验证命令、核心目录分工、从哪几个文件切入。 | [`skills/repo-recon/SKILL.md`](skills/repo-recon/SKILL.md) |
-| **`/core <目标>`** | **这块东西自己是干啥的、怎么实现的**：用通俗大白话讲透职责、主线逻辑、核心代码片断与注意点。 | [`skills/repo-core/SKILL.md`](skills/repo-core/SKILL.md) |
-| **`/trace <目标>`** | **它在真实场景中怎么用的**：谁在什么情况下叫它、处理完给谁、拿一个具体例子走一遍、出错了怎么办。 | [`skills/repo-trace/SKILL.md`](skills/repo-trace/SKILL.md) |
-| **`/drill [目标]`** | **搭档抽查答辩**：出 2~3 个最接地气、最考验有没有真懂的核心问题，客观交流与复盘。 | [`skills/repo-drill/SKILL.md`](skills/repo-drill/SKILL.md) |
-| **`/verify`** | **静态核验代码引用**：自动校验文档中引用的文件路径与行号是否真实，修复 Mermaid 图表语法。 | [`skills/repo-verify/SKILL.md`](skills/repo-verify/SKILL.md) |
-| **`/export`** | **整理导出离线白皮书**：将研读笔记编译合并为单个离线交互式 HTML 页面。 | [`skills/repo-export/SKILL.md`](skills/repo-export/SKILL.md) |
+| **`/repo-recon`** | **项目是干啥的、怎么跑起来**：解决什么麻烦、开箱验证命令、核心目录分工、从哪几个文件切入。 | [`skills/repo-recon/SKILL.md`](skills/repo-recon/SKILL.md) |
+| **`/repo-core <目标>`** | **这块东西自己是干啥的、怎么实现的**：用通俗大白话讲透职责、主线逻辑、核心代码片断与注意点。 | [`skills/repo-core/SKILL.md`](skills/repo-core/SKILL.md) |
+| **`/repo-trace <目标>`** | **它在真实场景中怎么用的**：谁在什么情况下叫它、处理完给谁、拿一个具体例子走一遍、出错了怎么办。 | [`skills/repo-trace/SKILL.md`](skills/repo-trace/SKILL.md) |
+| **`/repo-drill [目标]`** | **搭档抽查答辩**：出 2~3 个最接地气、最考验有没有真懂的核心问题，客观交流与复盘。 | [`skills/repo-drill/SKILL.md`](skills/repo-drill/SKILL.md) |
+| **`/repo-verify`** | **静态核验代码引用**：自动校验文档中引用的文件路径与行号是否真实，修复 Mermaid 图表语法。 | [`skills/repo-verify/SKILL.md`](skills/repo-verify/SKILL.md) |
+| **`/repo-export`** | **整理导出离线白皮书**：将研读笔记编译合并为单个离线交互式 HTML 页面。 | [`skills/repo-export/SKILL.md`](skills/repo-export/SKILL.md) |
 
 ---
 

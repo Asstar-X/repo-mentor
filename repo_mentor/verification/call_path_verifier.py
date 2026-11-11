@@ -9,7 +9,7 @@ from __future__ import annotations
 
 import re
 from dataclasses import dataclass
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from repo_mentor.core.parser import SymbolIndex
 
@@ -17,17 +17,19 @@ from repo_mentor.core.parser import SymbolIndex
 @dataclass
 class ParticipantInfo:
     """Represents a sequence diagram participant with metadata and code anchors."""
+
     id: str
     label: str
-    file_path: Optional[str] = None
-    line: Optional[int] = None
-    symbol_name: Optional[str] = None
+    file_path: str | None = None
+    line: int | None = None
+    symbol_name: str | None = None
     is_external: bool = False
 
 
 @dataclass
 class CallHop:
     """Represents a transition between two participants in a sequence diagram."""
+
     caller_id: str
     callee_id: str
     message: str
@@ -38,26 +40,34 @@ class CallHop:
 @dataclass
 class HopVerificationResult:
     """Outcome of verifying a single call-hop against the AST call graph."""
+
     hop: CallHop
     verified: bool
     reason: str
-    caller_symbol: Optional[str] = None
-    callee_symbol: Optional[str] = None
+    caller_symbol: str | None = None
+    callee_symbol: str | None = None
 
 
 EXTERNAL_CALLER_TOKENS = {
-    "app", "client", "user", "caller", "ingress", "http", "api", "request", "browser"
+    "app",
+    "client",
+    "user",
+    "caller",
+    "ingress",
+    "http",
+    "api",
+    "request",
+    "browser",
 }
 
 
-def _extract_participants(diagram_code: str) -> Dict[str, ParticipantInfo]:
+def _extract_participants(diagram_code: str) -> dict[str, ParticipantInfo]:
     """Extracts participant declarations and parses their embedded code anchors."""
-    participants: Dict[str, ParticipantInfo] = {}
+    participants: dict[str, ParticipantInfo] = {}
 
     # participant Id as "Label (path#Lline)"
     part_re = re.compile(
-        r'^\s*(?:participant|actor)\s+([a-zA-Z0-9_\-]+)(?:\s+as\s+"([^"]+)")?',
-        re.MULTILINE
+        r'^\s*(?:participant|actor)\s+([a-zA-Z0-9_\-]+)(?:\s+as\s+"([^"]+)")?', re.MULTILINE
     )
 
     for m in part_re.finditer(diagram_code):
@@ -72,14 +82,16 @@ def _extract_participants(diagram_code: str) -> Dict[str, ParticipantInfo]:
         s_line = None
         sym_name = None
 
-        m_anchor = re.search(r'([a-zA-Z0-9_\.\:\*]+)\s*\((?:file://)?([^)#\s]+)#L(\d+)(?:-L?(\d+))?\)', label)
+        m_anchor = re.search(
+            r"([a-zA-Z0-9_\.\:\*]+)\s*\((?:file://)?([^)#\s]+)#L(\d+)(?:-L?(\d+))?\)", label
+        )
         if m_anchor:
             sym_name = m_anchor.group(1).strip()
             fpath = m_anchor.group(2).strip()
             s_line = int(m_anchor.group(3))
         else:
             # Check just path#L
-            m_path_only = re.search(r'\((?:file://)?([^)#\s]+)#L(\d+)(?:-L?(\d+))?\)', label)
+            m_path_only = re.search(r"\((?:file://)?([^)#\s]+)#L(\d+)(?:-L?(\d+))?\)", label)
             if m_path_only:
                 fpath = m_path_only.group(1).strip()
                 s_line = int(m_path_only.group(2))
@@ -91,26 +103,30 @@ def _extract_participants(diagram_code: str) -> Dict[str, ParticipantInfo]:
             file_path=fpath,
             line=s_line,
             symbol_name=sym_name,
-            is_external=is_ext
+            is_external=is_ext,
         )
 
     return participants
 
 
-def _extract_hops(diagram_code: str) -> List[CallHop]:
+def _extract_hops(diagram_code: str) -> list[CallHop]:
     """Extracts sequence transitions (arrows) from diagram lines."""
-    hops: List[CallHop] = []
+    hops: list[CallHop] = []
     lines = diagram_code.splitlines()
 
     # Regex for sequence arrows:
     # A->>B: msg, A->B: msg, B-->>A: ret, B-->A: ret
     arrow_re = re.compile(
-        r'^\s*([a-zA-Z0-9_\-]+)\s*(-->>|-->|->>|->)\s*([a-zA-Z0-9_\-]+)\s*:\s*(.*)$'
+        r"^\s*([a-zA-Z0-9_\-]+)\s*(-->>|-->|->>|->)\s*([a-zA-Z0-9_\-]+)\s*:\s*(.*)$"
     )
 
     for line_idx, line in enumerate(lines, start=1):
         stripped = line.strip()
-        if stripped.startswith("%%") or stripped.startswith("Note") or stripped.startswith("autonumber"):
+        if (
+            stripped.startswith("%%")
+            or stripped.startswith("Note")
+            or stripped.startswith("autonumber")
+        ):
             continue
 
         m = arrow_re.match(stripped)
@@ -121,21 +137,20 @@ def _extract_hops(diagram_code: str) -> List[CallHop]:
             msg = m.group(4).strip()
             is_ret = "--" in arrow
 
-            hops.append(CallHop(
-                caller_id=c_from,
-                callee_id=c_to,
-                message=msg,
-                line_num=line_idx,
-                is_return=is_ret
-            ))
+            hops.append(
+                CallHop(
+                    caller_id=c_from,
+                    callee_id=c_to,
+                    message=msg,
+                    line_num=line_idx,
+                    is_return=is_ret,
+                )
+            )
 
     return hops
 
 
-def verify_sequence_hops(
-    sequence_diagram_code: str,
-    symbol_index: SymbolIndex
-) -> Dict[str, Any]:
+def verify_sequence_hops(sequence_diagram_code: str, symbol_index: SymbolIndex) -> dict[str, Any]:
     """
     Verifies sequence diagram call-hops against the AST symbol index and call graphs.
     Computes Execution Path Completeness (EPC).
@@ -144,26 +159,22 @@ def verify_sequence_hops(
     hops = _extract_hops(sequence_diagram_code)
 
     if not hops:
-        return {
-            "total_hops": 0,
-            "forward_hops": 0,
-            "verified_hops": 0,
-            "epc": 100.0,
-            "results": []
-        }
+        return {"total_hops": 0, "forward_hops": 0, "verified_hops": 0, "epc": 100.0, "results": []}
 
-    results: List[HopVerificationResult] = []
+    results: list[HopVerificationResult] = []
     forward_count = 0
     verified_forward = 0
 
     for hop in hops:
         # Return hops are by definition responses to prior calls
         if hop.is_return:
-            results.append(HopVerificationResult(
-                hop=hop,
-                verified=True,
-                reason="Return response path corresponds to active execution scope"
-            ))
+            results.append(
+                HopVerificationResult(
+                    hop=hop,
+                    verified=True,
+                    reason="Return response path corresponds to active execution scope",
+                )
+            )
             continue
 
         forward_count += 1
@@ -173,18 +184,20 @@ def verify_sequence_hops(
         # 1. Check if caller is external user/client entrypoint
         if caller_part and caller_part.is_external:
             verified_forward += 1
-            results.append(HopVerificationResult(
-                hop=hop,
-                verified=True,
-                reason=f"Ingress entrypoint from external caller '{caller_part.id}' to system boundary",
-                caller_symbol=caller_part.symbol_name,
-                callee_symbol=callee_part.symbol_name if callee_part else None
-            ))
+            results.append(
+                HopVerificationResult(
+                    hop=hop,
+                    verified=True,
+                    reason=f"Ingress entrypoint from external caller '{caller_part.id}' to system boundary",
+                    caller_symbol=caller_part.symbol_name,
+                    callee_symbol=callee_part.symbol_name if callee_part else None,
+                )
+            )
             continue
 
         # 2. Extract method name from message (e.g. "add(messages)", "_add_to_vector_store(...)")
         msg_call = hop.message.split("(")[0].strip()
-        msg_tokens = re.findall(r'[a-zA-Z0-9_]+', msg_call)
+        msg_tokens = re.findall(r"[a-zA-Z0-9_]+", msg_call)
         cand_callee_method = msg_tokens[-1] if msg_tokens else ""
 
         # 3. Check AST caller calls
@@ -201,13 +214,19 @@ def verify_sequence_hops(
                 caller_matches = True
                 if caller_part.symbol_name:
                     leaf_caller = caller_part.symbol_name.split(".")[-1]
-                    caller_matches = (leaf_caller in call.caller or caller_part.symbol_name in call.caller)
+                    caller_matches = (
+                        leaf_caller in call.caller or caller_part.symbol_name in call.caller
+                    )
 
                 if caller_matches:
                     callee_leaf = call.callee.split(".")[-1]
-                    if cand_callee_method and (cand_callee_method == callee_leaf or cand_callee_method in call.callee):
+                    if cand_callee_method and (
+                        cand_callee_method == callee_leaf or cand_callee_method in call.callee
+                    ):
                         verified = True
-                        reason = f"Verified AST call: {call.caller} -> {call.callee} at L{call.line}"
+                        reason = (
+                            f"Verified AST call: {call.caller} -> {call.callee} at L{call.line}"
+                        )
                         break
                     if callee_part and callee_part.symbol_name:
                         target_leaf = callee_part.symbol_name.split(".")[-1]
@@ -223,8 +242,11 @@ def verify_sequence_hops(
                 # Check if callee symbol exists
                 syms = symbol_index.symbols_by_file.get(norm_callee_file, [])
                 callee_exists = any(
-                    s.symbol_name == cand_callee_method or
-                    (callee_part.symbol_name and s.symbol_name == callee_part.symbol_name.split(".")[-1])
+                    s.symbol_name == cand_callee_method
+                    or (
+                        callee_part.symbol_name
+                        and s.symbol_name == callee_part.symbol_name.split(".")[-1]
+                    )
                     for s in syms
                 )
                 if callee_exists:
@@ -240,13 +262,17 @@ def verify_sequence_hops(
         if verified:
             verified_forward += 1
 
-        results.append(HopVerificationResult(
-            hop=hop,
-            verified=verified,
-            reason=reason if verified else f"Unverified sequence hop from '{hop.caller_id}' to '{hop.callee_id}'",
-            caller_symbol=caller_part.symbol_name if caller_part else None,
-            callee_symbol=callee_part.symbol_name if callee_part else None
-        ))
+        results.append(
+            HopVerificationResult(
+                hop=hop,
+                verified=verified,
+                reason=reason
+                if verified
+                else f"Unverified sequence hop from '{hop.caller_id}' to '{hop.callee_id}'",
+                caller_symbol=caller_part.symbol_name if caller_part else None,
+                callee_symbol=callee_part.symbol_name if callee_part else None,
+            )
+        )
 
     epc = round((verified_forward / forward_count * 100.0), 1) if forward_count > 0 else 100.0
 
@@ -255,5 +281,5 @@ def verify_sequence_hops(
         "forward_hops": forward_count,
         "verified_hops": verified_forward,
         "epc": epc,
-        "results": results
+        "results": results,
     }

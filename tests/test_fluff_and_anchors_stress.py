@@ -22,33 +22,29 @@ Stress-tests:
 
 from __future__ import annotations
 
-import tempfile
 from pathlib import Path
+
 import pytest
 
-from repo_mentor.verification.fluff_detector import (
-    BANNED_BUZZWORDS,
-    FluffAuditResult,
-    detect_fluff,
-)
 from repo_mentor.verification.anchor_verifier import (
     AnchorItem,
     AnchorVerifier,
     audit_markdown_anchors,
-    extract_anchors,
-    verify_study_anchors,
+)
+from repo_mentor.verification.fluff_detector import (
+    BANNED_BUZZWORDS,
+    detect_fluff,
 )
 from repo_mentor.verification.mermaid_verifier import (
-    extract_mermaid_blocks,
     lint_mermaid_code,
     repair_mermaid_code,
     verify_study_mermaid,
 )
 
-
 # ==============================================================================
 # Domain 1: Adversarial Anti-AI Fluff Linter Tests
 # ==============================================================================
+
 
 class TestAdversarialFluff:
     """Adversarial stress-tests for repo_mentor.verification.fluff_detector."""
@@ -81,7 +77,6 @@ class TestAdversarialFluff:
         ("显而易见设计很直观", "显而易见"),
         ("众所周知这是通用模式", "众所周知"),
         ("体现了架构师的巧妙权衡", "巧妙权衡"),
-
         # English terms (26)
         ("a robust and scalable architecture", "robust and scalable"),
         ("cutting-edge capabilities", "cutting-edge"),
@@ -126,8 +121,7 @@ class TestAdversarialFluff:
             )
             res = detect_fluff(doc)
             has_violation = any(
-                v.category in ("banned_buzzword", "cliche_structure")
-                for v in res.violations
+                v.category in ("banned_buzzword", "cliche_structure") for v in res.violations
             )
             if not has_violation:
                 undetected.append((phrase, label))
@@ -252,7 +246,9 @@ class TestAdversarialFluff:
         assert detect_fluff(doc_en).missing_tradeoffs is False
 
         # Valid Chinese heading
-        doc_zh = "# Title\n\nReferencing `core.py#L10`.\n\n### 架构设计权衡 (Trade-offs)\nDiscussion."
+        doc_zh = (
+            "# Title\n\nReferencing `core.py#L10`.\n\n### 架构设计权衡 (Trade-offs)\nDiscussion."
+        )
         assert detect_fluff(doc_zh).missing_tradeoffs is False
 
         # Valid Failure Modes heading
@@ -263,6 +259,7 @@ class TestAdversarialFluff:
 # ==============================================================================
 # Domain 2: Adversarial Semantic Anchor Verifier Tests
 # ==============================================================================
+
 
 class TestAdversarialCodeAnchor:
     """Adversarial stress-tests for repo_mentor.verification.anchor_verifier."""
@@ -275,19 +272,19 @@ class TestAdversarialCodeAnchor:
 
         py_content = (
             '"""Dispatcher module."""\n'
-            'import time\n'
-            '\n'
-            'class TaskDispatcher:\n'
+            "import time\n"
+            "\n"
+            "class TaskDispatcher:\n"
             '    """Dispatches asynchronous tasks."""\n'
-            '    def __init__(self, workers: int):\n'
-            '        self.workers = workers\n'
-            '\n'
-            '    def dispatch(self, task_id: str) -> bool:\n'
-            '        return True\n'
-            '\n'
-            'def calculate_checksum(data: bytes) -> int:\n'
-            '    return sum(data) % 256\n'
-            '\n'
+            "    def __init__(self, workers: int):\n"
+            "        self.workers = workers\n"
+            "\n"
+            "    def dispatch(self, task_id: str) -> bool:\n"
+            "        return True\n"
+            "\n"
+            "def calculate_checksum(data: bytes) -> int:\n"
+            "    return sum(data) % 256\n"
+            "\n"
         ) + "\n".join(f"def helper_fn_{i}(): pass" for i in range(1, 50))
 
         (repo / "dispatcher.py").write_text(py_content, encoding="utf-8")
@@ -301,7 +298,7 @@ class TestAdversarialCodeAnchor:
             raw_text="[dispatcher.py#L800-L850]",
             file_path="dispatcher.py",
             start_line=800,
-            end_line=850
+            end_line=850,
         )
         res = verifier.verify_item(item)
         assert res.is_valid is False
@@ -319,7 +316,7 @@ class TestAdversarialCodeAnchor:
             raw_text="[dispatcher.py#L30-L10]",
             file_path="dispatcher.py",
             start_line=30,
-            end_line=10
+            end_line=10,
         )
         res_inv = verifier.verify_item(item_inv)
         assert res_inv.is_valid is False
@@ -327,10 +324,7 @@ class TestAdversarialCodeAnchor:
 
         # Line 0 (1-indexed violation)
         item_zero = AnchorItem(
-            raw_text="[dispatcher.py#L0-L5]",
-            file_path="dispatcher.py",
-            start_line=0,
-            end_line=5
+            raw_text="[dispatcher.py#L0-L5]", file_path="dispatcher.py", start_line=0, end_line=5
         )
         res_zero = verifier.verify_item(item_zero)
         assert res_zero.is_valid is False
@@ -346,7 +340,7 @@ class TestAdversarialCodeAnchor:
             file_path="dispatcher.py",
             start_line=4,
             end_line=10,
-            claimed_symbol="PhantomBroker"
+            claimed_symbol="PhantomBroker",
         )
         res = verifier.verify_item(item)
         assert res.is_valid is False
@@ -369,7 +363,7 @@ class TestAdversarialCodeAnchor:
             file_path="dispatcher.py",
             start_line=50,
             end_line=52,
-            claimed_symbol="calculate_checksum"
+            claimed_symbol="calculate_checksum",
         )
         res = verifier.verify_item(item, drift_tolerance=15)
         assert res.is_valid is False
@@ -382,9 +376,7 @@ class TestAdversarialCodeAnchor:
         # Markdown points to line 12-12 (partial range notation).
         doc = tmp_path / "study_report.md"
         doc.write_text(
-            "# Study\n\n"
-            "- Helper: `calculate_checksum`: [dispatcher.py#L12-L12]\n",
-            encoding="utf-8"
+            "# Study\n\n- Helper: `calculate_checksum`: [dispatcher.py#L12-L12]\n", encoding="utf-8"
         )
 
         audit_before = audit_markdown_anchors(test_environment, doc, fix=False)
@@ -405,16 +397,21 @@ class TestAdversarialCodeAnchor:
         verifier = AnchorVerifier(test_environment)
 
         # Empty file citation
-        res_empty = verifier.verify_item(AnchorItem(
-            raw_text="[empty.py#L1]", file_path="empty.py", start_line=1, end_line=1
-        ))
+        res_empty = verifier.verify_item(
+            AnchorItem(raw_text="[empty.py#L1]", file_path="empty.py", start_line=1, end_line=1)
+        )
         assert res_empty.is_valid is False
         assert res_empty.category == "out_of_bounds"
 
         # Missing file citation
-        res_missing = verifier.verify_item(AnchorItem(
-            raw_text="[non_existent.py#L1]", file_path="non_existent.py", start_line=1, end_line=1
-        ))
+        res_missing = verifier.verify_item(
+            AnchorItem(
+                raw_text="[non_existent.py#L1]",
+                file_path="non_existent.py",
+                start_line=1,
+                end_line=1,
+            )
+        )
         assert res_missing.is_valid is False
         assert res_missing.category == "missing_file"
 
@@ -422,6 +419,7 @@ class TestAdversarialCodeAnchor:
 # ==============================================================================
 # Domain 3: Adversarial Mermaid Diagram Verifier Tests
 # ==============================================================================
+
 
 class TestAdversarialMermaid:
     """Adversarial stress-tests for repo_mentor.verification.mermaid_verifier."""
@@ -501,7 +499,7 @@ class TestAdversarialMermaid:
             "    Init[Initialize (Config)] --> Run[Run (Loop)]\n"
             "    Run --> end\n"
             "```\n",
-            encoding="utf-8"
+            encoding="utf-8",
         )
 
         # Audit without fix: should fail with detected issues

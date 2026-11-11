@@ -29,7 +29,7 @@ def test_evaluate_mastery_balanced():
     # 2 domains, each 100%
     domains = {
         "Domain 1": {"trace": True, "core": True, "drill": True},
-        "Domain 2": {"trace": True, "core": True, "drill": True}
+        "Domain 2": {"trace": True, "core": True, "drill": True},
     }
     res = evaluate_mastery(True, True, domains)
     assert res["global_progress"] == 100.0
@@ -42,7 +42,7 @@ def test_evaluate_mastery_tier0_gating():
     # Domain 1 is Tier-0 and completely untouched (0%)
     domains = {
         "Core Router": {"trace": False, "core": False, "drill": False, "tier": "Tier-0"},
-        "Helper Utils": {"trace": True, "core": True, "drill": True, "tier": "Tier-1"}
+        "Helper Utils": {"trace": True, "core": True, "drill": True, "tier": "Tier-1"},
     }
     res = evaluate_mastery(True, True, domains)
     # 25 (macro) + 0 + 37.5 (Helper) = 62.5 raw, but Tier-0 is untouched

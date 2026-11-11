@@ -1,7 +1,7 @@
 ---
 name: repo-recon
 description: >-
-  项目概览与快速上手技能。用于在接触陌生代码库时，像资深同事一样用大白话讲清项目是干啥的、解决什么麻烦、怎么在本地一行命令跑起来、核心目录各管啥、从哪几个文件切入最顺畅。
+  项目概览与快速上手技能。用于在接触陌生代码库时，像资深同事一样用大白话讲清项目是干啥的、解决什么麻烦、怎么在本地一行命令跑起来、核心目录各管啥、从哪几个文件切入最顺畅。Project overview and quick-start reconnaissance for unfamiliar codebases: what it does, how to run it locally, directory roles, and the smoothest reading entry points.
 license: MIT
 ---
 
@@ -40,3 +40,10 @@ license: MIT
 
 - **快速上手与可验证**：直奔痛点与可运行命令，杜绝自媒体式浮夸吹捧与无意义流水账。
 - **纯净技术交付**：使用自然段落与小标题组织。严禁输出任何置信度方括号标签、提示词引导句原话、内部验收清单或伪进度条仪表盘。
+
+---
+
+## 参考资源（按需加载）
+
+- [方法论 01：项目全景侦察与开箱验证](../../methodology/01-project-overview.md)
+- [方法论 05：Git 变更热点与演进考古](../../methodology/05-git-churn-hotspots.md)

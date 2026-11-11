@@ -9,11 +9,10 @@ Tests:
 - In-place anchor line auto-repair
 """
 
-import tempfile
 from pathlib import Path
+
 import pytest
 
-from repo_mentor.core.parser import SymbolIndex
 from repo_mentor.verification.anchor_verifier import (
     AnchorItem,
     AnchorVerifier,
@@ -32,44 +31,44 @@ def sample_repo(tmp_path: Path) -> Path:
     # Python source file
     py_code = (
         '"""Sample module docstring."""\n'
-        'import os\n'
-        '\n'
-        'class EngineManager:\n'
+        "import os\n"
+        "\n"
+        "class EngineManager:\n"
         '    """Manages engines."""\n'
-        '    def __init__(self, name: str):\n'
-        '        self.name = name\n'
-        '\n'
-        '    def start(self) -> bool:\n'
-        '        return True\n'
-        '\n'
-        'def top_level_helper():\n'
-        '    return 42\n'
-        '\n'
-        '# Extra padding lines to allow testing line drift within file bounds\n'
-        'def extra_fn_1(): pass\n'
-        'def extra_fn_2(): pass\n'
-        'def extra_fn_3(): pass\n'
-        'def extra_fn_4(): pass\n'
-        'def extra_fn_5(): pass\n'
-        'def extra_fn_6(): pass\n'
-        'def extra_fn_7(): pass\n'
-        'def extra_fn_8(): pass\n'
-        'def extra_fn_9(): pass\n'
-        'def extra_fn_10(): pass\n'
+        "    def __init__(self, name: str):\n"
+        "        self.name = name\n"
+        "\n"
+        "    def start(self) -> bool:\n"
+        "        return True\n"
+        "\n"
+        "def top_level_helper():\n"
+        "    return 42\n"
+        "\n"
+        "# Extra padding lines to allow testing line drift within file bounds\n"
+        "def extra_fn_1(): pass\n"
+        "def extra_fn_2(): pass\n"
+        "def extra_fn_3(): pass\n"
+        "def extra_fn_4(): pass\n"
+        "def extra_fn_5(): pass\n"
+        "def extra_fn_6(): pass\n"
+        "def extra_fn_7(): pass\n"
+        "def extra_fn_8(): pass\n"
+        "def extra_fn_9(): pass\n"
+        "def extra_fn_10(): pass\n"
     )
     (repo / "manager.py").write_text(py_code, encoding="utf-8")
 
     # Go source file
     go_code = (
-        'package sample\n'
-        '\n'
-        'type Worker struct {\n'
-        '    ID int\n'
-        '}\n'
-        '\n'
-        'func (w *Worker) Process() error {\n'
-        '    return nil\n'
-        '}\n'
+        "package sample\n"
+        "\n"
+        "type Worker struct {\n"
+        "    ID int\n"
+        "}\n"
+        "\n"
+        "func (w *Worker) Process() error {\n"
+        "    return nil\n"
+        "}\n"
     )
     (repo / "worker.go").write_text(go_code, encoding="utf-8")
 
@@ -100,7 +99,11 @@ def test_extract_anchors_diverse_patterns():
 
     # Check claimed symbol extraction
     symbols = {a.claimed_symbol for a in anchors if a.claimed_symbol}
-    assert "EngineManager" in symbols or "EngineManager.start" in symbols or "Worker.Process" in symbols
+    assert (
+        "EngineManager" in symbols
+        or "EngineManager.start" in symbols
+        or "Worker.Process" in symbols
+    )
 
 
 def test_anchor_verifier_valid_symbol_grounding(sample_repo: Path):
@@ -112,7 +115,7 @@ def test_anchor_verifier_valid_symbol_grounding(sample_repo: Path):
         file_path="manager.py",
         start_line=4,
         end_line=10,
-        claimed_symbol="EngineManager"
+        claimed_symbol="EngineManager",
     )
     res = verifier.verify_item(item)
     assert res.is_valid is True
@@ -131,7 +134,7 @@ def test_anchor_verifier_phantom_symbol_detection(sample_repo: Path):
         file_path="manager.py",
         start_line=4,
         end_line=10,
-        claimed_symbol="NonExistentClass"
+        claimed_symbol="NonExistentClass",
     )
     res = verifier.verify_item(item)
     assert res.is_valid is False
@@ -149,7 +152,7 @@ def test_anchor_verifier_missing_file_hallucination(sample_repo: Path):
         file_path="phantom/missing.py",
         start_line=1,
         end_line=10,
-        claimed_symbol="Ghost"
+        claimed_symbol="Ghost",
     )
     res = verifier.verify_item(item)
     assert res.is_valid is False
@@ -162,10 +165,7 @@ def test_anchor_verifier_out_of_bounds_lines(sample_repo: Path):
 
     # Line 999 is past EOF (manager.py has ~15 lines)
     item = AnchorItem(
-        raw_text="[manager.py#L900-L999]",
-        file_path="manager.py",
-        start_line=900,
-        end_line=999
+        raw_text="[manager.py#L900-L999]", file_path="manager.py", start_line=900, end_line=999
     )
     res = verifier.verify_item(item)
     assert res.is_valid is False
@@ -174,10 +174,7 @@ def test_anchor_verifier_out_of_bounds_lines(sample_repo: Path):
 
     # Inverted lines: L10-L4
     inverted = AnchorItem(
-        raw_text="[manager.py#L10-L4]",
-        file_path="manager.py",
-        start_line=10,
-        end_line=4
+        raw_text="[manager.py#L10-L4]", file_path="manager.py", start_line=10, end_line=4
     )
     res_inv = verifier.verify_item(inverted)
     assert res_inv.is_valid is False
@@ -194,7 +191,7 @@ def test_anchor_verifier_drift_tolerance(sample_repo: Path):
         file_path="manager.py",
         start_line=14,
         end_line=15,
-        claimed_symbol="top_level_helper"
+        claimed_symbol="top_level_helper",
     )
     res = verifier.verify_item(drifted_item, drift_tolerance=15)
     assert res.is_valid is True
@@ -206,7 +203,7 @@ def test_anchor_verifier_drift_tolerance(sample_repo: Path):
         file_path="manager.py",
         start_line=80,
         end_line=85,
-        claimed_symbol="top_level_helper"
+        claimed_symbol="top_level_helper",
     )
     res_beyond = verifier.verify_item(beyond_item, drift_tolerance=5)
     assert res_beyond.is_valid is False
@@ -219,7 +216,7 @@ def test_audit_markdown_anchors_end_to_end(sample_repo: Path, tmp_path: Path):
         "- Grounded class: [`manager.py#L4-L10`]\n"
         "- `top_level_helper`: [manager.py#L12-L13]\n"
         "- Hallucination: [imaginary.py#L1-L5]\n",
-        encoding="utf-8"
+        encoding="utf-8",
     )
 
     audit = audit_markdown_anchors(sample_repo, doc_path)
@@ -245,9 +242,7 @@ def test_verify_study_anchors_directory(sample_repo: Path, tmp_path: Path):
 def test_single_line_anchor_auto_repair(sample_repo: Path, tmp_path: Path):
     doc_path = tmp_path / "study_single_line.md"
     doc_path.write_text(
-        "# Study\n\n"
-        "- Helper symbol: `top_level_helper`: [manager.py#L12]\n",
-        encoding="utf-8"
+        "# Study\n\n- Helper symbol: `top_level_helper`: [manager.py#L12]\n", encoding="utf-8"
     )
 
     audit = audit_markdown_anchors(sample_repo, doc_path, fix=True)

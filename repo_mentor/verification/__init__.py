@@ -11,26 +11,26 @@ from repo_mentor.verification.anchor_verifier import (
     extract_anchors,
     verify_study_anchors,
 )
-from repo_mentor.verification.mermaid_verifier import (
-    MermaidIssue,
-    MermaidVerificationResult,
-    lint_mermaid_code,
-    repair_mermaid_code,
-    verify_study_mermaid,
+from repo_mentor.verification.call_path_verifier import (
+    CallHop,
+    HopVerificationResult,
+    verify_sequence_hops,
 )
 from repo_mentor.verification.fluff_detector import (
     FluffAuditResult,
     FluffViolation,
     detect_fluff,
 )
-from repo_mentor.verification.call_path_verifier import (
-    CallHop,
-    HopVerificationResult,
-    verify_sequence_hops,
-)
 from repo_mentor.verification.judge import (
     EvaluationReport,
     evaluate_report,
+)
+from repo_mentor.verification.mermaid_verifier import (
+    MermaidIssue,
+    MermaidVerificationResult,
+    lint_mermaid_code,
+    repair_mermaid_code,
+    verify_study_mermaid,
 )
 
 __all__ = [

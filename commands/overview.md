@@ -1,6 +1,10 @@
-# /overview (别名: /recon) — 项目概览与快速上手
+---
+description: 项目概览与快速上手（/repo-recon 的可选短别名）。讲清项目干啥、怎么一行命令跑起来、目录分工与切入路线。
+---
 
-> **支撑技能**: [`skills/repo-recon/SKILL.md`](../skills/repo-recon/SKILL.md)  
+# /overview — 项目概览与快速上手
+
+> **对应技能**: [`/repo-recon`](../skills/repo-recon/SKILL.md)（技能名即命令名；本文件是可选短别名，需拷入平台命令目录后生效）  
 > **核心职责**: **Make them get the point and see it run within 30 seconds.** (30 秒内让人搞懂它干啥，并亲手跑通验证。)
 
 像资深同事交底一样，用大白话讲清项目是干啥的、解决什么麻烦、怎么在本地一行命令跑起来、核心目录各管啥、从哪几个文件切入最顺畅。

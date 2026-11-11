@@ -13,17 +13,45 @@ import math
 import os
 import subprocess
 from pathlib import Path
-from typing import Any, Dict, List, Set
+from typing import Any
 
-IGNORED_EXTENSIONS: Set[str] = {
-    ".lock", ".json", ".csv", ".tsv", ".svg", ".png", ".jpg", ".jpeg",
-    ".gif", ".ico", ".pdf", ".zip", ".tar", ".gz", ".map", ".min.js",
-    ".min.css", ".sum", ".bin", ".wasm", ".pyc"
+IGNORED_EXTENSIONS: set[str] = {
+    ".lock",
+    ".json",
+    ".csv",
+    ".tsv",
+    ".svg",
+    ".png",
+    ".jpg",
+    ".jpeg",
+    ".gif",
+    ".ico",
+    ".pdf",
+    ".zip",
+    ".tar",
+    ".gz",
+    ".map",
+    ".min.js",
+    ".min.css",
+    ".sum",
+    ".bin",
+    ".wasm",
+    ".pyc",
 }
 
-IGNORED_PATHS: Set[str] = {
-    "node_modules/", "vendor/", ".git/", "target/", "dist/", "build/",
-    "tests/fixtures/", "fixtures/", "docs/", "assets/", ".venv/", "venv/"
+IGNORED_PATHS: set[str] = {
+    "node_modules/",
+    "vendor/",
+    ".git/",
+    "target/",
+    "dist/",
+    "build/",
+    "tests/fixtures/",
+    "fixtures/",
+    "docs/",
+    "assets/",
+    ".venv/",
+    "venv/",
 }
 
 
@@ -37,17 +65,15 @@ def _is_ignored(path_str: str) -> bool:
 
 
 def get_git_hotspots(
-    repo_dir: str | Path,
-    max_commits: int = 300,
-    top_n: int = 15
-) -> Dict[str, Any]:
+    repo_dir: str | Path, max_commits: int = 300, top_n: int = 15
+) -> dict[str, Any]:
     """Calculates git churn and architectural hotspot rankings with non-git fallback."""
     repo_path = Path(repo_dir).resolve()
     if not repo_path.is_dir():
         return {
             "error": f"Path is not a directory: {repo_dir}",
             "is_git_repo": False,
-            "hotspots": []
+            "hotspots": [],
         }
 
     # 1. Check whether it's a git repository
@@ -56,7 +82,7 @@ def get_git_hotspots(
             ["git", "-C", str(repo_path), "rev-parse", "--is-inside-work-tree"],
             capture_output=True,
             text=True,
-            check=False
+            check=False,
         )
         has_git = check_git.returncode == 0 and check_git.stdout.strip() == "true"
     except Exception:
@@ -64,11 +90,13 @@ def get_git_hotspots(
 
     # Graceful fallback for non-git directories
     if not has_git:
-        fallback_hotspots: List[Dict[str, Any]] = []
+        fallback_hotspots: list[dict[str, Any]] = []
         for root, dirs, files in os.walk(repo_path):
             dirs[:] = [
-                d for d in dirs
-                if not d.startswith(".") and d not in {"node_modules", "target", "vendor", ".git", "build", "dist"}
+                d
+                for d in dirs
+                if not d.startswith(".")
+                and d not in {"node_modules", "target", "vendor", ".git", "build", "dist"}
             ]
             for f in files:
                 full_p = Path(root) / f
@@ -79,14 +107,16 @@ def get_git_hotspots(
                     with open(full_p, "rb") as fp:
                         lc = sum(1 for _ in fp)
                     if lc > 0:
-                        fallback_hotspots.append({
-                            "path": rel_p,
-                            "revisions": 1,
-                            "churn": lc,
-                            "loc": lc,
-                            "hotspot_score": round(float(lc), 1),
-                            "fallback": True
-                        })
+                        fallback_hotspots.append(
+                            {
+                                "path": rel_p,
+                                "revisions": 1,
+                                "churn": lc,
+                                "loc": lc,
+                                "hotspot_score": round(float(lc), 1),
+                                "fallback": True,
+                            }
+                        )
                 except Exception:
                     pass
 
@@ -100,26 +130,35 @@ def get_git_hotspots(
             "commits_analyzed": 0,
             "initial_commit": {},
             "total_active_files": len(fallback_hotspots),
-            "hotspots": fallback_hotspots[:top_n]
+            "hotspots": fallback_hotspots[:top_n],
         }
 
     # 2. Extract genesis / initial commit info
-    initial_commit_info: Dict[str, str] = {}
+    initial_commit_info: dict[str, str] = {}
     try:
         init_cmd = subprocess.run(
             ["git", "-C", str(repo_path), "rev-list", "--max-parents=0", "HEAD"],
             capture_output=True,
             text=True,
-            check=False
+            check=False,
         )
         if init_cmd.returncode == 0:
             init_hash = init_cmd.stdout.strip().split("\n")[0]
             if init_hash:
                 log_init = subprocess.run(
-                    ["git", "-C", str(repo_path), "log", "-1", "--pretty=format:%h|%an|%ad|%s", "--date=short", init_hash],
+                    [
+                        "git",
+                        "-C",
+                        str(repo_path),
+                        "log",
+                        "-1",
+                        "--pretty=format:%h|%an|%ad|%s",
+                        "--date=short",
+                        init_hash,
+                    ],
                     capture_output=True,
                     text=True,
-                    check=False
+                    check=False,
                 )
                 if log_init.returncode == 0 and log_init.stdout.strip():
                     parts = log_init.stdout.strip().split("|")
@@ -128,7 +167,7 @@ def get_git_hotspots(
                             "hash": parts[0],
                             "author": parts[1],
                             "date": parts[2],
-                            "subject": parts[3]
+                            "subject": parts[3],
                         }
     except Exception:
         pass
@@ -137,25 +176,29 @@ def get_git_hotspots(
     try:
         log_cmd = subprocess.run(
             [
-                "git", "-C", str(repo_path), "log",
-                f"-n{max_commits}", "--numstat",
-                "--pretty=format:COMMIT:%h"
+                "git",
+                "-C",
+                str(repo_path),
+                "log",
+                f"-n{max_commits}",
+                "--numstat",
+                "--pretty=format:COMMIT:%h",
             ],
             capture_output=True,
             text=True,
             check=False,
             encoding="utf-8",
-            errors="replace"
+            errors="replace",
         )
         log_output = log_cmd.stdout
     except Exception as e:
         return {
             "error": f"Failed to execute git log: {str(e)}",
             "is_git_repo": True,
-            "hotspots": []
+            "hotspots": [],
         }
 
-    stats: Dict[str, Dict[str, int]] = {}
+    stats: dict[str, dict[str, int]] = {}
 
     for line in log_output.splitlines():
         line = line.strip()
@@ -172,9 +215,9 @@ def get_git_hotspots(
             # Handle Git rename syntax: e.g., "{old => new}/path" or "old => new"
             if "=>" in file_path:
                 if "{" in file_path and "}" in file_path:
-                    prefix = file_path[:file_path.find("{")]
-                    suffix = file_path[file_path.find("}") + 1:]
-                    middle = file_path[file_path.find("{") + 1:file_path.find("}")]
+                    prefix = file_path[: file_path.find("{")]
+                    suffix = file_path[file_path.find("}") + 1 :]
+                    middle = file_path[file_path.find("{") + 1 : file_path.find("}")]
                     new_mid = middle.split("=>")[-1].strip()
                     file_path = prefix + new_mid + suffix
                 else:
@@ -188,9 +231,9 @@ def get_git_hotspots(
 
             entry = stats.setdefault(file_path, {"revisions": 0, "churn": 0})
             entry["revisions"] += 1
-            entry["churn"] += (ins + dels)
+            entry["churn"] += ins + dels
 
-    ranked_hotspots: List[Dict[str, Any]] = []
+    ranked_hotspots: list[dict[str, Any]] = []
     for file_rel, data in stats.items():
         abs_path = repo_path / file_rel
         loc = 0
@@ -205,13 +248,15 @@ def get_git_hotspots(
         # Only count existing files with meaningful content
         if exists and loc > 3:
             score = round(data["churn"] * math.log10(loc + 10) * math.sqrt(data["revisions"]), 1)
-            ranked_hotspots.append({
-                "path": file_rel.replace("\\", "/"),
-                "revisions": data["revisions"],
-                "churn": data["churn"],
-                "loc": loc,
-                "hotspot_score": score
-            })
+            ranked_hotspots.append(
+                {
+                    "path": file_rel.replace("\\", "/"),
+                    "revisions": data["revisions"],
+                    "churn": data["churn"],
+                    "loc": loc,
+                    "hotspot_score": score,
+                }
+            )
 
     ranked_hotspots.sort(key=lambda x: x["hotspot_score"], reverse=True)
     for idx, h in enumerate(ranked_hotspots[:top_n], start=1):
@@ -222,5 +267,5 @@ def get_git_hotspots(
         "commits_analyzed": max_commits,
         "initial_commit": initial_commit_info,
         "total_active_files": len(ranked_hotspots),
-        "hotspots": ranked_hotspots[:top_n]
+        "hotspots": ranked_hotspots[:top_n],
     }

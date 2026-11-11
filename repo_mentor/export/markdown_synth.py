@@ -10,7 +10,7 @@ Powers the `repo-mentor init <study_dir> --repo <repo_path>` workflow.
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Any, Dict
+from typing import Any
 
 from repo_mentor.core.dependency import analyze_dependencies, generate_mermaid
 from repo_mentor.core.hotspots import get_git_hotspots
@@ -19,14 +19,14 @@ from repo_mentor.core.scanner import scan_repo
 
 def synthesize_architecture(
     repo_name: str,
-    scan_info: Dict[str, Any],
-    dep_info: Dict[str, Any],
-    hotspot_info: Dict[str, Any]
+    scan_info: dict[str, Any],
+    dep_info: dict[str, Any],
+    hotspot_info: dict[str, Any],
 ) -> str:
     """Synthesizes a standardized ARCHITECTURE.md grounded in real scan data."""
     lang = scan_info.get("primary_language", "Unknown")
     total_files = scan_info.get("total_files_scanned", 0)
-    mermaid_dag = dep_info.get("mermaid_dag", "```mermaid\ngraph TD\n    Root[\"Core Module\"]\n```")
+    mermaid_dag = dep_info.get("mermaid_dag", '```mermaid\ngraph TD\n    Root["Core Module"]\n```')
 
     entrypoints_str = ""
     for e in scan_info.get("entrypoints", [])[:5]:
@@ -44,9 +44,13 @@ def synthesize_architecture(
     triage_str = ""
     for idx, mod in enumerate(internal_mods[:6], 1):
         tier = "Tier-0" if idx <= 2 else "Tier-1"
-        triage_str += f"| **Domain {idx}: {mod}** | `{mod}` | {tier} | Core functional subdomain |\n"
+        triage_str += (
+            f"| **Domain {idx}: {mod}** | `{mod}` | {tier} | Core functional subdomain |\n"
+        )
     if not triage_str:
-        triage_str = "| **Domain 1: Core Engine** | `.` | Tier-0 | Primary business orchestration |\n"
+        triage_str = (
+            "| **Domain 1: Core Engine** | `.` | Tier-0 | Primary business orchestration |\n"
+        )
 
     return f"""# {repo_name} Architecture & System Design Whitepaper
 
@@ -97,10 +101,7 @@ The following files represent the highest architectural complexity and modificat
 """
 
 
-def synthesize_debug_notes(
-    repo_name: str,
-    scan_info: Dict[str, Any]
-) -> str:
+def synthesize_debug_notes(repo_name: str, scan_info: dict[str, Any]) -> str:
     """Synthesizes standardized DEBUG_NOTES.md template for walkthroughs and limit drills."""
     lang = scan_info.get("primary_language", "Unknown")
     test_suites = scan_info.get("test_suites", {})
@@ -168,10 +169,8 @@ def synthesize_debug_notes(
 
 
 def scaffold_study_workspace(
-    study_dir: str | Path,
-    repo_dir: str | Path,
-    force: bool = False
-) -> Dict[str, Any]:
+    study_dir: str | Path, repo_dir: str | Path, force: bool = False
+) -> dict[str, Any]:
     """Scaffolds an empty study workspace with real scan data from repo_dir."""
     s_path = Path(study_dir).resolve()
     r_path = Path(repo_dir).resolve()
@@ -217,10 +216,5 @@ Compiled and maintained via `repo-mentor`.
     return {
         "study_path": str(s_path),
         "target_repo": str(r_path),
-        "created_files": [
-            str(arch_file),
-            str(debug_file),
-            str(readme_file),
-            str(traces_dir)
-        ]
+        "created_files": [str(arch_file), str(debug_file), str(readme_file), str(traces_dir)],
     }

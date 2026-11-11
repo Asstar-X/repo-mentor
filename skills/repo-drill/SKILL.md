@@ -1,7 +1,7 @@
 ---
 name: repo-drill
 description: >-
-  硬核问题抽查与复盘技能。用于在读完代码后检验自己是不是真吃透了。针对目标抛出 2~3 个接地气、直击要害的问题（意图、流转、极端情况），并对读者的回答进行客观专业的复盘交流。
+  硬核问题抽查与复盘技能。用于在读完代码后检验自己是不是真吃透了。针对目标抛出 2~3 个接地气、直击要害的问题（意图、流转、极端情况），并对读者的回答进行客观专业的复盘交流。Comprehension drills after reading code: 2-3 grounded questions on design intent, data flow, and failure boundaries, followed by objective peer-level review of the answers.
 license: MIT
 ---
 
@@ -46,3 +46,9 @@ license: MIT
 - [ ] 题目是否精炼在 2~3 题，直击核心设计与边界，不考琐碎死记硬背；
 - [ ] 交流点评是否客观中肯，有理有据地指出盲区与亮点；
 - [ ] 回复中是否彻底杜绝了戏精语气、`[已验证事实]` 标签与打勾清单。
+
+---
+
+## 参考资源（按需加载）
+
+- [方法论 06：苏格拉底三问与掌握度复盘](../../methodology/06-drill-and-mastery.md)

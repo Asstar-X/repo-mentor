@@ -14,7 +14,7 @@ from __future__ import annotations
 
 import re
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Set
+from typing import Any
 
 
 def calculate_domain_score(trace_done: bool, core_done: bool, drill_done: bool) -> float:
@@ -32,9 +32,9 @@ def calculate_domain_score(trace_done: bool, core_done: bool, drill_done: bool) 
 def evaluate_mastery(
     macro_overview: bool,
     macro_history: bool,
-    domains: Dict[str, Dict[str, Any]],
-    tier0_domains: Optional[Set[str]] = None
-) -> Dict[str, Any]:
+    domains: dict[str, dict[str, Any]],
+    tier0_domains: set[str] | None = None,
+) -> dict[str, Any]:
     """
     Evaluates global repository mastery and enforces blind-spot caps.
 
@@ -61,13 +61,13 @@ def evaluate_mastery(
             "tier0_blind_spots": [],
             "blind_spots": [],
             "domain_scores": {},
-            "is_gated": False
+            "is_gated": False,
         }
 
     weight_per_domain = 75.0 / k
-    domain_scores: Dict[str, float] = {}
-    blind_spots: List[str] = []
-    tier0_blind_spots: List[str] = []
+    domain_scores: dict[str, float] = {}
+    blind_spots: list[str] = []
+    tier0_blind_spots: list[str] = []
     covered_count = 0
     domains_contribution = 0.0
 
@@ -123,11 +123,11 @@ def evaluate_mastery(
         "gating_reason": gating_reason,
         "tier0_blind_spots": tier0_blind_spots,
         "blind_spots": blind_spots,
-        "domain_scores": domain_scores
+        "domain_scores": domain_scores,
     }
 
 
-def evaluate_study_directory(study_dir: str | Path) -> Dict[str, Any]:
+def evaluate_study_directory(study_dir: str | Path) -> dict[str, Any]:
     """Inspects a study workspace directory and computes live mastery score."""
     study_path = Path(study_dir).resolve()
     if not study_path.is_dir():
@@ -151,7 +151,7 @@ def evaluate_study_directory(study_dir: str | Path) -> Dict[str, Any]:
 
     # 3. Domains check from traces directory
     traces_dir = study_path / "traces"
-    domains: Dict[str, Dict[str, Any]] = {}
+    domains: dict[str, dict[str, Any]] = {}
     if traces_dir.is_dir():
         for f in traces_dir.glob("*.md"):
             content = f.read_text(encoding="utf-8", errors="replace")
@@ -162,18 +162,16 @@ def evaluate_study_directory(study_dir: str | Path) -> Dict[str, Any]:
                 d_name = title_m.group(1).strip()
 
             has_trace = bool(re.search(r"##.*(?:Trace|Walkthrough|调用链|执行流)", content, re.I))
-            has_core = bool(re.search(r"##.*(?:Core|Invariant|Gotcha|核心结构|不变式)", content, re.I))
+            has_core = bool(
+                re.search(r"##.*(?:Core|Invariant|Gotcha|核心结构|不变式)", content, re.I)
+            )
             has_drill = bool(re.search(r"##.*(?:Drill|Limit|Failure|极限|攻防)", content, re.I))
 
             # If the trace file has solid content
             if len(content.strip()) > 200:
                 has_trace = True
 
-            domains[d_name] = {
-                "trace": has_trace,
-                "core": has_core,
-                "drill": has_drill
-            }
+            domains[d_name] = {"trace": has_trace, "core": has_core, "drill": has_drill}
 
     # Also check if debug_notes has limit drills
     if debug_md.is_file():

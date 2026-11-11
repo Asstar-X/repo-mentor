@@ -82,4 +82,4 @@ jobs:
 
       - name: Run tests with pytest
         run: |
-          pytest --cov=repo_mentor --cov-report=term-missing
+          pytest --cov=repo_mentor --cov-report=term-missing --cov-fail-under=88

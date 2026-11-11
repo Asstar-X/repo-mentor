@@ -2,7 +2,7 @@
 
 # Repo Mentor
 
-### Universal Open-Source Codebase Deep-Reading & Architectural Analysis Assistant
+### Codebase deep-reading assistant with machine-audited facts
 
 <p align="center">
   <a href="README.md"><b>English</b></a> •
@@ -14,92 +14,76 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![Code style: Ruff](https://img.shields.io/badge/Code%20Style-Ruff-000000.svg)](https://github.com/astral-sh/ruff)
 [![Typing: Mypy](https://img.shields.io/badge/Typing-Mypy-blue.svg)](https://mypy-lang.org/)
-[![Agent Skill Ready](https://img.shields.io/badge/Agent%20Skill-Claude%20%7C%20Antigravity%20%7C%20Cursor%20%7C%20Codex-orange.svg)](SKILL.md)
+[![Agent Skill Ready](https://img.shields.io/badge/Agent%20Skill-SKILL.md-orange.svg)](SKILL.md)
 [![Security Policy](https://img.shields.io/badge/Security-Untrusted%20Repo%20Hardened-red.svg)](SECURITY.md)
 
 <p align="center">
-  <b>Turn complex, unfamiliar codebases into crystal-clear, verified architectural blueprints.</b><br/>
-  AST-grounded fact citations • Zero "AI-flavor" fluff • Golden path execution tracing • 100-point rubric verification.
+  <b>Read unfamiliar codebases in plain language. Every citation is checked against the physical files on disk.</b>
 </p>
 
 [Quickstart](#quickstart) •
-[Why Generic LLM Summaries Fail](#the-problem-why-generic-llm-code-summaries-fail) •
-[Architecture](#dual-mode-architecture) •
+[Demo](#demo) •
 [CLI Commands](#cli-command-reference) •
-[Agent Skill](#agent-skill-interface) •
-[Anti-AI Methodology](#anti-ai-reading-methodology--100-point-rubric) •
-[Security & Hardening](#security--untrusted-code-hardening)
+[Agent Skills](#agent-skills-suite) •
+[Methodology](#reading-methodology) •
+[Scoring](#100-point-rubric) •
+[Security](#security)
 
 </div>
 
 ---
 
-## The Problem: Why Generic LLM Code Summaries Fail
+## Demo
 
-When developers ask standard LLMs or AI assistants to explain a 50,000-line unfamiliar repository, the results almost always disappoint. Standard AI chats suffer from four fatal failure modes:
+A real whitepaper compiled from [this repository's own study notes](examples/repo-mentor-self/) — 100% citation grounding, 0 hallucinations, Grade A. The HTML is fully self-contained: open it with the network disabled and every diagram still renders.
 
-<div align="center">
-  <img src="assets/en1.png" alt="Reading Legacy Code: Common Pain Points" width="900" />
-</div>
+![Repo Mentor whitepaper demo](assets/whitepaper-demo.png)
 
-| Dimension | Generic LLM Summaries & Chatbots | Repo Mentor Engineering Engine |
+## The Problem
+
+Asking a general-purpose LLM to explain a 50,000-line repository usually produces four kinds of disappointment:
+
+| Dimension | Generic LLM summary | Repo Mentor |
 | :--- | :--- | :--- |
-| **Fact Grounding** | Fabricated line numbers, hallucinated API names, and superficial bullet points. | **AST-grounded citations**: exact file paths, line ranges, and verified symbol signatures (`path/to/file.py:42-88`). |
-| **Tone & Style** | Heavy "AI-flavor": empty praise, buzzwords ("seamlessly integrates", "cutting-edge architecture"). | **Zero-fluff engineering prose**: Banned buzzword linting, factual constraints, and concrete counterexamples. |
-| **Execution Flow** | Isolated file summaries; loses the dynamic data flow across boundaries. | **Execution Path Tracing**: End-to-end operational sequence from external entrypoint through core logic to output. |
-| **Architectural Depth** | Describes *what* the code does line-by-line without explaining *why*. | **Trade-offs & Failure Modes**: Engineering compromises, state invariant boundaries, capacity limits, and edge recovery. |
-| **Mastery Verification** | Dunning-Kruger trap: asking 3 easy questions gives a false sense of 100% mastery. | **100-Point Quantitative Rubric & Socratic Drill**: Automated fact auditing, hallucination penalization, and interactive oral defense. |
+| **Fact grounding** | Invented line numbers and API names. | Every citation is audited against disk: file exists, lines in bounds, symbol present (`path/to/file.py#L42-L88`). |
+| **Tone** | Empty praise and buzzwords. | A buzzword linter and an ungrounded-paragraph detector penalize filler; plain engineering prose is enforced. |
+| **Execution flow** | Isolated file summaries. | Traces follow one concrete data sample from external trigger through core logic to output. |
+| **Depth** | Recites *what* line by line. | Requires *why*: trade-offs, state invariants, failure modes, and recovery paths. |
+| **Mastery check** | Three easy questions create false confidence. | Socratic drills on design intent and breaking points, plus a 100-point rubric with hallucination penalties. |
 
----
+## Architecture
 
-## Dual-Mode Architecture
-
-`repo-mentor` provides a unified engine designed for two primary operating modes:
-1. **Interactive Terminal CLI** (`repo-mentor`): For human engineers needing local analysis, Git hotspot archaeology, dependency graphing, and whitepaper compilation.
-2. **Autonomous Agent Skill** (`SKILL.md`): For AI coding agents (Claude Code, Google Antigravity, Cursor, OpenAI Codex), delegating deterministic extraction, AST indexing, and verification to the CLI.
+One engine, two interfaces: a terminal CLI for humans, and an Agent Skills suite for AI coding agents. The agent delegates deterministic work (scanning, AST indexing, verification, compilation) to the CLI.
 
 ```
-┌────────────────────────────────────────────────────────────────────────┐
-│                   Dual User / Agent Interface                          │
-│   Human Developer (CLI: repo-mentor)  │  AI Agent (SKILL.md / Prompts) │
-└───────────────────┬────────────────────────────────┬───────────────────┘
-                    │                                │
-                    ▼                                ▼
-┌────────────────────────────────────────────────────────────────────────┐
-│                      repo_mentor Core Engine                           │
-│  ├── CLI Entrypoint (repo_mentor.cli via Typer & Rich)                 │
-│  ├── Core Analysis (Scanner, AST Parser, Dependency DAG, Git Hotspots) │
-│  ├── Verification Engine (Symbol Anchors, Anti-AI Fluff, Path Check)   │
-│  └── Exporter (Dynamic HTML Whitepaper Compiler, Markdown Synthesizer) │
-└───────────────────┬────────────────────────────────┬───────────────────┘
-                    │                                │
-                    ▼                                ▼
-┌──────────────────────────────────────┐  ┌──────────────────────────────┐
-│       Anti-AI Methodology & Norms    │  │  Objective Benchmark Suite   │
-│  ├── 8 Negative Anti-Patterns (N1-N8)│  │  ├── Multi-Language Datasets │
-│  ├── 5 Positive Engineering Standards│  │  ├── 0 Hallucination Standard │
-│  └── 100-Point Quantitative Rubric   │  │  └── Automated Judge Report  │
-└──────────────────────────────────────┘  └──────────────────────────────┘
+┌────────────────────────────────────────────────────────────┐
+│  Human (CLI: repo-mentor)   │   AI Agent (SKILL.md suite)  │
+└──────────────┬───────────────────────────┬─────────────────┘
+               ▼                           ▼
+┌────────────────────────────────────────────────────────────┐
+│                    repo_mentor engine                      │
+│  core/          scanner · AST parser · dependency DAG ·    │
+│                 Git churn hotspots                         │
+│  verification/  anchor gates · Mermaid lint/repair ·       │
+│                 fluff detector · 100-point judge           │
+│  export/        study scaffolding · offline HTML compiler  │
+└────────────────────────────────────────────────────────────┘
+               ▲                           ▲
+┌──────────────┴───────────┐  ┌────────────┴─────────────────┐
+│  skills/ (1 + 6 suite)   │  │  methodology/ (7 guides)     │
+│  templates/ (3 formats)  │  │  commands/ (optional aliases)│
+└──────────────────────────┘  └──────────────────────────────┘
 ```
-
----
 
 ## Quickstart
 
 ### Installation
 
-Install via `pip`:
 ```bash
-pip install repo-mentor
-```
+# From source (PyPI release pending):
+pip install git+https://github.com/Asstar-X/repo-mentor.git
 
-Or run directly without installation via `pipx`:
-```bash
-pipx run repo-mentor scan .
-```
-
-For development and AST multi-language parsing support:
-```bash
+# For development, with multi-language AST support:
 git clone https://github.com/Asstar-X/repo-mentor.git
 cd repo-mentor
 pip install -e ".[dev,ast]"
@@ -108,157 +92,111 @@ pip install -e ".[dev,ast]"
 ### 3-Step Walkthrough
 
 ```bash
-# 1. Scan codebase topology, entrypoints, and test setups
+# 1. Scan languages, entrypoints, and test layout
 repo-mentor scan /path/to/target-repo
 
-# 2. Map internal module dependencies into a visual Mermaid DAG
+# 2. Map internal module dependencies as a Mermaid DAG
 repo-mentor map /path/to/target-repo --mermaid
 
-# 3. Analyze Git churn hotspots to locate architectural gravity
+# 3. Find the most-churned files — where the architecture actually lives
 repo-mentor hotspots /path/to/target-repo --top 10
 ```
 
----
+Then scaffold a study workspace, write notes, and gate them:
+
+```bash
+repo-mentor init studies/target-repo --repo /path/to/target-repo
+repo-mentor verify /path/to/target-repo studies/target-repo --fix
+repo-mentor export studies/target-repo
+```
 
 ## CLI Command Reference
 
-The `repo-mentor` CLI provides 8 core subcommands covering the complete codebase analysis lifecycle:
-
 | Subcommand | Syntax | Description |
 | :--- | :--- | :--- |
-| `scan` | `repo-mentor scan <path>` | Detect languages, frameworks, manifests, entrypoint files, and test harnesses. |
-| `map` | `repo-mentor map <path> [--mermaid]` | Extract internal intra-repo module import dependencies and generate topological DAGs. |
-| `hotspots` | `repo-mentor hotspots <path> [--top N]` | Compute Git churn revision frequency to isolate architectural gravity centers and debt hotspots. |
-| `ast` | `repo-mentor ast <path> [--symbol S]` | Tiered AST parser extracting classes, functions, signatures, and call flows across Python, Go, TS, and Rust. |
-| `init` | `repo-mentor init <path>` | Scaffold structured study directories, domain coverage tracking tables, and report templates. |
-| `verify` | `repo-mentor verify [repo] [notes] [--fix] [--strict]` | Deterministically audit file paths and line number bounds cited in analysis notes against physical disk files (with optional auto-repair). |
-| `eval` | `repo-mentor eval [repo] <report> [--format rich\|json] [--strict]` | 100-point quantitative rubric evaluation judge auditing grounding rate, hallucination count, and fluff score. |
-| `export` | `repo-mentor export <study-dir> [--out file.html]` | Compile notes, sequence flows, and Mermaid diagrams into a self-contained, interactive single-file HTML whitepaper. |
+| `scan` | `repo-mentor scan <path> [--depth N] [--format rich\|json]` | Detect languages, frameworks, manifests, entrypoints, and test harnesses. |
+| `map` | `repo-mentor map <path> [--mermaid] [--internal-only] [--out FILE]` | Extract intra-repo import dependencies and generate a topological DAG. |
+| `hotspots` | `repo-mentor hotspots <path> [--commits N] [--top N]` | Rank files by Git churn to locate architectural gravity centers. |
+| `ast` | `repo-mentor ast <repo> <file-or-dir> [--symbols/--no-symbols] [--calls]` | Extract classes, functions, signatures, and call invocations (Python, Go, TS, Rust). |
+| `init` | `repo-mentor init <study-dir> --repo <repo> [--force]` | Scaffold a study workspace pre-filled with live scan, DAG, and hotspot data. |
+| `verify` | `repo-mentor verify <repo> <notes> [--fix] [--strict]` | Audit cited file paths, line bounds, and symbols; lint and auto-repair Mermaid. |
+| `eval` | `repo-mentor eval <repo> <report> [--format rich\|json] [--strict]` | Score a study report with the 100-point rubric. |
+| `export` | `repo-mentor export <study-dir> [--out FILE]` | Compile notes into a self-contained offline HTML whitepaper. |
 
----
+## Agent Skills Suite
 
-## Modular Agent Skills Suite
+The suite follows the Agent Skills specification: one orchestrator plus six single-responsibility skills. **The skill name is the command name.**
 
-`repo-mentor` implements the universal **Agent Skills** specification following **Andrej Karpathy's minimalist engineering principles**. The suite is structured as **1 Master Orchestrator + 6 Modular Domain Skills**, enforcing strict single-responsibility boundaries, human-first pedagogy ("explain intent in plain language first, then code implementation"), and zero domain bias:
+| Skill (command) | Perspective | Mission |
+| :--- | :--- | :--- |
+| [`repo-recon`](skills/repo-recon/SKILL.md) (`/repo-recon`) | System global | What the project does, how to run it, directory roles, reading roadmap. |
+| [`repo-core`](skills/repo-core/SKILL.md) (`/repo-core <target>`) | Looking inward | Purpose, internal steps, load-bearing code, boundary defenses. |
+| [`repo-trace`](skills/repo-trace/SKILL.md) (`/repo-trace <target>`) | Looking outward | Real trigger scenarios, upstream/downstream, a sample data journey, error propagation. |
+| [`repo-drill`](skills/repo-drill/SKILL.md) (`/repo-drill [target]`) | Peer quiz | 2–3 sharp questions on intent, flow, and breaking points; objective review. |
+| [`repo-verify`](skills/repo-verify/SKILL.md) (`/repo-verify`) | Quality gate | Deterministic audit of citations and Mermaid syntax. |
+| [`repo-export`](skills/repo-export/SKILL.md) (`/repo-export`) | Deliverable | Deduplicate study notes and compile the offline whitepaper. |
 
-```
-repo-mentor/
-├── SKILL.md                          # [Master Entry] Orchestrates cognitive reading and mentorship
-├── skills/                           # [Modular Skills Suite] Dedicated skills
-│   ├── repo-recon/SKILL.md           # Project Onboarding: Mission, instant validation, topology & hotspots (/overview)
-│   ├── repo-core/SKILL.md            # Looking Inward: Core implementation & internal logic deep dive (/core)
-│   ├── repo-trace/SKILL.md           # Looking Outward: Contextual usage scenarios & call path tracing (/trace)
-│   ├── repo-drill/SKILL.md           # Peer Quiz: Sharp questioning & interactive review (/drill)
-│   ├── repo-verify/SKILL.md          # Quality Gate: Code anchor audit & factual verification (/verify)
-│   └── repo-export/SKILL.md          # Deliverable: Study synthesis & offline HTML whitepaper compiler (/export)
-├── methodology/                      # [Engineering Guides] 7 Universal code reading methodologies
-└── templates/                        # [Universal Deliverables] Unconstrained architecture whitepaper templates
-```
+### Installation by platform
 
-### Core Skill Modules & Slash Command Mapping
-
-| Modular Skill | Primary Command | Perspective | Core Mission |
-| :--- | :--- | :--- | :--- |
-| **[`repo-recon`](skills/repo-recon/SKILL.md)** | `/overview` | **System Global** | Real-world agony, instant validation (build & smoke test), architecture topology, Git hotspots, and reading roadmap. |
-| **[`repo-core`](skills/repo-core/SKILL.md)** | `/core` | **Looking Inward** | Plain-language purpose, inner step-by-step logic, load-bearing snippets, design intent, and boundary defenses. |
-| **[`repo-trace`](skills/repo-trace/SKILL.md)** | `/trace` | **Looking Outward** | Concrete trigger scenario, root trigger event, upstream/downstream topology, sample data journey, error propagation. |
-| **[`repo-drill`](skills/repo-drill/SKILL.md)** | `/drill` | **Peer Quiz** | 2~3 sharp questions (Why/Journey/What-If), interactive review, and factual debunking. |
-| **[`repo-verify`](skills/repo-verify/SKILL.md)** | `/verify` | **Quality Gate** | Deterministic static audit of cited physical file paths, line bounds within EOF, and Mermaid syntax auto-healing. |
-| **[`repo-export`](skills/repo-export/SKILL.md)** | `/export` | **Deliverable** | Multi-slice knowledge deduplication and synthesis into a single-file, zero-CDN offline interactive HTML whitepaper. |
-
-### Agent Installation
-
-#### Claude Code
 ```bash
-# Global installation:
-mkdir -p ~/.claude/skills
+# Claude Code (personal skills):
 git clone https://github.com/Asstar-X/repo-mentor.git ~/.claude/skills/repo-mentor
+
+# Qoder (project-level skills): clone into your project's skills directory,
+# or install user-level under ~/.qoder/skills/repo-mentor
 ```
 
-#### Google Antigravity
-```bash
-mkdir -p ~/.gemini/config/skills
-git clone https://github.com/Asstar-X/repo-mentor.git ~/.gemini/config/skills/repo-mentor
-```
+Skill discovery differs across agents: some register only the root `SKILL.md`, others register every `skills/*/SKILL.md`. Both work — the root skill links to all six sub-skills and loads them on demand. The short aliases in `commands/` (`/overview`, `/core`, …) are optional: copy them into your agent's command directory (e.g. `.claude/commands/`) if you prefer them.
 
-#### Cursor & Windsurf
-```bash
-mkdir -p .cursor/skills
-git clone https://github.com/Asstar-X/repo-mentor.git .cursor/skills/repo-mentor
-```
+## Reading Methodology
 
----
+Seven guides in [`methodology/`](methodology/) drive the skills. They are loaded on demand, not upfront:
 
-## Anti-AI Reading Methodology & 100-Point Rubric
+| Guide | Topic |
+| :--- | :--- |
+| [01](methodology/01-project-overview.md) | Project reconnaissance and instant validation |
+| [02](methodology/02-reading-core-logic.md) | Looking inward: load-bearing slices of core logic |
+| [03](methodology/03-tracing-data-flow.md) | Looking outward: call chains and data journeys |
+| [04](methodology/04-state-and-invariants.md) | Core data structures and state invariants |
+| [05](methodology/05-git-churn-hotspots.md) | Git churn hotspots and evolution archaeology |
+| [06](methodology/06-drill-and-mastery.md) | Sharp questioning and mastery review |
+| [07](methodology/07-factual-grounding-security.md) | Fact anchoring and sandbox safety |
 
-### 5 Positive Engineering Standards
-1. **Fact Grounding (P1)**: Every assertion must reference physical file paths and exact line spans (`path/to/file.ext#L120-L145`).
-2. **System Invariants (P2)**: Explicitly identify state constraints, structural validity, and consistency guarantees.
-3. **Execution Flow (P3)**: Unpack the primary operational sequence from external entrypoint through core logic to output.
-4. **Architectural Trade-offs (P4)**: Document explicit engineering compromises (flexibility vs. simplicity, speed vs. safety).
-5. **Failure Modes & Edge Cases (P5)**: Audit error boundaries, capacity limits, defensive validation, and state recovery.
+## 100-Point Rubric
 
-### 8 Negative Anti-Patterns (N1-N8)
-- **N1 (Superficial File Listing)**: Reciting directory trees without explaining inter-module data contracts.
-- **N2 (Hallucinated Line Numbers)**: Inventing or guessing line spans that do not match physical disk files.
-- **N3 (Boilerplate Fixation)**: Slogging through configuration parsing and logger initialization instead of core business logic.
-- **N4 (Uncritical Buzzword Fluff)**: Using empty superlative adjectives ("seamless", "ultra-fast", "robust", "state-of-the-art").
-- **N5 (Missing Trade-off Analysis)**: Presenting architectural decisions as flawless without discussing downsides.
-- **N6 (Isolated Component Silos)**: Analyzing classes in isolation without mapping end-to-end cross-module call flows.
-- **N7 (Ignored Error & Failure Paths)**: Assuming happy-path execution and ignoring input validation or error recovery.
-- **N8 (Dunning-Kruger Blind Spots)**: Claiming full mastery after inspecting only entrypoint wrappers.
+`repo-mentor eval` scores a study report across five dimensions (implemented in [`judge.py`](repo_mentor/verification/judge.py)):
 
-### 100-Point Quantitative Rubric
-
-When evaluating reading reports (`repo-mentor eval <repo> <report>`), the automated judge computes an objective score:
-
-$$\text{Final Score} = S_{\text{grounding}} + S_{\text{execution}} + S_{\text{fluff}} + S_{\text{tradeoffs}} - P_{\text{hallucination}}$$
-
-| Metric | Max Points | Measurement Method |
+| Dimension | Max | How it is measured |
 | :--- | :---: | :--- |
-| **Fact Grounding Rate** | 30 | Percentage of assertions backed by valid, verifiable file path and line anchors. |
-| **Execution Flow Completeness** | 25 | Continuity of sequence hops from entrypoint through intermediate processing to output. |
-| **Fluff-Free Index** | 25 | Inverse density of banned buzzwords, filler transitions, and ungrounded paragraphs. |
-| **Architectural Trade-off Depth** | 20 | Explicit presence of trade-off evaluations, state invariant constraints, and failure modes. |
-| **Hallucination Penalty** | -10 per hit | Deterministic penalty for non-existent files, invalid line spans, or phantom symbols. |
+| **D1 — Fact grounding** | 35 | Citation grounding rate × 30, plus 5 for zero hallucinations; hallucination rate deducts up to 1.5× its percentage. |
+| **D2 — Architecture & trade-offs** | 25 | Module triage (10), explicit trade-offs (10), state invariants (5). |
+| **D3 — Execution flow** | 20 | Golden-path narrative (10) + verified sequence-diagram hops (10). |
+| **D4 — Tone discipline** | 15 | No banned buzzwords (5), no ungrounded paragraphs (5), Fluff-Free Index × 5. |
+| **D5 — Mermaid integrity** | 5 | Share of diagrams passing syntax lint. |
 
-- **Grade A (High-Star Standard)**: $\ge 85$ points and $0$ hallucinations.
-- **Grade B (Acceptable)**: $70 - 84$ points.
-- **Fail**: $< 70$ points or $\ge 2$ hallucinations.
+The Fluff-Free Index starts at 100 and deducts: 5 per banned buzzword, 8 per ungrounded paragraph, 4 per cliché structure, 10 for a missing trade-offs section.
 
----
+- **Grade A**: score ≥ 90, zero hallucinations, grounding ≥ 95%, FFI ≥ 90.
+- **Grade B**: score ≥ 80, zero hallucinations, grounding ≥ 90%.
+- **Fail**: anything else. `--strict` passes only Grade A.
 
-## Fact Quality & Verification Matrix
+D2/D3 use keyword heuristics — treat the score as a lint signal, not proof of understanding. The deterministic gates (D1, D5) carry the factual burden.
 
-`repo-mentor` enforces strict deterministic standards across all generated documentation:
+## Security
 
-| Evaluation Dimension | Core Quality Criteria | Standard | Penalty Rule |
-| :--- | :--- | :---: | :--- |
-| **Fact Grounding Rate** | Cited physical files and line ranges must strictly exist on disk | $\ge 90\%$ | -10 pts per missing file or out-of-bounds line |
-| **Fluff-Free Index (FFI)** | Zero vacuous marketing jargon, theatrical metaphors, or empty praise | $\ge 90 / 100$ | -5 pts per banned buzzword, -8 pts per ungrounded fluff paragraph |
-| **Execution Flow** | Continuous end-to-end call path without fabricated intermediate hops | $\ge 80\%$ | Penalized on broken diagram transitions or disconnected hops |
-| **Mermaid Integrity** | Strict syntactic correctness and offline rendering compatibility | $100\%$ | Direct auto-repair on unquoted parens, reserved keywords, or colons |
+Analyzing external repositories is treated as handling untrusted input:
 
----
+- **Read-only static analysis**: engines never execute target-repo code or build hooks (`npm postinstall`, `setup.py`, Makefiles). `git log` is the only subprocess.
+- **Prompt-injection resistance**: file contents, commit messages, and docstrings are data, never instructions.
+- **Path containment**: anchors resolve inside the repository root; `../../` traversal is rejected.
+- **Data confinement**: `studies/` is gitignored by default so proprietary notes never leak into commits.
 
-## Security & Untrusted Code Hardening
-
-When analyzing external repositories, safety is non-negotiable:
-- **Untrusted Input Ingestion**: All files, commit messages, and docstrings inside target repositories are treated strictly as **untrusted data**. Prompt injection attempts embedded in code comments are completely ignored.
-- **Read-Only Static Analysis**: Analysis engines perform passive inspection. They never invoke build hooks (`npm postinstall`, `setup.py`, `Makefile`, arbitrary shell scripts).
-- **Anti-Traversal Protection**: All path anchors enforce strict repository root containment (`Path.resolve()`), preventing `../../` directory traversal attacks.
-- **Data Confinement**: Study whitepapers and local notes in `studies/` are excluded by `.gitignore` by default to prevent proprietary code leakage.
-
-See [SECURITY.md](SECURITY.md) for our complete security model.
-
----
+See [SECURITY.md](SECURITY.md) for the full model.
 
 ## Contributing
 
-Contributions are welcome! Please review [CONTRIBUTING.md](CONTRIBUTING.md) for code style (Ruff, Mypy), test guidelines, and our anti-AI engineering standards.
-
----
+See [CONTRIBUTING.md](CONTRIBUTING.md) for setup, code style (Ruff, Mypy), and test guidelines. The docs themselves are gated: `tests/test_docs_smoke.py` executes every documented CLI example against the real command tree.
 
 ## License
 
-This project is licensed under the [MIT License](LICENSE).
+[MIT](LICENSE). Bundled third-party software (Mermaid.js) is listed in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).

@@ -16,7 +16,7 @@ import json
 import re
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from rich.console import Console
 from rich.panel import Panel
@@ -34,6 +34,7 @@ console = Console()
 @dataclass
 class EvaluationReport:
     """Quantitative evaluation report produced by the 100-point rubric judge."""
+
     repo_name: str
     target_file: str
     grounding_rate: float
@@ -43,17 +44,17 @@ class EvaluationReport:
     total_score: float
     passed: bool
     grade: str
-    dimension_scores: Dict[str, float] = field(default_factory=dict)
-    violations: List[str] = field(default_factory=list)
+    dimension_scores: dict[str, float] = field(default_factory=dict)
+    violations: list[str] = field(default_factory=list)
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return asdict(self)
 
 
 class RubricJudge:
     """100-Point quantitative evaluation judge."""
 
-    def __init__(self, repo_dir: str | Path, symbol_index: Optional[SymbolIndex] = None):
+    def __init__(self, repo_dir: str | Path, symbol_index: SymbolIndex | None = None):
         self.repo_dir = Path(repo_dir).resolve()
         self.symbol_index = symbol_index or SymbolIndex(self.repo_dir)
         if not self.symbol_index.symbols_by_file:
@@ -72,12 +73,16 @@ class RubricJudge:
                 total_score=0.0,
                 passed=False,
                 grade="Fail (Rejected)",
-                violations=[f"Report file or directory not found: {doc_path}"]
+                violations=[f"Report file or directory not found: {doc_path}"],
             )
 
         if doc_path.is_dir():
-            md_files = sorted(list(doc_path.rglob("*.md")))
-            contents = [p.read_text(encoding="utf-8", errors="replace") for p in md_files if not p.name.startswith(".")]
+            md_files = sorted(doc_path.rglob("*.md"))
+            contents = [
+                p.read_text(encoding="utf-8", errors="replace")
+                for p in md_files
+                if not p.name.startswith(".")
+            ]
             content = "\n\n".join(contents)
         else:
             content = doc_path.read_text(encoding="utf-8", errors="replace")
@@ -105,15 +110,21 @@ class RubricJudge:
                 all_anchors_count += res["total_anchors"]
                 all_verified_count += res["verified_count"]
                 all_hallucinations.extend(res["hallucinations"])
-            ccgr = round((all_verified_count / all_anchors_count * 100.0), 1) if all_anchors_count > 0 else 100.0
-            hr = round((len(all_hallucinations) / all_anchors_count * 100.0), 1) if all_anchors_count > 0 else 0.0
+            ccgr = (
+                round((all_verified_count / all_anchors_count * 100.0), 1)
+                if all_anchors_count > 0
+                else 100.0
+            )
+            hr = (
+                round((len(all_hallucinations) / all_anchors_count * 100.0), 1)
+                if all_anchors_count > 0
+                else 0.0
+            )
             hallucinations = all_hallucinations
             total_anchors_num = all_anchors_count
         else:
             anchor_audit = audit_markdown_anchors(
-                self.repo_dir,
-                doc_path,
-                symbol_index=self.symbol_index
+                self.repo_dir, doc_path, symbol_index=self.symbol_index
             )
             ccgr = anchor_audit["grounding_rate"]
             hr = anchor_audit["hallucination_rate"]
@@ -128,7 +139,7 @@ class RubricJudge:
         mermaid_blocks = extract_mermaid_blocks(content)
         total_diagrams = len(mermaid_blocks)
         valid_diagrams = 0
-        epc_scores: List[float] = []
+        epc_scores: list[float] = []
 
         mermaid_issues = []
         for _, _, code in mermaid_blocks:
@@ -162,7 +173,13 @@ class RubricJudge:
         # D2: Architecture & Trade-offs (25 pts)
         # Module triage (10 pts), Trade-offs / Debt (10 pts), State machine / Invariants (5 pts)
         d2_score = 0.0
-        has_tier_triage = bool(re.search(r'Tier-0.*(?:Tier-1|Tier-2)|模块优先级|阅读分流|核心模块|模块分工|代码全景|架构组织|核心组件|Core Components?|Key Modules?|Module Breakdown', content, re.DOTALL))
+        has_tier_triage = bool(
+            re.search(
+                r"Tier-0.*(?:Tier-1|Tier-2)|模块优先级|阅读分流|核心模块|模块分工|代码全景|架构组织|核心组件|Core Components?|Key Modules?|Module Breakdown",
+                content,
+                re.DOTALL,
+            )
+        )
         if has_tier_triage:
             d2_score += 10.0
 
@@ -170,10 +187,13 @@ class RubricJudge:
         has_tradeoffs = not fluff_audit.missing_tradeoffs
         if not has_tradeoffs and companion_content:
             from repo_mentor.verification.fluff_detector import TRADEOFFS_HEADING_RE
+
             if TRADEOFFS_HEADING_RE.search(companion_content):
                 has_tradeoffs = True
                 # Remove missing_tradeoffs violation and restore penalty
-                fluff_audit.violations = [v for v in fluff_audit.violations if v.category != "missing_tradeoffs"]
+                fluff_audit.violations = [
+                    v for v in fluff_audit.violations if v.category != "missing_tradeoffs"
+                ]
                 fluff_audit.missing_tradeoffs = False
                 fluff_audit.penalty_score = max(0.0, fluff_audit.penalty_score - 10.0)
                 ffi = min(100.0, ffi + 10.0)
@@ -181,14 +201,26 @@ class RubricJudge:
         if has_tradeoffs:
             d2_score += 10.0
 
-        has_invariants = bool(re.search(r'不变式|Invariants?|State Machine|状态机|实体心智模型|生命周期|状态流转|规则约束|边界防线|设计约束|State Lifecycle', content, re.IGNORECASE))
+        has_invariants = bool(
+            re.search(
+                r"不变式|Invariants?|State Machine|状态机|实体心智模型|生命周期|状态流转|规则约束|边界防线|设计约束|State Lifecycle",
+                content,
+                re.IGNORECASE,
+            )
+        )
         if has_invariants:
             d2_score += 5.0
 
         # D3: Execution Flow Continuity (20 pts)
         # Golden path flow (10 pts), Verified diagram hops (10 pts)
         d3_score = 0.0
-        has_golden_path = bool(re.search(r'黄金路径|Golden Path|端到端全景|Call Chain|调用链路|核心流程|主流程|核心工作流|调用脉络|数据流向|Execution Flow', content, re.IGNORECASE))
+        has_golden_path = bool(
+            re.search(
+                r"黄金路径|Golden Path|端到端全景|Call Chain|调用链路|核心流程|主流程|核心工作流|调用脉络|数据流向|Execution Flow",
+                content,
+                re.IGNORECASE,
+            )
+        )
         if has_golden_path:
             d3_score += 10.0
         d3_score += (overall_epc / 100.0) * 10.0
@@ -220,10 +252,14 @@ class RubricJudge:
         else:
             grade = "Fail (Rejected)"
 
-        passed = (grade == "Grade A (High-Star)") if strict else (total_score >= 80.0 and hr == 0.0 and ccgr >= 90.0)
+        passed = (
+            (grade == "Grade A (High-Star)")
+            if strict
+            else (total_score >= 80.0 and hr == 0.0 and ccgr >= 90.0)
+        )
 
         # Violations Aggregation
-        violations: List[str] = []
+        violations: list[str] = []
         for h in hallucinations:
             violations.append(f"[Hallucination] {h['file']}:{h['lines']} - {h['error']}")
         for f in fluff_audit.violations:
@@ -246,17 +282,14 @@ class RubricJudge:
                 "D2_Architecture_Tradeoffs": round(d2_score, 1),
                 "D3_Execution_Flow": round(d3_score, 1),
                 "D4_Anti_AI_Fluff": round(d4_score, 1),
-                "D5_Mermaid_Integrity": round(d5_score, 1)
+                "D5_Mermaid_Integrity": round(d5_score, 1),
             },
-            violations=violations
+            violations=violations,
         )
 
 
 def evaluate_report(
-    repo_path: str | Path,
-    report_path: str | Path,
-    strict: bool = False,
-    format: str = "rich"
+    repo_path: str | Path, report_path: str | Path, strict: bool = False, format: str = "rich"
 ) -> EvaluationReport:
     """Runs the 100-point rubric judge on a report markdown file."""
     judge = RubricJudge(repo_path)
@@ -276,11 +309,13 @@ def evaluate_report(
         f"Grade: [bold]{report.grade}[/bold] | Status: [{status_style}]{status_label}[/{status_style}]\n"
         f"Total Score: [bold magenta]{report.total_score} / 100.0[/bold magenta]"
     )
-    console.print(Panel(
-        panel_content,
-        title="[bold green]Objective Evaluation Judge Report[/bold green]",
-        border_style="green" if report.passed else "red"
-    ))
+    console.print(
+        Panel(
+            panel_content,
+            title="[bold green]Objective Evaluation Judge Report[/bold green]",
+            border_style="green" if report.passed else "red",
+        )
+    )
 
     # Metric Scorecard Table
     m_table = Table(title="Core Metrics Scorecard", header_style="bold cyan")
@@ -294,7 +329,7 @@ def evaluate_report(
         "Code Citation Grounding Rate (CCGR)",
         f"{report.grounding_rate}%",
         ">= 95.0%",
-        "[green]✓ PASS[/green]" if ccgr_ok else "[yellow]⚠ CHECK[/yellow]"
+        "[green]✓ PASS[/green]" if ccgr_ok else "[yellow]⚠ CHECK[/yellow]",
     )
 
     hr_ok = report.hallucination_rate == 0.0
@@ -302,7 +337,7 @@ def evaluate_report(
         "Hallucination Rate (HR)",
         f"{report.hallucination_rate}%",
         "== 0.0%",
-        "[green]✓ PASS[/green]" if hr_ok else "[red]✗ FAIL[/red]"
+        "[green]✓ PASS[/green]" if hr_ok else "[red]✗ FAIL[/red]",
     )
 
     epc_ok = report.execution_completeness >= 90.0
@@ -310,7 +345,7 @@ def evaluate_report(
         "Execution Path Completeness (EPC)",
         f"{report.execution_completeness}%",
         ">= 90.0%",
-        "[green]✓ PASS[/green]" if epc_ok else "[yellow]⚠ CHECK[/yellow]"
+        "[green]✓ PASS[/green]" if epc_ok else "[yellow]⚠ CHECK[/yellow]",
     )
 
     ffi_ok = report.fluff_free_index >= 90.0
@@ -318,7 +353,7 @@ def evaluate_report(
         "Fluff-Free Index (FFI)",
         f"{report.fluff_free_index}/100",
         ">= 90.0/100",
-        "[green]✓ PASS[/green]" if ffi_ok else "[yellow]⚠ CHECK[/yellow]"
+        "[green]✓ PASS[/green]" if ffi_ok else "[yellow]⚠ CHECK[/yellow]",
     )
 
     console.print(m_table)
@@ -329,11 +364,31 @@ def evaluate_report(
     d_table.add_column("Max Points", justify="right")
     d_table.add_column("Earned Score", justify="right", style="green")
 
-    d_table.add_row("D1: Fact Grounding & Authenticity", "35.0", str(report.dimension_scores.get("D1_Fact_Grounding", 0.0)))
-    d_table.add_row("D2: Architecture & Trade-offs", "25.0", str(report.dimension_scores.get("D2_Architecture_Tradeoffs", 0.0)))
-    d_table.add_row("D3: Execution Flow Continuity", "20.0", str(report.dimension_scores.get("D3_Execution_Flow", 0.0)))
-    d_table.add_row("D4: Anti-AI Fluff & Tone Discipline", "15.0", str(report.dimension_scores.get("D4_Anti_AI_Fluff", 0.0)))
-    d_table.add_row("D5: Mermaid Syntax Integrity", "5.0", str(report.dimension_scores.get("D5_Mermaid_Integrity", 0.0)))
+    d_table.add_row(
+        "D1: Fact Grounding & Authenticity",
+        "35.0",
+        str(report.dimension_scores.get("D1_Fact_Grounding", 0.0)),
+    )
+    d_table.add_row(
+        "D2: Architecture & Trade-offs",
+        "25.0",
+        str(report.dimension_scores.get("D2_Architecture_Tradeoffs", 0.0)),
+    )
+    d_table.add_row(
+        "D3: Execution Flow Continuity",
+        "20.0",
+        str(report.dimension_scores.get("D3_Execution_Flow", 0.0)),
+    )
+    d_table.add_row(
+        "D4: Anti-AI Fluff & Tone Discipline",
+        "15.0",
+        str(report.dimension_scores.get("D4_Anti_AI_Fluff", 0.0)),
+    )
+    d_table.add_row(
+        "D5: Mermaid Syntax Integrity",
+        "5.0",
+        str(report.dimension_scores.get("D5_Mermaid_Integrity", 0.0)),
+    )
     d_table.add_row("Total Score", "100.0", f"[bold magenta]{report.total_score}[/bold magenta]")
 
     console.print(d_table)

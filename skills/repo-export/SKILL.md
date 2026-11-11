@@ -1,7 +1,7 @@
 ---
 name: repo-export
 description: >-
-  研读资产知识合成与单文件离线交互式 HTML 白皮书编译技能。用于将零散的架构拓扑、调用链数据流、状态机不变式与极限防御笔记，去重合成并编译为完全自包含、可在无网络机房离线查阅的单文件 HTML 架构白皮书。
+  研读资产知识合成与单文件离线交互式 HTML 白皮书编译技能。用于将零散的架构拓扑、调用链数据流、状态机不变式与极限防御笔记，去重合成并编译为完全自包含、可在无网络机房离线查阅的单文件 HTML 架构白皮书。Compile scattered study notes (architecture, traces, invariants, failure drills) into a fully self-contained single-file interactive HTML whitepaper that works offline with zero CDN dependencies.
 license: MIT
 ---
 
@@ -80,7 +80,7 @@ license: MIT
 repo-mentor export studies/<repo_name>/
 
 # 2. 导出时指定输出文件名或自定义路径
-repo-mentor export studies/<repo_name>/ --output my_whitepaper.html
+repo-mentor export studies/<repo_name>/ --out my_whitepaper.html
 ```
 
 ---
@@ -93,3 +93,13 @@ repo-mentor export studies/<repo_name>/ --output my_whitepaper.html
 - [ ] **交互式导航健全**：左侧目录树跳转顺畅，Mermaid 图表支持点击与缩放；
 - [ ] **零占位符与死链**：无未填写的模板变量，无失效跳转；
 - [ ] **CLI 成功输出并显示生成文件物理大小与路径**。
+
+---
+
+## 参考资源（按需加载）
+
+研读产物的交付格式参考（`repo-mentor init` 会基于真实仓库数据生成对应骨架）：
+
+- [模板：ARCHITECTURE.md 架构白皮书](../../templates/ARCHITECTURE.md)
+- [模板：DEBUG_NOTES.md 调试与极限推演笔记](../../templates/DEBUG_NOTES.md)
+- [模板：STUDY_INDEX.md 研读索引](../../templates/STUDY_INDEX.md)

@@ -1,6 +1,11 @@
+---
+description: 上下文使用场景与调用脉络追踪（/repo-trace 的可选短别名）。讲清真实场景下谁调它、数据怎么流、出错怎么办。
+argument-hint: <目标对象>
+---
+
 # /trace — 上下文使用场景与调用脉络追踪
 
-> **支撑技能**: [`skills/repo-trace/SKILL.md`](../skills/repo-trace/SKILL.md)  
+> **对应技能**: [`/repo-trace`](../skills/repo-trace/SKILL.md)（技能名即命令名；本文件是可选短别名，需拷入平台命令目录后生效）  
 > **核心职责**: **Follow a living data sample, never read dead symbols in isolation.** (拽着真实数据样本走全流程，绝不孤立看死符号。)
 
 专注于**看目标在外部场景怎么用**：像真人同事梳理业务流一样，用通俗大白话讲透它用在哪里、真实场景下谁调它、下游交给了谁、拿个具体例子怎么跑、异常时怎么处理。
@@ -11,8 +16,8 @@
 
 ### 1. 提取目标对象的上下游调用关系
 ```bash
-# 提取目标符号的调用层级
-repo-mentor ast <target_path> --symbol <TargetSymbol> --calls
+# 提取目标文件的符号与调用关系
+repo-mentor ast <target_path> <file_or_dir> --calls
 ```
 
 ### 2. 生成调用脉络说明（保存至 `studies/<repo_name>/traces/<target>_trace.md`）

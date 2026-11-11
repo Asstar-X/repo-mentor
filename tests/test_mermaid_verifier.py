@@ -12,10 +12,8 @@ Tests:
 """
 
 from pathlib import Path
-import pytest
 
 from repo_mentor.verification.mermaid_verifier import (
-    extract_mermaid_blocks,
     lint_mermaid_code,
     repair_mermaid_code,
     verify_study_mermaid,

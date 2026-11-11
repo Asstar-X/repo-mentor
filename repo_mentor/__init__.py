@@ -6,7 +6,13 @@ Dual-mode architecture:
 2. Agent Skill: standard agent skill specification for Claude Code, Antigravity, Cursor, and Codex.
 """
 
-__version__ = "1.0.0"
+from importlib.metadata import PackageNotFoundError, version
+
+try:
+    __version__ = version("repo-mentor")
+except PackageNotFoundError:  # running from a source tree without installation
+    __version__ = "0.0.0"
+
 __author__ = "Repo Mentor Contributors"
 __license__ = "MIT"
 

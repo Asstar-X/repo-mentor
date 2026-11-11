@@ -10,6 +10,7 @@ Tests:
 """
 
 from pathlib import Path
+
 import pytest
 
 from repo_mentor.verification.judge import RubricJudge, evaluate_report
@@ -23,15 +24,15 @@ def mock_codebase(tmp_path: Path) -> Path:
 
     # Core source file
     code = (
-        'package core\n'
-        '\n'
-        'type Router struct {\n'
-        '    Routes []string\n'
-        '}\n'
-        '\n'
-        'func (r *Router) Dispatch(path string) bool {\n'
-        '    return true\n'
-        '}\n'
+        "package core\n"
+        "\n"
+        "type Router struct {\n"
+        "    Routes []string\n"
+        "}\n"
+        "\n"
+        "func (r *Router) Dispatch(path string) bool {\n"
+        "    return true\n"
+        "}\n"
     )
     (repo / "router.go").write_text(code, encoding="utf-8")
     return repo

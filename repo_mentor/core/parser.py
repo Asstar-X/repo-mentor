@@ -13,12 +13,13 @@ import os
 import re
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
 
 @dataclass
 class SymbolLocation:
     """Represents the physical location and metadata of a code symbol."""
+
     file_path: str
     symbol_name: str
     symbol_type: str  # 'class' | 'struct' | 'function' | 'method' | 'interface'
@@ -27,13 +28,14 @@ class SymbolLocation:
     signature: str = ""
     load_bearing_snippet: str = ""
     docstring: str = ""
-    decorators: List[str] = field(default_factory=list)
-    parent_symbol: Optional[str] = None
+    decorators: list[str] = field(default_factory=list)
+    parent_symbol: str | None = None
 
 
 @dataclass
 class CallInvocation:
     """Represents a function or method invocation extracted from AST."""
+
     caller: str
     callee: str
     line: int
@@ -43,13 +45,13 @@ class CallInvocation:
 class PythonASTExtractor(ast.NodeVisitor):
     """Zero-dependency visitor for Python AST symbol & call extraction."""
 
-    def __init__(self, file_path: str, source_lines: List[str]):
+    def __init__(self, file_path: str, source_lines: list[str]):
         self.file_path = file_path
         self.source_lines = source_lines
-        self.symbols: List[SymbolLocation] = []
-        self.calls: List[CallInvocation] = []
-        self.imports: List[Dict[str, Any]] = []
-        self._current_scope: List[str] = []
+        self.symbols: list[SymbolLocation] = []
+        self.calls: list[CallInvocation] = []
+        self.imports: list[dict[str, Any]] = []
+        self._current_scope: list[str] = []
 
     def _get_snippet(self, start: int, end: int, max_lines: int = 8) -> str:
         s = max(0, start - 1)
@@ -73,30 +75,37 @@ class PythonASTExtractor(ast.NodeVisitor):
 
     def visit_Import(self, node: ast.Import) -> None:
         for alias in node.names:
-            self.imports.append({
-                "type": "import",
-                "module": alias.name,
-                "asname": alias.asname,
-                "line": node.lineno
-            })
+            self.imports.append(
+                {
+                    "type": "import",
+                    "module": alias.name,
+                    "asname": alias.asname,
+                    "line": node.lineno,
+                }
+            )
         self.generic_visit(node)
 
     def visit_ImportFrom(self, node: ast.ImportFrom) -> None:
         mod = node.module or ""
         for alias in node.names:
-            self.imports.append({
-                "type": "from",
-                "module": mod,
-                "name": alias.name,
-                "asname": alias.asname,
-                "level": node.level,
-                "line": node.lineno
-            })
+            self.imports.append(
+                {
+                    "type": "from",
+                    "module": mod,
+                    "name": alias.name,
+                    "asname": alias.asname,
+                    "level": node.level,
+                    "line": node.lineno,
+                }
+            )
         self.generic_visit(node)
 
     def visit_ClassDef(self, node: ast.ClassDef) -> None:
         full_name = ".".join(self._current_scope + [node.name])
-        decs = [ast.unparse(d) if hasattr(ast, "unparse") else getattr(d, "id", "") for d in node.decorator_list]
+        decs = [
+            ast.unparse(d) if hasattr(ast, "unparse") else getattr(d, "id", "")
+            for d in node.decorator_list
+        ]
         doc = ast.get_docstring(node) or ""
         start = node.lineno
         end = getattr(node, "end_lineno", start)
@@ -111,33 +120,40 @@ class PythonASTExtractor(ast.NodeVisitor):
             load_bearing_snippet=self._get_snippet(start, end),
             docstring=doc,
             decorators=decs,
-            parent_symbol=self._current_scope[-1] if self._current_scope else None
+            parent_symbol=self._current_scope[-1] if self._current_scope else None,
         )
         self.symbols.append(sym)
 
         # Also register scoped qualified name if nested
         if self._current_scope:
-            self.symbols.append(SymbolLocation(
-                file_path=self.file_path,
-                symbol_name=full_name,
-                symbol_type="class",
-                start_line=start,
-                end_line=end,
-                signature=sym.signature,
-                load_bearing_snippet=sym.load_bearing_snippet,
-                docstring=doc,
-                decorators=decs
-            ))
+            self.symbols.append(
+                SymbolLocation(
+                    file_path=self.file_path,
+                    symbol_name=full_name,
+                    symbol_type="class",
+                    start_line=start,
+                    end_line=end,
+                    signature=sym.signature,
+                    load_bearing_snippet=sym.load_bearing_snippet,
+                    docstring=doc,
+                    decorators=decs,
+                )
+            )
 
         self._current_scope.append(node.name)
         self.generic_visit(node)
         self._current_scope.pop()
 
-    def _visit_func(self, node: ast.FunctionDef | ast.AsyncFunctionDef, is_async: bool = False) -> None:
+    def _visit_func(
+        self, node: ast.FunctionDef | ast.AsyncFunctionDef, is_async: bool = False
+    ) -> None:
         in_class = len(self._current_scope) > 0
         sym_type = "method" if in_class else "function"
         parent = self._current_scope[-1] if in_class else None
-        decs = [ast.unparse(d) if hasattr(ast, "unparse") else getattr(d, "id", "") for d in node.decorator_list]
+        decs = [
+            ast.unparse(d) if hasattr(ast, "unparse") else getattr(d, "id", "")
+            for d in node.decorator_list
+        ]
         doc = ast.get_docstring(node) or ""
         start = node.lineno
         end = getattr(node, "end_lineno", start)
@@ -155,25 +171,27 @@ class PythonASTExtractor(ast.NodeVisitor):
             load_bearing_snippet=snippet,
             docstring=doc,
             decorators=decs,
-            parent_symbol=parent
+            parent_symbol=parent,
         )
         self.symbols.append(sym)
 
         # If it's a method, also register ClassName.method_name for easy lookup
         if in_class and parent:
             scoped_name = f"{parent}.{node.name}"
-            self.symbols.append(SymbolLocation(
-                file_path=self.file_path,
-                symbol_name=scoped_name,
-                symbol_type=sym_type,
-                start_line=start,
-                end_line=end,
-                signature=sig,
-                load_bearing_snippet=snippet,
-                docstring=doc,
-                decorators=decs,
-                parent_symbol=parent
-            ))
+            self.symbols.append(
+                SymbolLocation(
+                    file_path=self.file_path,
+                    symbol_name=scoped_name,
+                    symbol_type=sym_type,
+                    start_line=start,
+                    end_line=end,
+                    signature=sig,
+                    load_bearing_snippet=snippet,
+                    docstring=doc,
+                    decorators=decs,
+                    parent_symbol=parent,
+                )
+            )
 
         caller_name = f"{parent}.{node.name}" if in_class and parent else node.name
         self._current_scope.append(node.name)
@@ -188,12 +206,14 @@ class PythonASTExtractor(ast.NodeVisitor):
                     val_str = ast.unparse(child.func.value) if hasattr(ast, "unparse") else ""
                     callee_name = f"{val_str}.{child.func.attr}" if val_str else child.func.attr
                 if callee_name:
-                    self.calls.append(CallInvocation(
-                        caller=caller_name,
-                        callee=callee_name,
-                        line=getattr(child, "lineno", start),
-                        file_path=self.file_path
-                    ))
+                    self.calls.append(
+                        CallInvocation(
+                            caller=caller_name,
+                            callee=callee_name,
+                            line=getattr(child, "lineno", start),
+                            file_path=self.file_path,
+                        )
+                    )
 
         self.generic_visit(node)
         self._current_scope.pop()
@@ -209,9 +229,9 @@ class GoSymbolLexer:
     """Resilient lexer for Go package, structs, interfaces, functions, methods, and imports."""
 
     @staticmethod
-    def parse(file_path: str, content: str) -> Tuple[List[SymbolLocation], List[str]]:
-        symbols: List[SymbolLocation] = []
-        imports: List[str] = []
+    def parse(file_path: str, content: str) -> tuple[list[SymbolLocation], list[str]]:
+        symbols: list[SymbolLocation] = []
+        imports: list[str] = []
         lines = content.splitlines()
 
         # 1. Extract imports
@@ -234,10 +254,7 @@ class GoSymbolLexer:
                     imports.append(m.group(1))
 
         # 3. Structs and Interfaces
-        type_regex = re.compile(
-            r"^\s*type\s+([a-zA-Z0-9_]+)\s+(struct|interface)\b",
-            re.MULTILINE
-        )
+        type_regex = re.compile(r"^\s*type\s+([a-zA-Z0-9_]+)\s+(struct|interface)\b", re.MULTILINE)
         for m in type_regex.finditer(content):
             name = m.group(1)
             kind = m.group(2)
@@ -259,23 +276,24 @@ class GoSymbolLexer:
             if end_line == start_line and idx < len(lines):
                 end_line = min(len(lines), start_line + 15)
 
-            snippet = "\n".join(lines[start_line - 1:min(len(lines), start_line + 7)])
-            symbols.append(SymbolLocation(
-                file_path=file_path,
-                symbol_name=name,
-                symbol_type="struct" if kind == "struct" else "interface",
-                start_line=start_line,
-                end_line=end_line,
-                signature=lines[start_line - 1].strip() if start_line <= len(lines) else "",
-                load_bearing_snippet=snippet
-            ))
+            snippet = "\n".join(lines[start_line - 1 : min(len(lines), start_line + 7)])
+            symbols.append(
+                SymbolLocation(
+                    file_path=file_path,
+                    symbol_name=name,
+                    symbol_type="struct" if kind == "struct" else "interface",
+                    start_line=start_line,
+                    end_line=end_line,
+                    signature=lines[start_line - 1].strip() if start_line <= len(lines) else "",
+                    load_bearing_snippet=snippet,
+                )
+            )
 
         # 4. Functions & Methods
         # Methods: func (recv Type) Name(...)
         # Functions: func Name(...)
         func_regex = re.compile(
-            r"^\s*func\s+(?:\(\s*([a-zA-Z0-9_\*,\s]+)\s*\)\s+)?([a-zA-Z0-9_]+)\s*\(",
-            re.MULTILINE
+            r"^\s*func\s+(?:\(\s*([a-zA-Z0-9_\*,\s]+)\s*\)\s+)?([a-zA-Z0-9_]+)\s*\(", re.MULTILINE
         )
         for m in func_regex.finditer(content):
             receiver = m.group(1)
@@ -311,33 +329,37 @@ class GoSymbolLexer:
                     end_line = idx + 1
                     break
 
-            snippet = "\n".join(lines[start_line - 1:min(len(lines), start_line + 7)])
+            snippet = "\n".join(lines[start_line - 1 : min(len(lines), start_line + 7)])
             sig = lines[start_line - 1].strip() if start_line <= len(lines) else ""
 
-            symbols.append(SymbolLocation(
-                file_path=file_path,
-                symbol_name=sym_name,
-                symbol_type=sym_type,
-                start_line=start_line,
-                end_line=end_line,
-                signature=sig,
-                load_bearing_snippet=snippet,
-                parent_symbol=parent_type
-            ))
-
-            if parent_type:
-                # Also index as Receiver.Name
-                scoped_name = f"{parent_type}.{name}"
-                symbols.append(SymbolLocation(
+            symbols.append(
+                SymbolLocation(
                     file_path=file_path,
-                    symbol_name=scoped_name,
-                    symbol_type="method",
+                    symbol_name=sym_name,
+                    symbol_type=sym_type,
                     start_line=start_line,
                     end_line=end_line,
                     signature=sig,
                     load_bearing_snippet=snippet,
-                    parent_symbol=parent_type
-                ))
+                    parent_symbol=parent_type,
+                )
+            )
+
+            if parent_type:
+                # Also index as Receiver.Name
+                scoped_name = f"{parent_type}.{name}"
+                symbols.append(
+                    SymbolLocation(
+                        file_path=file_path,
+                        symbol_name=scoped_name,
+                        symbol_type="method",
+                        start_line=start_line,
+                        end_line=end_line,
+                        signature=sig,
+                        load_bearing_snippet=snippet,
+                        parent_symbol=parent_type,
+                    )
+                )
 
         return symbols, imports
 
@@ -346,9 +368,9 @@ class RustSymbolLexer:
     """Resilient lexer for Rust structs, enums, traits, functions, methods, and modules."""
 
     @staticmethod
-    def parse(file_path: str, content: str) -> Tuple[List[SymbolLocation], List[str]]:
-        symbols: List[SymbolLocation] = []
-        imports: List[str] = []
+    def parse(file_path: str, content: str) -> tuple[list[SymbolLocation], list[str]]:
+        symbols: list[SymbolLocation] = []
+        imports: list[str] = []
         lines = content.splitlines()
 
         # 1. Uses
@@ -360,7 +382,7 @@ class RustSymbolLexer:
         # 2. Structs, Enums, Traits
         decl_regex = re.compile(
             r"^\s*(?:pub\s+)?(?:pub\([^\)]+\)\s+)?(struct|enum|trait)\s+([a-zA-Z0-9_]+)",
-            re.MULTILINE
+            re.MULTILINE,
         )
         for m in decl_regex.finditer(content):
             kind = m.group(1)
@@ -381,22 +403,23 @@ class RustSymbolLexer:
                     end_line = idx + 1
                     break
 
-            snippet = "\n".join(lines[start_line - 1:min(len(lines), start_line + 7)])
+            snippet = "\n".join(lines[start_line - 1 : min(len(lines), start_line + 7)])
             sym_type = "interface" if kind == "trait" else "struct"
-            symbols.append(SymbolLocation(
-                file_path=file_path,
-                symbol_name=name,
-                symbol_type=sym_type,
-                start_line=start_line,
-                end_line=end_line,
-                signature=lines[start_line - 1].strip(),
-                load_bearing_snippet=snippet
-            ))
+            symbols.append(
+                SymbolLocation(
+                    file_path=file_path,
+                    symbol_name=name,
+                    symbol_type=sym_type,
+                    start_line=start_line,
+                    end_line=end_line,
+                    signature=lines[start_line - 1].strip(),
+                    load_bearing_snippet=snippet,
+                )
+            )
 
         # 3. Functions
         fn_regex = re.compile(
-            r"^\s*(?:pub\s+)?(?:async\s+)?fn\s+([a-zA-Z0-9_]+)\s*[\(<]",
-            re.MULTILINE
+            r"^\s*(?:pub\s+)?(?:async\s+)?fn\s+([a-zA-Z0-9_]+)\s*[\(<]", re.MULTILINE
         )
         for m in fn_regex.finditer(content):
             name = m.group(1)
@@ -415,16 +438,18 @@ class RustSymbolLexer:
                     end_line = idx + 1
                     break
 
-            snippet = "\n".join(lines[start_line - 1:min(len(lines), start_line + 7)])
-            symbols.append(SymbolLocation(
-                file_path=file_path,
-                symbol_name=name,
-                symbol_type="function",
-                start_line=start_line,
-                end_line=end_line,
-                signature=lines[start_line - 1].strip(),
-                load_bearing_snippet=snippet
-            ))
+            snippet = "\n".join(lines[start_line - 1 : min(len(lines), start_line + 7)])
+            symbols.append(
+                SymbolLocation(
+                    file_path=file_path,
+                    symbol_name=name,
+                    symbol_type="function",
+                    start_line=start_line,
+                    end_line=end_line,
+                    signature=lines[start_line - 1].strip(),
+                    load_bearing_snippet=snippet,
+                )
+            )
 
         return symbols, imports
 
@@ -433,9 +458,9 @@ class TypeScriptSymbolLexer:
     """Resilient lexer for TypeScript / JavaScript symbols and imports."""
 
     @staticmethod
-    def parse(file_path: str, content: str) -> Tuple[List[SymbolLocation], List[str]]:
-        symbols: List[SymbolLocation] = []
-        imports: List[str] = []
+    def parse(file_path: str, content: str) -> tuple[list[SymbolLocation], list[str]]:
+        symbols: list[SymbolLocation] = []
+        imports: list[str] = []
         lines = content.splitlines()
 
         # 1. Imports
@@ -447,7 +472,7 @@ class TypeScriptSymbolLexer:
         # 2. Classes and Interfaces
         decl_regex = re.compile(
             r"^\s*(?:export\s+)?(?:default\s+)?(class|interface|type)\s+([a-zA-Z0-9_]+)",
-            re.MULTILINE
+            re.MULTILINE,
         )
         for m in decl_regex.finditer(content):
             kind = m.group(1)
@@ -467,21 +492,22 @@ class TypeScriptSymbolLexer:
                     end_line = idx + 1
                     break
 
-            snippet = "\n".join(lines[start_line - 1:min(len(lines), start_line + 7)])
-            symbols.append(SymbolLocation(
-                file_path=file_path,
-                symbol_name=name,
-                symbol_type="class" if kind == "class" else "interface",
-                start_line=start_line,
-                end_line=end_line,
-                signature=lines[start_line - 1].strip(),
-                load_bearing_snippet=snippet
-            ))
+            snippet = "\n".join(lines[start_line - 1 : min(len(lines), start_line + 7)])
+            symbols.append(
+                SymbolLocation(
+                    file_path=file_path,
+                    symbol_name=name,
+                    symbol_type="class" if kind == "class" else "interface",
+                    start_line=start_line,
+                    end_line=end_line,
+                    signature=lines[start_line - 1].strip(),
+                    load_bearing_snippet=snippet,
+                )
+            )
 
         # 3. Functions
         func_regex = re.compile(
-            r"^\s*(?:export\s+)?(?:async\s+)?function\s+([a-zA-Z0-9_]+)\s*\(",
-            re.MULTILINE
+            r"^\s*(?:export\s+)?(?:async\s+)?function\s+([a-zA-Z0-9_]+)\s*\(", re.MULTILINE
         )
         for m in func_regex.finditer(content):
             name = m.group(1)
@@ -500,16 +526,18 @@ class TypeScriptSymbolLexer:
                     end_line = idx + 1
                     break
 
-            snippet = "\n".join(lines[start_line - 1:min(len(lines), start_line + 7)])
-            symbols.append(SymbolLocation(
-                file_path=file_path,
-                symbol_name=name,
-                symbol_type="function",
-                start_line=start_line,
-                end_line=end_line,
-                signature=lines[start_line - 1].strip(),
-                load_bearing_snippet=snippet
-            ))
+            snippet = "\n".join(lines[start_line - 1 : min(len(lines), start_line + 7)])
+            symbols.append(
+                SymbolLocation(
+                    file_path=file_path,
+                    symbol_name=name,
+                    symbol_type="function",
+                    start_line=start_line,
+                    end_line=end_line,
+                    signature=lines[start_line - 1].strip(),
+                    load_bearing_snippet=snippet,
+                )
+            )
 
         return symbols, imports
 
@@ -517,11 +545,11 @@ class TypeScriptSymbolLexer:
 class SymbolIndex:
     """Multi-file symbol index supporting precise and fuzzy grounding queries."""
 
-    def __init__(self, root_dir: Optional[str | Path] = None):
+    def __init__(self, root_dir: str | Path | None = None):
         self.root_dir = Path(root_dir).resolve() if root_dir else None
-        self.symbols_by_file: Dict[str, List[SymbolLocation]] = {}
-        self.calls_by_file: Dict[str, List[CallInvocation]] = {}
-        self.imports_by_file: Dict[str, List[Any]] = {}
+        self.symbols_by_file: dict[str, list[SymbolLocation]] = {}
+        self.calls_by_file: dict[str, list[CallInvocation]] = {}
+        self.imports_by_file: dict[str, list[Any]] = {}
 
     def _normalize_path(self, file_path: str | Path) -> str:
         p = Path(file_path)
@@ -585,14 +613,21 @@ class SymbolIndex:
 
         return False
 
-    def build_index(self, max_depth: int = 5, extensions: Optional[List[str]] = None) -> int:
+    def build_index(self, max_depth: int = 5, extensions: list[str] | None = None) -> int:
         if not self.root_dir or not self.root_dir.is_dir():
             return 0
 
         target_exts = set(extensions) if extensions else {".py", ".go", ".rs", ".ts", ".tsx", ".js"}
         ignored = {
-            ".git", "node_modules", "target", "vendor", "__pycache__",
-            ".venv", "venv", "dist", "build"
+            ".git",
+            "node_modules",
+            "target",
+            "vendor",
+            "__pycache__",
+            ".venv",
+            "venv",
+            "dist",
+            "build",
         }
 
         count = 0
@@ -610,7 +645,7 @@ class SymbolIndex:
 
         return count
 
-    def find_symbol_at(self, file_path: str, line: int) -> Optional[SymbolLocation]:
+    def find_symbol_at(self, file_path: str, line: int) -> SymbolLocation | None:
         """Returns the innermost symbol spanning the specified line."""
         norm_path = self._normalize_path(file_path)
         symbols = self.symbols_by_file.get(norm_path)
@@ -630,7 +665,7 @@ class SymbolIndex:
             return None
 
         # Return the innermost (smallest line span)
-        candidates.sort(key=lambda s: (s.end_line - s.start_line))
+        candidates.sort(key=lambda s: s.end_line - s.start_line)
         return candidates[0]
 
     def has_symbol(
@@ -639,7 +674,7 @@ class SymbolIndex:
         symbol_name: str,
         start_line: int,
         end_line: int,
-        drift_tolerance: int = 15
+        drift_tolerance: int = 15,
     ) -> bool:
         """
         Verifies whether a named symbol physically exists in file_path spanning [start_line, end_line].
@@ -667,7 +702,9 @@ class SymbolIndex:
             elif "." in clean_target:
                 # e.g., "Memory.add" matching "Memory.add" or class "Memory" with method "add"
                 leaf = clean_target.split(".")[-1]
-                if sym.symbol_name == clean_target or (sym.symbol_name == leaf and sym.parent_symbol):
+                if sym.symbol_name == clean_target or (
+                    sym.symbol_name == leaf and sym.parent_symbol
+                ):
                     name_matches = True
             elif "." in sym.symbol_name:
                 leaf = sym.symbol_name.split(".")[-1]

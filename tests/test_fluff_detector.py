@@ -9,8 +9,6 @@ Tests:
 - Fluff-Free Index (FFI) mathematical penalty formulation
 """
 
-import pytest
-
 from repo_mentor.verification.fluff_detector import detect_fluff
 
 
@@ -25,7 +23,6 @@ def test_detect_chinese_banned_buzzwords():
     """
     res = detect_fluff(content)
     categories = [v.category for v in res.violations]
-    matched = [v.matched_text for v in res.violations]
 
     assert "banned_buzzword" in categories
     assert res.banned_buzzword_count >= 4

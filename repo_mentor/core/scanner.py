@@ -11,48 +11,97 @@ from __future__ import annotations
 import os
 import re
 from pathlib import Path
-from typing import Any, Dict, List, Set
+from typing import Any
 
-IGNORED_DIRS: Set[str] = {
-    ".git", ".svn", ".hg", "node_modules", "target", "vendor",
-    "__pycache__", ".venv", "venv", "env", ".idea", ".vscode",
-    "dist", "build", "out", "bin", "obj", ".next", ".nuxt",
-    ".cache", "coverage", ".pytest_cache", ".mypy_cache",
-    ".cargo", ".agents", ".claude"
+IGNORED_DIRS: set[str] = {
+    ".git",
+    ".svn",
+    ".hg",
+    "node_modules",
+    "target",
+    "vendor",
+    "__pycache__",
+    ".venv",
+    "venv",
+    "env",
+    ".idea",
+    ".vscode",
+    "dist",
+    "build",
+    "out",
+    "bin",
+    "obj",
+    ".next",
+    ".nuxt",
+    ".cache",
+    "coverage",
+    ".pytest_cache",
+    ".mypy_cache",
+    ".cargo",
+    ".agents",
+    ".claude",
 }
 
-MANIFEST_MAP: Dict[str, List[str]] = {
+MANIFEST_MAP: dict[str, list[str]] = {
     "Go": ["go.mod", "go.sum", "Gopkg.toml"],
     "Rust": ["Cargo.toml", "Cargo.lock"],
-    "Python": ["pyproject.toml", "setup.py", "setup.cfg", "Pipfile", "requirements.txt", "poetry.lock"],
-    "TypeScript/JavaScript": ["package.json", "tsconfig.json", "pnpm-workspace.yaml", "lerna.json", "yarn.lock"],
+    "Python": [
+        "pyproject.toml",
+        "setup.py",
+        "setup.cfg",
+        "Pipfile",
+        "requirements.txt",
+        "poetry.lock",
+    ],
+    "TypeScript/JavaScript": [
+        "package.json",
+        "tsconfig.json",
+        "pnpm-workspace.yaml",
+        "lerna.json",
+        "yarn.lock",
+    ],
     "Java/Kotlin": ["pom.xml", "build.gradle", "build.gradle.kts", "settings.gradle"],
     "C/C++": ["CMakeLists.txt", "Makefile", "meson.build", "configure.ac"],
     "C#/.NET": ["*.sln", "*.csproj", "Directory.Build.props"],
     "Ruby": ["Gemfile", "Gemfile.lock", "*.gemspec"],
     "PHP": ["composer.json", "composer.lock"],
     "Swift": ["Package.swift"],
-    "Elixir": ["mix.exs"]
+    "Elixir": ["mix.exs"],
 }
 
-ENTRYPOINT_PATTERNS: Dict[str, List[str]] = {
+ENTRYPOINT_PATTERNS: dict[str, list[str]] = {
     "Go": ["main.go", "cmd/**/main.go"],
     "Rust": ["src/main.rs", "src/lib.rs", "main.rs", "lib.rs", "examples/*.rs"],
     "Python": [
-        "main.py", "app.py", "cli.py", "__main__.py", "server.py",
-        "run.py", "manage.py", "wsgi.py", "asgi.py"
+        "main.py",
+        "app.py",
+        "cli.py",
+        "__main__.py",
+        "server.py",
+        "run.py",
+        "manage.py",
+        "wsgi.py",
+        "asgi.py",
     ],
     "TypeScript/JavaScript": [
-        "src/index.ts", "src/index.js", "src/main.ts", "src/main.js",
-        "src/cli.ts", "src/server.ts", "index.ts", "index.js",
-        "server.js", "app.js", "bin/*.js"
+        "src/index.ts",
+        "src/index.js",
+        "src/main.ts",
+        "src/main.js",
+        "src/cli.ts",
+        "src/server.ts",
+        "index.ts",
+        "index.js",
+        "server.js",
+        "app.js",
+        "bin/*.js",
     ],
     "Java/Kotlin": ["*Application.java", "Main.java", "App.java", "*Application.kt", "Main.kt"],
     "C/C++": ["main.c", "main.cpp", "src/main.c", "src/main.cpp", "src/main.cc"],
-    "C#/.NET": ["Program.cs", "Startup.cs"]
+    "C#/.NET": ["Program.cs", "Startup.cs"],
 }
 
-EXT_TO_LANG: Dict[str, str] = {
+EXT_TO_LANG: dict[str, str] = {
     ".py": "Python",
     ".go": "Go",
     ".rs": "Rust",
@@ -74,13 +123,13 @@ EXT_TO_LANG: Dict[str, str] = {
     ".swift": "Swift",
     ".sh": "Shell",
     ".md": "Markdown",
-    ".sql": "SQL"
+    ".sql": "SQL",
 }
 
 
-def _detect_go_package_entrypoints(root_path: Path) -> List[Dict[str, str]]:
+def _detect_go_package_entrypoints(root_path: Path) -> list[dict[str, str]]:
     """Detects Go library root entrypoints (e.g., gin.go or root package entrypoints)."""
-    entrypoints: List[Dict[str, str]] = []
+    entrypoints: list[dict[str, str]] = []
     go_mod = root_path / "go.mod"
     module_leaf = ""
     if go_mod.is_file():
@@ -117,46 +166,64 @@ def _detect_go_package_entrypoints(root_path: Path) -> List[Dict[str, str]]:
                     pass
 
             if is_entry:
-                entrypoints.append({
-                    "ecosystem": "Go",
-                    "path": go_file.relative_to(root_path).as_posix(),
-                    "name": go_file.name,
-                    "type": "library_entrypoint",
-                    "reason": reason
-                })
+                entrypoints.append(
+                    {
+                        "ecosystem": "Go",
+                        "path": go_file.relative_to(root_path).as_posix(),
+                        "name": go_file.name,
+                        "type": "library_entrypoint",
+                        "reason": reason,
+                    }
+                )
     except Exception:
         pass
 
     return entrypoints
 
 
-def scan_repo(root_dir: str | Path, max_depth: int = 3) -> Dict[str, Any]:
+def scan_repo(root_dir: str | Path, max_depth: int = 3) -> dict[str, Any]:
     """Scans repository structure, language ecosystem, entrypoints, and test suites."""
     root_path = Path(root_dir).resolve()
     if not root_path.is_dir():
         return {"error": f"Path is not a directory: {root_dir}"}
 
-    manifests_found: Dict[str, List[str]] = {}
-    detected_ecosystems: Set[str] = set()
-    entrypoints: List[Dict[str, Any]] = []
-    lang_loc: Dict[str, int] = {}
-    top_level_dirs: List[Dict[str, Any]] = []
-    test_dirs: List[str] = []
-    colocated_tests: List[str] = []
+    manifests_found: dict[str, list[str]] = {}
+    detected_ecosystems: set[str] = set()
+    entrypoints: list[dict[str, Any]] = []
+    lang_loc: dict[str, int] = {}
+    top_level_dirs: list[dict[str, Any]] = []
+    test_dirs: list[str] = []
+    colocated_tests: list[str] = []
     total_files = 0
 
     # 1. Inspect top-level directory layout
     try:
         for entry in root_path.iterdir():
             if entry.is_dir() and entry.name not in IGNORED_DIRS:
-                is_test = entry.name.lower() in {"test", "tests", "testing", "spec", "specs", "__tests__"}
+                is_test = entry.name.lower() in {
+                    "test",
+                    "tests",
+                    "testing",
+                    "spec",
+                    "specs",
+                    "__tests__",
+                }
                 is_doc = entry.name.lower() in {"doc", "docs", "documentation"}
-                is_src = entry.name.lower() in {"src", "pkg", "cmd", "internal", "lib", "core", "app", "packages"}
+                is_src = entry.name.lower() in {
+                    "src",
+                    "pkg",
+                    "cmd",
+                    "internal",
+                    "lib",
+                    "core",
+                    "app",
+                    "packages",
+                }
                 dir_summary = {
                     "name": entry.name,
                     "is_test": is_test,
                     "is_doc": is_doc,
-                    "is_src": is_src
+                    "is_src": is_src,
                 }
                 top_level_dirs.append(dir_summary)
                 if is_test:
@@ -179,7 +246,7 @@ def scan_repo(root_dir: str | Path, max_depth: int = 3) -> Dict[str, Any]:
                     detected_ecosystems.add(eco)
 
     # 2b. Check for special Agent/Workflow signatures
-    agent_frameworks: List[str] = []
+    agent_frameworks: list[str] = []
     if (root_path / "AGENTS.md").is_file() or (root_path / ".agents").is_dir():
         agent_frameworks.append("Agent Skills / Codex")
     if (root_path / "CLAUDE.md").is_file() or (root_path / ".claude").is_dir():
@@ -188,7 +255,9 @@ def scan_repo(root_dir: str | Path, max_depth: int = 3) -> Dict[str, Any]:
         agent_frameworks.append("Antigravity Skill")
 
     # 3. Check for standard pattern entrypoints
-    check_ecosystems = detected_ecosystems if detected_ecosystems else set(ENTRYPOINT_PATTERNS.keys())
+    check_ecosystems = (
+        detected_ecosystems if detected_ecosystems else set(ENTRYPOINT_PATTERNS.keys())
+    )
     for eco in check_ecosystems:
         patterns = ENTRYPOINT_PATTERNS.get(eco, [])
         for pattern in patterns:
@@ -197,13 +266,15 @@ def scan_repo(root_dir: str | Path, max_depth: int = 3) -> Dict[str, Any]:
                     rel = match.relative_to(root_path).as_posix()
                     parts = rel.split("/")
                     if not any(p in IGNORED_DIRS for p in parts[:-1]):
-                        entrypoints.append({
-                            "ecosystem": eco,
-                            "path": rel,
-                            "name": match.name,
-                            "type": "executable_entrypoint",
-                            "reason": f"Matches standard {eco} pattern '{pattern}'"
-                        })
+                        entrypoints.append(
+                            {
+                                "ecosystem": eco,
+                                "path": rel,
+                                "name": match.name,
+                                "type": "executable_entrypoint",
+                                "reason": f"Matches standard {eco} pattern '{pattern}'",
+                            }
+                        )
             except Exception:
                 pass
 
@@ -253,11 +324,13 @@ def scan_repo(root_dir: str | Path, max_depth: int = 3) -> Dict[str, Any]:
     primary_language = sorted_langs[0][0] if sorted_langs else "Unknown"
 
     # Identify test frameworks
-    test_frameworks: List[str] = []
+    test_frameworks: list[str] = []
     if "Go" in detected_ecosystems or any(f.endswith("_test.go") for f in colocated_tests):
         test_frameworks.append("go test")
     if "Python" in detected_ecosystems:
-        if (root_path / "pytest.ini").is_file() or any("pytest" in str(m) for m in manifests_found.get("Python", [])):
+        if (root_path / "pytest.ini").is_file() or any(
+            "pytest" in str(m) for m in manifests_found.get("Python", [])
+        ):
             test_frameworks.append("pytest")
         elif test_dirs or colocated_tests:
             test_frameworks.append("unittest/pytest")
@@ -271,7 +344,7 @@ def scan_repo(root_dir: str | Path, max_depth: int = 3) -> Dict[str, Any]:
         "test_directories": test_dirs,
         "has_colocated_tests": len(colocated_tests) > 0,
         "colocated_test_count": len(colocated_tests),
-        "sample_test_files": colocated_tests[:10]
+        "sample_test_files": colocated_tests[:10],
     }
 
     return {
@@ -286,5 +359,5 @@ def scan_repo(root_dir: str | Path, max_depth: int = 3) -> Dict[str, Any]:
         "top_level_dirs": top_level_dirs,
         "test_dirs": test_dirs,
         "test_directories": test_dirs,
-        "test_suites": test_suites_summary
+        "test_suites": test_suites_summary,
     }

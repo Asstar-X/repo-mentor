@@ -3,7 +3,7 @@
 Compiles Markdown study deliverables into an offline, single-file HTML review manual.
 Features:
 1. Paper Monochrome minimalist styling (high-density, professional typography).
-2. Resilient multi-CDN + offline Mermaid rendering with interactive zoom/pan controls.
+2. Fully offline Mermaid rendering via vendored inline bundle with zoom/pan controls.
 3. Two-column layout with responsive sticky sidebar navigation and live Scrollspy.
 4. CRITICAL: 100% Dynamic extraction of Limit Scenarios & Challenges from Markdown files.
    Zero canned text or hardcoded fallbacks.
@@ -11,15 +11,23 @@ Features:
 
 from __future__ import annotations
 
-import csv
+import functools
 import html
 import re
+from importlib import resources
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from repo_mentor.core.coverage import evaluate_study_directory
 
 _DIAGRAM_COUNTER = 0
+
+
+@functools.lru_cache(maxsize=1)
+def _load_mermaid_js() -> str:
+    asset = resources.files("repo_mentor.export").joinpath("assets/mermaid.min.js")
+    # Escaping "</script" prevents premature closing of the inline <script> block.
+    return asset.read_text(encoding="utf-8").replace("</script", "<\\/script")
 
 
 def _format_inline_markdown(text: str) -> str:
@@ -28,23 +36,21 @@ def _format_inline_markdown(text: str) -> str:
         return ""
     # Code anchors [path#Lstart-Lend]
     text = re.sub(
-        r'\[([^\]]+#L\d+(?:-L\d+)?)\](?:\([^)]*\))?',
-        r'<span class="code-anchor">\1</span>',
-        text
+        r"\[([^\]]+#L\d+(?:-L\d+)?)\](?:\([^)]*\))?", r'<span class="code-anchor">\1</span>', text
     )
     # Inline code `code`
     text = re.sub(
-        r'`([^`]+)`',
-        lambda m: f'<code class="inline-code">{html.escape(m.group(1))}</code>',
-        text
+        r"`([^`]+)`", lambda m: f'<code class="inline-code">{html.escape(m.group(1))}</code>', text
     )
     # Bold **text**
-    text = re.sub(r'\*\*([^*]+)\*\*', r'<strong>\1</strong>', text)
+    text = re.sub(r"\*\*([^*]+)\*\*", r"<strong>\1</strong>", text)
     # Markdown links [text](url)
     text = re.sub(
-        r'\[([^\]]+)\]\(([^)]+)\)',
-        lambda m: f'<a href="{html.escape(m.group(2))}" target="_blank" rel="noopener">{html.escape(m.group(1))}</a>',
-        text
+        r"\[([^\]]+)\]\(([^)]+)\)",
+        lambda m: (
+            f'<a href="{html.escape(m.group(2))}" target="_blank" rel="noopener">{html.escape(m.group(1))}</a>'
+        ),
+        text,
     )
     return text
 
@@ -53,7 +59,7 @@ def _markdown_to_html(md_text: str) -> str:
     """Translates Markdown blocks (headings, code, lists, tables, mermaid) into clean HTML."""
     global _DIAGRAM_COUNTER
     lines = md_text.splitlines()
-    html_parts: List[str] = []
+    html_parts: list[str] = []
     i = 0
     n = len(lines)
 
@@ -119,7 +125,9 @@ def _markdown_to_html(md_text: str) -> str:
 """)
             else:
                 escaped_code = html.escape(code_raw)
-                header = f'<div class="code-header">{html.escape(lang or "text")}</div>' if lang else ""
+                header = (
+                    f'<div class="code-header">{html.escape(lang or "text")}</div>' if lang else ""
+                )
                 html_parts.append(f"""
 <div class="code-container">
     {header}
@@ -212,25 +220,22 @@ def _markdown_to_html(md_text: str) -> str:
     return "\n".join(html_parts)
 
 
-def _extract_challenges_dynamically(study_dir: Path, repo_name: str) -> List[Dict[str, str]]:
+def _extract_challenges_dynamically(study_dir: Path, repo_name: str) -> list[dict[str, str]]:
     """
     CRITICAL: Dynamically extracts limit scenarios and challenges from study markdown files.
     Completely eliminates any hardcoded repository checks or canned fallbacks.
     """
-    candidates: List[Dict[str, str]] = []
+    candidates: list[dict[str, str]] = []
 
     # Check DEBUG_NOTES.md, ARCHITECTURE.md, and traces/*.md
-    search_files = [
-        study_dir / "DEBUG_NOTES.md",
-        study_dir / "ARCHITECTURE.md"
-    ]
+    search_files = [study_dir / "DEBUG_NOTES.md", study_dir / "ARCHITECTURE.md"]
     traces_dir = study_dir / "traces"
     if traces_dir.is_dir():
         search_files.extend(sorted(traces_dir.glob("*.md")))
 
     scenario_pattern = re.compile(
         r"^###\s*(?:Limit Drill Scenario|Challenge|Limit Scenario|Scenario|极限场景|考题)\s*(\d+)?[：:\s-]*(.+)$",
-        re.MULTILINE | re.IGNORECASE
+        re.MULTILINE | re.IGNORECASE,
     )
 
     for sf in search_files:
@@ -264,17 +269,26 @@ def _extract_challenges_dynamically(study_dir: Path, repo_name: str) -> List[Dic
             verdict = ""
 
             # Check for Scenario / 故障时序模拟
-            m_scen = re.search(r"[-*]?\s*\*\*(?:故障时序模拟|Failure Scenario|Scenario)\*\*[：:\s]*([\s\S]*?)(?=[-*]?\s*\*\*|\Z)", body)
+            m_scen = re.search(
+                r"[-*]?\s*\*\*(?:故障时序模拟|Failure Scenario|Scenario)\*\*[：:\s]*([\s\S]*?)(?=[-*]?\s*\*\*|\Z)",
+                body,
+            )
             if m_scen:
                 scenario = m_scen.group(1).strip()
 
             # Check for Focus / 系统状态评判 / Architectural Focus
-            m_foc = re.search(r"[-*]?\s*\*\*(?:系统状态评判|Architectural Focus|Focus)\*\*[：:\s]*([\s\S]*?)(?=[-*]?\s*\*\*|\Z)", body)
+            m_foc = re.search(
+                r"[-*]?\s*\*\*(?:系统状态评判|Architectural Focus|Focus)\*\*[：:\s]*([\s\S]*?)(?=[-*]?\s*\*\*|\Z)",
+                body,
+            )
             if m_foc:
                 focus = m_foc.group(1).strip()
 
             # Check for Answer / 代码防御现状 / Reference Solution
-            m_ans = re.search(r"[-*]?\s*\*\*(?:代码防御现状|Reference Solution|Answer|Solution)\*\*[：:\s]*([\s\S]*?)(?=[-*]?\s*\*\*|\Z)", body)
+            m_ans = re.search(
+                r"[-*]?\s*\*\*(?:代码防御现状|Reference Solution|Answer|Solution)\*\*[：:\s]*([\s\S]*?)(?=[-*]?\s*\*\*|\Z)",
+                body,
+            )
             if m_ans:
                 answer = m_ans.group(1).strip()
 
@@ -295,32 +309,37 @@ def _extract_challenges_dynamically(study_dir: Path, repo_name: str) -> List[Dic
                     focus = "Extracted from study drill documentation."
                     verdict = "[Verified Code Fact]: Analyzed from repository study trace."
 
-            candidates.append({
-                "tag": tag,
-                "title": clean_title,
-                "scenario": scenario or "Simulated failure conditions in production execution.",
-                "focus": focus or "Evaluation of system invariants, state consistency, and graceful degradation.",
-                "answer": answer or "Documented in local study debug notes.",
-                "verdict": verdict
-            })
+            candidates.append(
+                {
+                    "tag": tag,
+                    "title": clean_title,
+                    "scenario": scenario or "Simulated failure conditions in production execution.",
+                    "focus": focus
+                    or "Evaluation of system invariants, state consistency, and graceful degradation.",
+                    "answer": answer or "Documented in local study debug notes.",
+                    "verdict": verdict,
+                }
+            )
 
     # If no challenges were documented in markdown files, provide honest notice (ZERO CANNED TEXT)
     if not candidates:
-        candidates.append({
-            "tag": "Study Status",
-            "title": f"Limit scenario drills pending for {repo_name}",
-            "scenario": f"The study workspace for {repo_name} does not yet define limit scenario drills.",
-            "focus": "Evaluates failure recovery, boundary defense, concurrency limits, and state consistency.",
-            "answer": "Add limit scenario drills in DEBUG_NOTES.md following methodology/06-drill-and-mastery.md.",
-            "verdict": "[Status]: Awaiting manual or automated limit drill documentation."
-        })
+        candidates.append(
+            {
+                "tag": "Study Status",
+                "title": f"Limit scenario drills pending for {repo_name}",
+                "scenario": f"The study workspace for {repo_name} does not yet define limit scenario drills.",
+                "focus": "Evaluates failure recovery, boundary defense, concurrency limits, and state consistency.",
+                "answer": "Add limit scenario drills in DEBUG_NOTES.md following methodology/06-drill-and-mastery.md.",
+                "verdict": "[Status]: Awaiting manual or automated limit drill documentation.",
+            }
+        )
 
     return candidates
 
 
-def _extract_qa_walkthroughs(study_dir: Path) -> List[Dict[str, str]]:
+def _extract_qa_walkthroughs(study_dir: Path) -> list[dict[str, str]]:
     """Extracts Q&A walkthrough records from traces and debug notes."""
-    qa_items: List[Dict[str, str]] = []
+    qa_items: list[dict[str, str]] = []
 
     # 1. Traces
     traces_dir = study_dir / "traces"
@@ -331,39 +350,52 @@ def _extract_qa_walkthroughs(study_dir: Path) -> List[Dict[str, str]]:
             m_title = re.search(r"^#\s+(.+)$", content, re.MULTILINE)
             if m_title:
                 title = m_title.group(1).strip()
-            qa_items.append({
-                "tag": "Domain Flow",
-                "question": f"Domain Execution Walkthrough: {title}",
-                "answer": content
-            })
+            qa_items.append(
+                {
+                    "tag": "Domain Flow",
+                    "question": f"Domain Execution Walkthrough: {title}",
+                    "answer": content,
+                }
+            )
 
     # 2. Gotchas from DEBUG_NOTES.md
     debug_md = study_dir / "DEBUG_NOTES.md"
     if debug_md.is_file():
         d_text = debug_md.read_text(encoding="utf-8", errors="replace")
-        m_gotchas = re.search(r"##\s*2\.\s*(?:Core Structures & Critical Gotchas|Gotchas)[\s\S]*?(?=##\s*3|\Z)", d_text)
+        m_gotchas = re.search(
+            r"##\s*2\.\s*(?:Core Structures & Critical Gotchas|Gotchas)[\s\S]*?(?=##\s*3|\Z)",
+            d_text,
+        )
         if m_gotchas:
-            qa_items.append({
-                "tag": "Core Entities & Gotchas",
-                "question": "What are the core data structures, state machines, and critical gotchas?",
-                "answer": m_gotchas.group(0)
-            })
+            qa_items.append(
+                {
+                    "tag": "Core Entities & Gotchas",
+                    "question": "What are the core data structures, state machines, and critical gotchas?",
+                    "answer": m_gotchas.group(0),
+                }
+            )
 
-        m_build = re.search(r"##\s*1\.\s*(?:Local Debugging|Build & Test Commands)[\s\S]*?(?=##\s*2|\Z)", d_text)
+        m_build = re.search(
+            r"##\s*1\.\s*(?:Local Debugging|Build & Test Commands)[\s\S]*?(?=##\s*2|\Z)", d_text
+        )
         if m_build:
-            qa_items.append({
-                "tag": "Local Build & Debug",
-                "question": "What are the local build commands and golden breakpoint call stacks?",
-                "answer": m_build.group(0)
-            })
+            qa_items.append(
+                {
+                    "tag": "Local Build & Debug",
+                    "question": "What are the local build commands and golden breakpoint call stacks?",
+                    "answer": m_build.group(0),
+                }
+            )
 
     # Fallback if empty
     if not qa_items:
-        qa_items.append({
-            "tag": "Architecture",
-            "question": "How do core system components collaborate?",
-            "answer": "Refer to ARCHITECTURE.md for topology and module boundaries."
-        })
+        qa_items.append(
+            {
+                "tag": "Architecture",
+                "question": "How do core system components collaborate?",
+                "answer": "Refer to ARCHITECTURE.md for topology and module boundaries.",
+            }
+        )
 
     return qa_items
 
@@ -371,20 +403,20 @@ def _extract_qa_walkthroughs(study_dir: Path) -> List[Dict[str, str]]:
 def build_full_html_page(
     title: str,
     body_html: str,
-    metadata: Dict[str, Any],
-    qa_items: List[Dict[str, str]],
-    challenge_items: List[Dict[str, str]]
+    metadata: dict[str, Any],
+    qa_items: list[dict[str, str]],
+    challenge_items: list[dict[str, str]],
 ) -> str:
     """Renders single-file HTML document in Paper Monochrome style."""
     repo_name = metadata.get("repo_name", "Repository")
     lang = metadata.get("language", "Unknown")
     pattern = metadata.get("pattern", "Modular")
     progress_val = metadata.get("progress", 0.0)
-    is_completed = (progress_val >= 100.0)
+    is_completed = progress_val >= 100.0
     status_label = "Completed" if is_completed else "In Progress"
     status_badge_class = "badge-status-completed" if is_completed else "badge-status-progress"
 
-    qa_nav_links: List[str] = []
+    qa_nav_links: list[str] = []
     for idx, item in enumerate(qa_items, 1):
         q_esc = html.escape(item["question"])
         qa_nav_links.append(
@@ -392,14 +424,18 @@ def build_full_html_page(
         )
     qa_nav_str = "\n".join(qa_nav_links)
 
-    challenge_nav_links: List[str] = []
-    challenge_nav_links.append('<li class="nav-item"><a href="#section-3">3.1 Challenge Guide</a></li>')
+    challenge_nav_links: list[str] = []
+    challenge_nav_links.append(
+        '<li class="nav-item"><a href="#section-3">3.1 Challenge Guide</a></li>'
+    )
     for idx, item in enumerate(challenge_items, 1):
         c_tag = html.escape(item["tag"])
         challenge_nav_links.append(
             f'<li class="nav-item"><a href="#challenge-{idx}"><span class="qa-index-num">C{idx:02d}</span>{c_tag}</a></li>'
         )
     challenge_nav_str = "\n".join(challenge_nav_links)
+
+    mermaid_js = _load_mermaid_js()
 
     return f"""<!DOCTYPE html>
 <html lang="en">
@@ -716,45 +752,8 @@ def build_full_html_page(
             line-height: 1.5;
             white-space: pre-wrap;
         }}
-        .mermaid-offline-banner {{
-            width: 100%;
-            padding: 10px 14px;
-            background: #f8fafc;
-            border: 1px solid #e2e8f0;
-            border-left: 4px solid #475569;
-            font-size: 12px;
-            margin-bottom: 10px;
-        }}
     </style>
-    <script>
-        window.mermaidLoaded = false;
-        window.mermaidLoadFailed = false;
-        (function() {{
-            const cdns = [
-                "https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js",
-                "https://cdnjs.cloudflare.com/ajax/libs/mermaid/10.9.1/mermaid.min.js",
-                "https://unpkg.com/mermaid@10/dist/mermaid.min.js"
-            ];
-            let idx = 0;
-            function loadNext() {{
-                if (idx >= cdns.length) {{
-                    window.mermaidLoadFailed = true;
-                    if (window.renderAllMermaid) window.renderAllMermaid();
-                    return;
-                }}
-                const s = document.createElement("script");
-                s.src = cdns[idx++];
-                s.crossOrigin = "anonymous";
-                s.onload = function() {{
-                    window.mermaidLoaded = true;
-                    if (window.renderAllMermaid) window.renderAllMermaid();
-                }};
-                s.onerror = function() {{ loadNext(); }};
-                document.head.appendChild(s);
-            }}
-            loadNext();
-        }})();
-    </script>
+    <script>{mermaid_js}</script>
     <script>
         window.toggleMermaidSource = function(containerId) {{
             const container = document.getElementById(containerId);
@@ -802,7 +801,7 @@ def build_full_html_page(
             target.style.transform = "none";
         }};
         window.renderAllMermaid = async function() {{
-            if (window.mermaidLoadFailed) {{
+            if (typeof mermaid === 'undefined') {{
                 document.querySelectorAll('.mermaid-diagram-container').forEach(c => {{
                     const src = c.querySelector('.mermaid-source');
                     if (src) src.style.display = 'block';
@@ -811,15 +810,14 @@ def build_full_html_page(
                 }});
                 return;
             }}
-            if (window.mermaidLoaded && window.mermaid) {{
-                try {{
-                    mermaid.initialize({{ startOnLoad: true, theme: 'neutral', securityLevel: 'loose' }});
-                    await mermaid.run();
-                }} catch (e) {{
-                    console.error("Mermaid initialization error", e);
-                }}
+            try {{
+                mermaid.initialize({{ startOnLoad: false, theme: 'neutral', securityLevel: 'loose' }});
+                await mermaid.run({{ nodes: document.querySelectorAll('.mermaid'), suppressErrors: true }});
+            }} catch (e) {{
+                console.error("Mermaid rendering error", e);
             }}
         }};
+        document.addEventListener('DOMContentLoaded', function() {{ window.renderAllMermaid(); }});
     </script>
 </head>
 <body>
@@ -867,7 +865,7 @@ def build_full_html_page(
 """
 
 
-def compile_study_html(study_dir: str | Path, output_file: Optional[str | Path] = None) -> str:
+def compile_study_html(study_dir: str | Path, output_file: str | Path | None = None) -> str:
     """
     Compiles study assets in study_dir into a single-file dynamic HTML whitepaper.
     Extracts all Q&A and challenges dynamically. No canned text is injected.
@@ -885,7 +883,11 @@ def compile_study_html(study_dir: str | Path, output_file: Optional[str | Path] 
 
     # Read ARCHITECTURE.md
     arch_md = study_path / "ARCHITECTURE.md"
-    arch_content = arch_md.read_text(encoding="utf-8", errors="replace") if arch_md.is_file() else f"# {repo_name} Architecture"
+    arch_content = (
+        arch_md.read_text(encoding="utf-8", errors="replace")
+        if arch_md.is_file()
+        else f"# {repo_name} Architecture"
+    )
 
     # Infer metadata from ARCHITECTURE.md if present
     lang = "Universal"
@@ -911,8 +913,12 @@ def compile_study_html(study_dir: str | Path, output_file: Optional[str | Path] 
 
     # Section II: Core Code Walkthrough & Q&A Records
     doc_sections.append('\n---\n<div id="section-2"></div>\n')
-    doc_sections.append(f"## II. Core Code Walkthrough & Q&A Records ({len(qa_items)} Lossless Records)\n")
-    doc_sections.append("> Fully archives technical call traces, entity models, and code inspection records from local study.\n\n")
+    doc_sections.append(
+        f"## II. Core Code Walkthrough & Q&A Records ({len(qa_items)} Lossless Records)\n"
+    )
+    doc_sections.append(
+        "> Fully archives technical call traces, entity models, and code inspection records from local study.\n\n"
+    )
 
     for idx, item in enumerate(qa_items, 1):
         doc_sections.append(f'<div class="qa-card" id="qa-{idx}">')
@@ -923,12 +929,16 @@ def compile_study_html(study_dir: str | Path, output_file: Optional[str | Path] 
         )
         doc_sections.append('<div class="qa-body">\n')
         doc_sections.append(item["answer"].strip())
-        doc_sections.append('\n</div></div>\n')
+        doc_sections.append("\n</div></div>\n")
 
     # Section III: Limit Scenarios & Architectural Defense (Challenges)
     doc_sections.append('\n---\n<div id="section-3"></div>\n')
-    doc_sections.append(f"## III. Limit Scenarios & Architectural Defense ({len(challenge_items)} Drills)\n")
-    doc_sections.append("> Deep verification of edge cases, concurrency hazards, and defense boundaries derived from code facts.\n\n")
+    doc_sections.append(
+        f"## III. Limit Scenarios & Architectural Defense ({len(challenge_items)} Drills)\n"
+    )
+    doc_sections.append(
+        "> Deep verification of edge cases, concurrency hazards, and defense boundaries derived from code facts.\n\n"
+    )
 
     for idx, c in enumerate(challenge_items, 1):
         doc_sections.append(f'<div class="qa-card" id="challenge-{idx}">')
@@ -942,8 +952,10 @@ def compile_study_html(study_dir: str | Path, output_file: Optional[str | Path] 
         doc_sections.append(f"**Architectural Focus**: {c['focus']}\n\n")
         doc_sections.append(f"**Reference Solution**: {c['answer']}\n\n")
         if c.get("verdict"):
-            doc_sections.append(f'<div class="qa-verdict"><strong>{_format_inline_markdown(c["verdict"])}</strong></div>\n')
-        doc_sections.append('</div></div>\n')
+            doc_sections.append(
+                f'<div class="qa-verdict"><strong>{_format_inline_markdown(c["verdict"])}</strong></div>\n'
+            )
+        doc_sections.append("</div></div>\n")
 
     full_md = "\n".join(doc_sections)
     body_html = _markdown_to_html(full_md)
@@ -954,7 +966,7 @@ def compile_study_html(study_dir: str | Path, output_file: Optional[str | Path] 
         "pattern": pattern,
         "progress": progress_val,
         "qa_count": len(qa_items),
-        "challenge_count": len(challenge_items)
+        "challenge_count": len(challenge_items),
     }
 
     full_html = build_full_html_page(
@@ -962,7 +974,7 @@ def compile_study_html(study_dir: str | Path, output_file: Optional[str | Path] 
         body_html=body_html,
         metadata=metadata,
         qa_items=qa_items,
-        challenge_items=challenge_items
+        challenge_items=challenge_items,
     )
 
     out_p: Path

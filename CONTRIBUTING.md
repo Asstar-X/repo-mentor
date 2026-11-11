@@ -38,6 +38,13 @@ pip install --upgrade pip
 pip install -e ".[dev,ast]"
 ```
 
+### Windows: symlink handling
+`.agents/skills/` contains git-tracked symlinks pointing at `skills/`. On Windows,
+enable `git config --global core.symlinks true` (requires Developer Mode or admin
+rights) before cloning. Without it, Git degrades the links to plain text files;
+the test suite (`tests/test_skill_spec.py`) accepts both forms, but agent platforms
+that auto-discover skills need real symlinks or a manual copy of `skills/`.
+
 ---
 
 ## Development Workflow

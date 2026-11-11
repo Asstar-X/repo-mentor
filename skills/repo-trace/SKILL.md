@@ -1,7 +1,7 @@
 ---
 name: repo-trace
 description: >-
-  上下文使用场景追踪技能。用于在阅读项目时搞懂任何具体对象“真实场景下谁调它、数据怎么流经它、拿具体例子跑一遍前后变化、出错了怎么办”。用大白话还原真实协同脉络。
+  上下文使用场景追踪技能。用于在阅读项目时搞懂任何具体对象“真实场景下谁调它、数据怎么流经它、拿具体例子跑一遍前后变化、出错了怎么办”。用大白话还原真实协同脉络。Trace how any target is used in real scenarios: who calls it, how data flows through it, a concrete before/after sample walkthrough, and error propagation.
 license: MIT
 ---
 
@@ -62,3 +62,9 @@ license: MIT
 - [ ] 是否包含了清晰的 Mermaid 拓扑图与具体代码锚点；
 - [ ] 是否有一个具体实例走读流经前后的形态变化；
 - [ ] 回复中是否彻底杜绝了 `[已验证事实]`、打勾 Checklist 与伪进度条。
+
+---
+
+## 参考资源（按需加载）
+
+- [方法论 03：向外追踪——链路场景与数据流转](../../methodology/03-tracing-data-flow.md)

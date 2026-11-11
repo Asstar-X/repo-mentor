@@ -12,7 +12,7 @@ import os
 import re
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Set, Tuple
+from typing import Any
 
 from rich.console import Console
 from rich.table import Table
@@ -23,16 +23,18 @@ console = Console()
 
 # Anchor Extraction Patterns
 # 1. Standard markdown link: [label](path#L10-L20) or [label](file:///path#L10-L20)
-MD_LINK_RE = re.compile(r'\[([^\]]+)\]\((?:file://)?([^)#\s]+)(?:#L(\d+)(?:-L?(\d+))?)?\)')
+MD_LINK_RE = re.compile(r"\[([^\]]+)\]\((?:file://)?([^)#\s]+)(?:#L(\d+)(?:-L?(\d+))?)?\)")
 
 # 2. Shorthand anchor with line numbers: [path/to/file#L10-L20] or [path/to/file#L10]
-BRACKET_LINE_RE = re.compile(r'\[([a-zA-Z0-9_\-\./\\]+)#L(\d+)(?:-L?(\d+))?\]')
+BRACKET_LINE_RE = re.compile(r"\[([a-zA-Z0-9_\-\./\\]+)#L(\d+)(?:-L?(\d+))?\]")
 
 # 3. Shorthand anchor without line numbers: [path/to/file.ext]
-BRACKET_FILE_RE = re.compile(r'\[([a-zA-Z0-9_\-\./\\]*(?:/[a-zA-Z0-9_\-\.]+|\.[a-zA-Z0-9_]{1,10}))\]')
+BRACKET_FILE_RE = re.compile(
+    r"\[([a-zA-Z0-9_\-\./\\]*(?:/[a-zA-Z0-9_\-\.]+|\.[a-zA-Z0-9_]{1,10}))\]"
+)
 
 # 4. Inline backtick anchor: `path/to/file#L10-L20`
-BACKTICK_ANCHOR_RE = re.compile(r'`([a-zA-Z0-9_\-\./\\]+)#L(\d+)(?:-L?(\d+))?`')
+BACKTICK_ANCHOR_RE = re.compile(r"`([a-zA-Z0-9_\-\./\\]+)#L(\d+)(?:-L?(\d+))?`")
 
 # 5. Mermaid participant anchor: participant Id as "Symbol (path#L10)"
 MERMAID_PARTICIPANT_RE = re.compile(
@@ -40,25 +42,37 @@ MERMAID_PARTICIPANT_RE = re.compile(
 )
 
 # 6. Preceding symbol pattern: `SymbolName` ... [path#L..] or `SymbolName`: [path#L..]
-PRECEDING_SYMBOL_RE = re.compile(r'`([a-zA-Z0-9_\.\:\*]+)`(?:\s*[:\-—]\s*|\s+)\[([^\]]+)\]')
+PRECEDING_SYMBOL_RE = re.compile(r"`([a-zA-Z0-9_\.\:\*]+)`(?:\s*[:\-—]\s*|\s+)\[([^\]]+)\]")
 
 IGNORED_SCHEMES = ("http://", "https://", "mailto:", "ftp://", "#")
 IGNORED_EXTS = {".png", ".jpg", ".jpeg", ".gif", ".svg", ".ico", ".pdf", ".zip", ".tar", ".gz"}
 NON_PATH_TOKENS = {
-    "NEW", "DELETE", "MODIFY", "TODO", "NOTE", "TIP", "IMPORTANT",
-    "WARNING", "CAUTION", "VERIFIED FACT", "ENGINEERING INFERENCE",
-    "UNVERIFIED HYPOTHESIS", "YES", "NO"
+    "NEW",
+    "DELETE",
+    "MODIFY",
+    "TODO",
+    "NOTE",
+    "TIP",
+    "IMPORTANT",
+    "WARNING",
+    "CAUTION",
+    "VERIFIED FACT",
+    "ENGINEERING INFERENCE",
+    "UNVERIFIED HYPOTHESIS",
+    "YES",
+    "NO",
 }
 
 
 @dataclass
 class AnchorItem:
     """Represents a candidate code anchor extracted from markdown."""
+
     raw_text: str
     file_path: str
-    start_line: Optional[int]
-    end_line: Optional[int]
-    claimed_symbol: Optional[str] = None
+    start_line: int | None
+    end_line: int | None
+    claimed_symbol: str | None = None
     line_in_doc: int = 1
     anchor_type: str = "bracket_anchor"
 
@@ -66,13 +80,14 @@ class AnchorItem:
 @dataclass
 class AnchorVerificationResult:
     """Outcome of validating an individual code anchor."""
+
     anchor: AnchorItem
     is_valid: bool
     file_exists: bool
     lines_valid: bool
-    symbol_grounded: Optional[bool]  # None if no symbol claimed, True/False if claimed
-    found_symbol: Optional[str] = None
-    resolved_path: Optional[str] = None
+    symbol_grounded: bool | None  # None if no symbol claimed, True/False if claimed
+    found_symbol: str | None = None
+    resolved_path: str | None = None
     category: str = "ok"  # 'ok' | 'missing_file' | 'out_of_bounds' | 'phantom_symbol'
     error_message: str = ""
 
@@ -90,7 +105,7 @@ def _is_probable_symbol(token: str) -> bool:
     if token.upper() in NON_PATH_TOKENS:
         return False
     # Valid identifier characters (allowing dots, underscores, colons, parens)
-    return bool(re.match(r'^[a-zA-Z_][a-zA-Z0-9_\.:]*(?:\(\))?$', token))
+    return bool(re.match(r"^[a-zA-Z_][a-zA-Z0-9_\.:]*(?:\(\))?$", token))
 
 
 def _extract_clean_symbol(token: str) -> str:
@@ -104,10 +119,10 @@ def _extract_clean_symbol(token: str) -> str:
     return s
 
 
-def extract_anchors(text: str) -> List[AnchorItem]:
+def extract_anchors(text: str) -> list[AnchorItem]:
     """Extracts all code file references, line ranges, and claimed symbols from Markdown."""
-    anchors: List[AnchorItem] = []
-    seen: Set[Tuple[str, Optional[int], Optional[int], Optional[str]]] = set()
+    anchors: list[AnchorItem] = []
+    seen: set[tuple[str, int | None, int | None, str | None]] = set()
 
     # Pre-map lines to line numbers for doc coordinates
     doc_lines = text.splitlines()
@@ -119,28 +134,30 @@ def extract_anchors(text: str) -> List[AnchorItem]:
     for m in MERMAID_PARTICIPANT_RE.finditer(text):
         sym_label = m.group(2).strip()
         fpath = m.group(3).strip().replace("\\", "/")
-        s_line: Optional[int] = int(m.group(4))
-        e_line: Optional[int] = int(m.group(5)) if m.group(5) else s_line
+        s_line: int | None = int(m.group(4))
+        e_line: int | None = int(m.group(5)) if m.group(5) else s_line
         claimed_sym = _extract_clean_symbol(sym_label) if _is_probable_symbol(sym_label) else None
-        key: Tuple[str, Optional[int], Optional[int], Optional[str]] = (fpath, s_line, e_line, claimed_sym)
+        key: tuple[str, int | None, int | None, str | None] = (fpath, s_line, e_line, claimed_sym)
         if key not in seen:
             seen.add(key)
-            anchors.append(AnchorItem(
-                raw_text=m.group(0),
-                file_path=fpath,
-                start_line=s_line,
-                end_line=e_line,
-                claimed_symbol=claimed_sym,
-                line_in_doc=get_line_in_doc(m.start()),
-                anchor_type="mermaid_participant"
-            ))
+            anchors.append(
+                AnchorItem(
+                    raw_text=m.group(0),
+                    file_path=fpath,
+                    start_line=s_line,
+                    end_line=e_line,
+                    claimed_symbol=claimed_sym,
+                    line_in_doc=get_line_in_doc(m.start()),
+                    anchor_type="mermaid_participant",
+                )
+            )
 
     # 2. Preceding symbol pattern: `MemoryConfig`: [`mem0/configs/base.py#L29-L45`]
     for m in PRECEDING_SYMBOL_RE.finditer(text):
         sym_name = m.group(1).strip()
         bracket_content = m.group(2).strip()
         # Parse bracket_content for path#Lstart-Lend
-        m_inner = re.match(r'^(?:file://)?([^#\s]+)(?:#L(\d+)(?:-L?(\d+))?)?$', bracket_content)
+        m_inner = re.match(r"^(?:file://)?([^#\s]+)(?:#L(\d+)(?:-L?(\d+))?)?$", bracket_content)
         if m_inner:
             fpath = m_inner.group(1).strip().replace("\\", "/")
             if any(fpath.startswith(sch) for sch in IGNORED_SCHEMES):
@@ -154,15 +171,17 @@ def extract_anchors(text: str) -> List[AnchorItem]:
             key = (fpath, s_line, e_line, claimed_sym)
             if key not in seen:
                 seen.add(key)
-                anchors.append(AnchorItem(
-                    raw_text=m.group(0),
-                    file_path=fpath,
-                    start_line=s_line,
-                    end_line=e_line,
-                    claimed_symbol=claimed_sym,
-                    line_in_doc=get_line_in_doc(m.start()),
-                    anchor_type="symbol_preceded_anchor"
-                ))
+                anchors.append(
+                    AnchorItem(
+                        raw_text=m.group(0),
+                        file_path=fpath,
+                        start_line=s_line,
+                        end_line=e_line,
+                        claimed_symbol=claimed_sym,
+                        line_in_doc=get_line_in_doc(m.start()),
+                        anchor_type="symbol_preceded_anchor",
+                    )
+                )
 
     # 3. Standard markdown links: [label](path#L10-L20)
     for m in MD_LINK_RE.finditer(text):
@@ -183,15 +202,17 @@ def extract_anchors(text: str) -> List[AnchorItem]:
         key = (raw_path, s_line, e_line, claimed_sym)
         if key not in seen:
             seen.add(key)
-            anchors.append(AnchorItem(
-                raw_text=m.group(0),
-                file_path=raw_path,
-                start_line=s_line,
-                end_line=e_line,
-                claimed_symbol=claimed_sym,
-                line_in_doc=get_line_in_doc(m.start()),
-                anchor_type="markdown_link"
-            ))
+            anchors.append(
+                AnchorItem(
+                    raw_text=m.group(0),
+                    file_path=raw_path,
+                    start_line=s_line,
+                    end_line=e_line,
+                    claimed_symbol=claimed_sym,
+                    line_in_doc=get_line_in_doc(m.start()),
+                    anchor_type="markdown_link",
+                )
+            )
 
     # 4. Bracketed line anchors: [path#Lstart-Lend]
     for m in BRACKET_LINE_RE.finditer(text):
@@ -208,7 +229,7 @@ def extract_anchors(text: str) -> List[AnchorItem]:
         # Check if line before or nearby names a symbol
         doc_line = doc_lines[get_line_in_doc(m.start()) - 1]
         claimed_sym = None
-        sym_match = re.search(r'`([a-zA-Z0-9_\.\:]+)`', doc_line)
+        sym_match = re.search(r"`([a-zA-Z0-9_\.\:]+)`", doc_line)
         if sym_match and sym_match.group(1) != raw_path:
             cand = sym_match.group(1)
             if _is_probable_symbol(cand):
@@ -217,15 +238,17 @@ def extract_anchors(text: str) -> List[AnchorItem]:
         key = (raw_path, s_line, e_line, claimed_sym)
         if key not in seen:
             seen.add(key)
-            anchors.append(AnchorItem(
-                raw_text=m.group(0),
-                file_path=raw_path,
-                start_line=s_line,
-                end_line=e_line,
-                claimed_symbol=claimed_sym,
-                line_in_doc=get_line_in_doc(m.start()),
-                anchor_type="bracket_line_anchor"
-            ))
+            anchors.append(
+                AnchorItem(
+                    raw_text=m.group(0),
+                    file_path=raw_path,
+                    start_line=s_line,
+                    end_line=e_line,
+                    claimed_symbol=claimed_sym,
+                    line_in_doc=get_line_in_doc(m.start()),
+                    anchor_type="bracket_line_anchor",
+                )
+            )
 
     # 5. Backtick anchors: `path#L10-L20`
     for m in BACKTICK_ANCHOR_RE.finditer(text):
@@ -242,15 +265,17 @@ def extract_anchors(text: str) -> List[AnchorItem]:
         key = (raw_path, s_line, e_line, None)
         if key not in seen:
             seen.add(key)
-            anchors.append(AnchorItem(
-                raw_text=m.group(0),
-                file_path=raw_path,
-                start_line=s_line,
-                end_line=e_line,
-                claimed_symbol=None,
-                line_in_doc=get_line_in_doc(m.start()),
-                anchor_type="backtick_anchor"
-            ))
+            anchors.append(
+                AnchorItem(
+                    raw_text=m.group(0),
+                    file_path=raw_path,
+                    start_line=s_line,
+                    end_line=e_line,
+                    claimed_symbol=None,
+                    line_in_doc=get_line_in_doc(m.start()),
+                    anchor_type="backtick_anchor",
+                )
+            )
 
     # 6. Bracketed file references without lines: [dir/file.ext]
     for m in BRACKET_FILE_RE.finditer(text):
@@ -268,15 +293,17 @@ def extract_anchors(text: str) -> List[AnchorItem]:
         key = (raw_path, None, None, None)
         if key not in seen:
             seen.add(key)
-            anchors.append(AnchorItem(
-                raw_text=m.group(0),
-                file_path=raw_path,
-                start_line=None,
-                end_line=None,
-                claimed_symbol=None,
-                line_in_doc=get_line_in_doc(m.start()),
-                anchor_type="bracket_file_anchor"
-            ))
+            anchors.append(
+                AnchorItem(
+                    raw_text=m.group(0),
+                    file_path=raw_path,
+                    start_line=None,
+                    end_line=None,
+                    claimed_symbol=None,
+                    line_in_doc=get_line_in_doc(m.start()),
+                    anchor_type="bracket_file_anchor",
+                )
+            )
 
     return anchors
 
@@ -284,9 +311,9 @@ def extract_anchors(text: str) -> List[AnchorItem]:
 class AnchorVerifier:
     """Verifies anchors against repository files and AST symbol indices."""
 
-    def __init__(self, repo_root: str | Path, symbol_index: Optional[SymbolIndex] = None):
+    def __init__(self, repo_root: str | Path, symbol_index: SymbolIndex | None = None):
         self.repo_root = Path(repo_root).resolve()
-        self.line_count_cache: Dict[str, int] = {}
+        self.line_count_cache: dict[str, int] = {}
         if symbol_index is not None:
             self.symbol_index = symbol_index
         else:
@@ -297,14 +324,14 @@ class AnchorVerifier:
         if norm in self.line_count_cache:
             return self.line_count_cache[norm]
         try:
-            with open(file_path, "r", encoding="utf-8", errors="replace") as f:
+            with open(file_path, encoding="utf-8", errors="replace") as f:
                 count = sum(1 for _ in f)
             self.line_count_cache[norm] = count
             return count
         except Exception:
             return 0
 
-    def resolve_target_file(self, rel_path: str, md_parent: Optional[Path] = None) -> Optional[Path]:
+    def resolve_target_file(self, rel_path: str, md_parent: Path | None = None) -> Path | None:
         """Resolves target file relative to repo root, markdown parent, or absolute."""
         p = Path(rel_path)
         if p.is_absolute():
@@ -320,7 +347,7 @@ class AnchorVerifier:
 
         # 2. Check if rel_path contains repo_root's name as leading dir
         if rel_path.startswith(self.repo_root.name + "/"):
-            stripped = rel_path[len(self.repo_root.name) + 1:]
+            stripped = rel_path[len(self.repo_root.name) + 1 :]
             cand = (self.repo_root / stripped).resolve()
             if cand.exists():
                 return cand
@@ -340,10 +367,7 @@ class AnchorVerifier:
         return None
 
     def verify_item(
-        self,
-        anchor: AnchorItem,
-        md_parent: Optional[Path] = None,
-        drift_tolerance: int = 15
+        self, anchor: AnchorItem, md_parent: Path | None = None, drift_tolerance: int = 15
     ) -> AnchorVerificationResult:
         """Verifies a single anchor against filesystem and AST symbol index."""
         target = self.resolve_target_file(anchor.file_path, md_parent)
@@ -357,7 +381,7 @@ class AnchorVerifier:
                     lines_valid=True,
                     symbol_grounded=None,
                     resolved_path=str(target),
-                    category="ok"
+                    category="ok",
                 )
             return AnchorVerificationResult(
                 anchor=anchor,
@@ -366,7 +390,7 @@ class AnchorVerifier:
                 lines_valid=False,
                 symbol_grounded=False if anchor.claimed_symbol else None,
                 category="missing_file",
-                error_message=f"File not found in repository: {anchor.file_path}"
+                error_message=f"File not found in repository: {anchor.file_path}",
             )
 
         resolved_path_str = str(target)
@@ -400,12 +424,12 @@ class AnchorVerifier:
                 error_message=(
                     f"Line bounds out of range: cited L{anchor.start_line}-L{anchor.end_line}, "
                     f"but file has {total_lines} lines"
-                )
+                ),
             )
 
         # 2. Semantic AST symbol grounding check
-        symbol_grounded: Optional[bool] = None
-        found_symbol_name: Optional[str] = None
+        symbol_grounded: bool | None = None
+        found_symbol_name: str | None = None
 
         if anchor.claimed_symbol:
             grounded = self.symbol_index.has_symbol(
@@ -413,21 +437,21 @@ class AnchorVerifier:
                 symbol_name=anchor.claimed_symbol,
                 start_line=anchor.start_line or 1,
                 end_line=anchor.end_line or (anchor.start_line or total_lines),
-                drift_tolerance=drift_tolerance
+                drift_tolerance=drift_tolerance,
             )
             # If exact match failed, check if the symbol at the cited line is a prefix/suffix variant
             # (e.g. 'Embedder' referencing 'EmbedderFactory', or 'Memory' referencing 'MemoryConfig')
-            actual_sym = self.symbol_index.find_symbol_at(
-                resolved_path_str,
-                anchor.start_line or 1
-            )
+            actual_sym = self.symbol_index.find_symbol_at(resolved_path_str, anchor.start_line or 1)
             if not grounded and actual_sym:
                 c_low = anchor.claimed_symbol.lower()
                 a_low = actual_sym.symbol_name.lower()
                 if (
-                    a_low.startswith(c_low) or c_low.startswith(a_low) or
-                    c_low in a_low or a_low in c_low or
-                    c_low.replace(" ", "") in a_low or a_low in c_low.replace(" ", "")
+                    a_low.startswith(c_low)
+                    or c_low.startswith(a_low)
+                    or c_low in a_low
+                    or a_low in c_low
+                    or c_low.replace(" ", "") in a_low
+                    or a_low in c_low.replace(" ", "")
                 ):
                     grounded = True
 
@@ -447,15 +471,12 @@ class AnchorVerifier:
                     error_message=(
                         f"Claimed symbol '{anchor.claimed_symbol}' does not span lines "
                         f"L{anchor.start_line}-L{anchor.end_line}{actual_desc}"
-                    )
+                    ),
                 )
         else:
             # Query if there's any symbol at the line
             if anchor.start_line is not None:
-                sym_loc = self.symbol_index.find_symbol_at(
-                    resolved_path_str,
-                    anchor.start_line
-                )
+                sym_loc = self.symbol_index.find_symbol_at(resolved_path_str, anchor.start_line)
                 if sym_loc:
                     found_symbol_name = sym_loc.symbol_name
 
@@ -467,17 +488,17 @@ class AnchorVerifier:
             symbol_grounded=symbol_grounded,
             found_symbol=found_symbol_name,
             resolved_path=resolved_path_str,
-            category="ok"
+            category="ok",
         )
 
 
 def audit_markdown_anchors(
     repo_dir: str | Path,
     md_path: str | Path,
-    symbol_index: Optional[SymbolIndex] = None,
+    symbol_index: SymbolIndex | None = None,
     fix: bool = False,
-    drift_tolerance: int = 15
-) -> Dict[str, Any]:
+    drift_tolerance: int = 15,
+) -> dict[str, Any]:
     """
     Audits all code anchors in a Markdown file, verifying physical existence,
     line bounds, and AST symbol grounding.
@@ -493,7 +514,7 @@ def audit_markdown_anchors(
             "verified_count": 0,
             "hallucinations": [],
             "grounding_rate": 0.0,
-            "hallucination_rate": 100.0
+            "hallucination_rate": 100.0,
         }
 
     if not doc_path.is_file():
@@ -504,15 +525,15 @@ def audit_markdown_anchors(
             "verified_count": 0,
             "hallucinations": [],
             "grounding_rate": 0.0,
-            "hallucination_rate": 100.0
+            "hallucination_rate": 100.0,
         }
 
     text = doc_path.read_text(encoding="utf-8", errors="replace")
     anchors = extract_anchors(text)
 
     verifier = AnchorVerifier(repo_root, symbol_index=symbol_index)
-    results: List[AnchorVerificationResult] = []
-    hallucinations: List[Dict[str, Any]] = []
+    results: list[AnchorVerificationResult] = []
+    hallucinations: list[dict[str, Any]] = []
     valid_count = 0
 
     fixed_text = text
@@ -525,8 +546,12 @@ def audit_markdown_anchors(
             valid_count += 1
             # If fix is requested and line numbers drifted slightly, update to actual symbol span
             if fix and item.claimed_symbol and item.start_line and res.resolved_path:
-                actual_sym = verifier.symbol_index.find_symbol_at(res.resolved_path, item.start_line)
-                if actual_sym and (actual_sym.start_line != item.start_line or actual_sym.end_line != item.end_line):
+                actual_sym = verifier.symbol_index.find_symbol_at(
+                    res.resolved_path, item.start_line
+                )
+                if actual_sym and (
+                    actual_sym.start_line != item.start_line or actual_sym.end_line != item.end_line
+                ):
                     old_sub = f"#L{item.start_line}-L{item.end_line}"
                     if old_sub not in fixed_text:
                         old_sub = f"#L{item.start_line}"
@@ -535,14 +560,16 @@ def audit_markdown_anchors(
                         fixed_text = fixed_text.replace(old_sub, new_sub)
                         fix_applied = True
         else:
-            hallucinations.append({
-                "file": item.file_path,
-                "lines": f"L{item.start_line}-L{item.end_line}" if item.start_line else "N/A",
-                "claimed_symbol": item.claimed_symbol,
-                "doc_line": item.line_in_doc,
-                "category": res.category,
-                "error": res.error_message
-            })
+            hallucinations.append(
+                {
+                    "file": item.file_path,
+                    "lines": f"L{item.start_line}-L{item.end_line}" if item.start_line else "N/A",
+                    "claimed_symbol": item.claimed_symbol,
+                    "doc_line": item.line_in_doc,
+                    "category": res.category,
+                    "error": res.error_message,
+                }
+            )
 
     if fix and fix_applied:
         doc_path.write_text(fixed_text, encoding="utf-8")
@@ -559,15 +586,13 @@ def audit_markdown_anchors(
         "grounding_rate": grounding_rate,
         "hallucination_rate": hallucination_rate,
         "hallucinations": hallucinations,
-        "results": results
+        "results": results,
     }
 
 
 def verify_study_anchors(
-    repo_dir: str | Path,
-    study_path: str | Path,
-    fix: bool = False
-) -> Dict[str, Any]:
+    repo_dir: str | Path, study_path: str | Path, fix: bool = False
+) -> dict[str, Any]:
     """
     Scans a study directory or individual file, verifying all anchors and Mermaid diagrams.
     Returns aggregated audit results and prints a rich summary table.
@@ -592,7 +617,7 @@ def verify_study_anchors(
 
     total_anchors = 0
     total_valid = 0
-    all_hallucinations: List[Dict[str, Any]] = []
+    all_hallucinations: list[dict[str, Any]] = []
 
     table = Table(title="Anchor Audit Summary", header_style="bold magenta")
     table.add_column("Document", style="cyan")
@@ -607,14 +632,12 @@ def verify_study_anchors(
         total_valid += audit["verified_count"]
         all_hallucinations.extend(audit["hallucinations"])
 
-        status_str = "[bold green]PASS[/bold green]" if audit["valid"] else "[bold red]FAIL[/bold red]"
+        status_str = (
+            "[bold green]PASS[/bold green]" if audit["valid"] else "[bold red]FAIL[/bold red]"
+        )
         gr_str = f"{audit['grounding_rate']}%"
         table.add_row(
-            doc.name,
-            str(audit["total_anchors"]),
-            str(audit["verified_count"]),
-            gr_str,
-            status_str
+            doc.name, str(audit["total_anchors"]), str(audit["verified_count"]), gr_str, status_str
         )
 
     console.print(table)
@@ -628,15 +651,16 @@ def verify_study_anchors(
         err_table.add_column("Details")
         for h in all_hallucinations:
             err_table.add_row(
-                f"L{h['doc_line']}",
-                f"{h['file']} ({h['lines']})",
-                h["category"],
-                h["error"]
+                f"L{h['doc_line']}", f"{h['file']} ({h['lines']})", h["category"], h["error"]
             )
         console.print(err_table)
 
-    overall_grounding = round((total_valid / total_anchors * 100.0), 1) if total_anchors > 0 else 100.0
-    overall_hr = round((len(all_hallucinations) / total_anchors * 100.0), 1) if total_anchors > 0 else 0.0
+    overall_grounding = (
+        round((total_valid / total_anchors * 100.0), 1) if total_anchors > 0 else 100.0
+    )
+    overall_hr = (
+        round((len(all_hallucinations) / total_anchors * 100.0), 1) if total_anchors > 0 else 0.0
+    )
 
     return {
         "success": len(all_hallucinations) == 0,
@@ -645,5 +669,5 @@ def verify_study_anchors(
         "verified_anchors": total_valid,
         "grounding_rate": overall_grounding,
         "hallucination_rate": overall_hr,
-        "hallucinations": all_hallucinations
+        "hallucinations": all_hallucinations,
     }
