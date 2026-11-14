@@ -329,7 +329,7 @@ def _extract_challenges_dynamically(study_dir: Path, repo_name: str) -> list[dic
                 "title": f"Limit scenario drills pending for {repo_name}",
                 "scenario": f"The study workspace for {repo_name} does not yet define limit scenario drills.",
                 "focus": "Evaluates failure recovery, boundary defense, concurrency limits, and state consistency.",
-                "answer": "Add limit scenario drills in DEBUG_NOTES.md following methodology/06-drill-and-mastery.md.",
+                "answer": "Add limit scenario drills in DEBUG_NOTES.md following methodology/03-tracing-and-drill.md.",
                 "verdict": "[Status]: Awaiting manual or automated limit drill documentation.",
             }
         )

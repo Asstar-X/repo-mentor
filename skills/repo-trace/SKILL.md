@@ -8,7 +8,6 @@ license: MIT
 # Repo Trace — 上下文使用场景与调用脉络追踪
 
 > **核心职责**: **Follow a living data sample, never read dead symbols in isolation.**  
-> （拽着真实数据样本走全流程，绝不孤立看死符号。）
 
 `repo-trace` 用于看清一个对象在整个系统大图里**用在哪里、什么实际场景下被谁调起来、下游把结果交给了谁、拿个具体例子怎么跑、异常时怎么处理**。
 
@@ -67,4 +66,4 @@ license: MIT
 
 ## 参考资源（按需加载）
 
-- [方法论 03：向外追踪——链路场景与数据流转](../../methodology/03-tracing-data-flow.md)
+- [方法论 03：链路追踪与掌握度抽查指南](../../methodology/03-tracing-and-drill.md)

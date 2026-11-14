@@ -8,7 +8,6 @@ license: MIT
 # Repo Drill — 硬核问题抽查与答辩复盘
 
 > **核心职责**: **Test why it was built and where it breaks, never syntax.**  
-> （考底层取舍和崩溃边界，绝不考死记硬背。）
 
 `repo-drill` 用于在读完代码后**检验自己是不是真的吃透了，破除“以为看懂了，一问细节就卡壳”的假象**。
 
@@ -51,4 +50,4 @@ license: MIT
 
 ## 参考资源（按需加载）
 
-- [方法论 06：苏格拉底三问与掌握度复盘](../../methodology/06-drill-and-mastery.md)
+- [方法论 03：链路追踪与掌握度抽查指南](../../methodology/03-tracing-and-drill.md)

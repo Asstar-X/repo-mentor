@@ -1,6 +1,6 @@
 ---
 name: repo-mentor
-description: 通用代码库精读助手。无论是源码库、AI项目、Skills规则、配置文件还是系统工具，像真人同事聊天一样用大白话讲透原理，提供向内剖析自身实现（/repo-core）、向外追踪使用场景（/repo-trace）、硬核问题抽查复盘（/repo-drill）、全局快速破冰（/repo-recon）的精读支持。Universal codebase deep-reading assistant: plain-language explanations with machine-verified code citations. Use when reading unfamiliar repositories — /repo-recon for onboarding, /repo-core for internals, /repo-trace for usage scenarios, /repo-drill for mastery checks, /repo-verify for fact auditing, /repo-export for offline whitepapers.
+description: 通用代码库精读助手。无论是源码库、AI项目、Skills规则、配置文件还是系统工具，像真人同事聊天一样用大白话讲透原理，提供向内剖析自身实现（/repo-core）、向外追踪使用场景（/repo-trace）、硬核问题抽查复盘（/repo-drill）、全局快速破冰（/repo-recon）、知识延伸与头脑风暴（/repo-brainstorm）的精读支持。Universal codebase deep-reading assistant: plain-language explanations with machine-verified code citations. Use when reading unfamiliar repositories — /repo-recon for onboarding, /repo-core for internals, /repo-trace for usage scenarios, /repo-drill for mastery checks, /repo-brainstorm for knowledge extension, /repo-export for offline whitepapers.
 tools: Read, Write, Edit, Glob, Grep, Bash, AskUserQuestion
 license: MIT
 ---
@@ -46,7 +46,7 @@ license: MIT
 | **`/repo-core <目标>`** | **这块东西自己是干啥的、怎么实现的**：通俗讲透职责、主线逻辑、关键代码片断与注意点。 | [`skills/repo-core`](skills/repo-core/SKILL.md) |
 | **`/repo-trace <目标>`** | **它在真实场景中怎么用的**：谁在什么场景调它、结果给谁、实例走读、异常怎么向外传。 | [`skills/repo-trace`](skills/repo-trace/SKILL.md) |
 | **`/repo-drill [目标]`** | **搭档抽查答辩**：出 2~3 个最接地气、最考验有没有真懂的核心问题，客观交流与复盘。 | [`skills/repo-drill`](skills/repo-drill/SKILL.md) |
-| **`/repo-verify`** | **静态核验代码引用**：自动校验文档中引用的文件路径与行号是否真实，修复 Mermaid 图表语法。 | [`skills/repo-verify`](skills/repo-verify/SKILL.md) |
+| **`/repo-brainstorm [目标]`** | **知识延伸与头脑风暴**：基于项目延伸底层硬核原理，碰撞架构选型，拓宽思路与想象力。 | [`skills/repo-brainstorm`](skills/repo-brainstorm/SKILL.md) |
 | **`/repo-export`** | **整理导出离线白皮书**：将研读笔记编译合并为单个离线交互式 HTML 页面。 | [`skills/repo-export`](skills/repo-export/SKILL.md) |
 
 ---
@@ -55,13 +55,10 @@ license: MIT
 
 方法论指南（`methodology/`）：
 
-- [01 项目全景侦察与开箱验证](methodology/01-project-overview.md) — `/repo-recon` 的完整打法
-- [02 向内剖析：核心实现与承重切片](methodology/02-reading-core-logic.md) — `/repo-core` 的切片方法
-- [03 向外追踪：链路场景与数据流转](methodology/03-tracing-data-flow.md) — `/repo-trace` 的追踪步骤
-- [04 核心数据结构与状态不变式](methodology/04-state-and-invariants.md) — 深挖状态机时参考
-- [05 Git 变更热点与演进考古](methodology/05-git-churn-hotspots.md) — 用 churn 定位架构重心
-- [06 硬核问题抽查与答辩复盘](methodology/06-drill-and-mastery.md) — `/repo-drill` 的出题与复盘标准
-- [07 代码事实强锚定与沙箱安全](methodology/07-factual-grounding-security.md) — `/repo-verify` 的门禁细则
+- [01 项目侦察与演进热点指南](methodology/01-recon-and-hotspots.md) — `/repo-recon` 的思考工具与切入方法
+- [02 核心实现与状态模型剖析指南](methodology/02-core-analysis.md) — `/repo-core` 的承重代码与状态不变式剖析
+- [03 链路追踪与掌握度抽查指南](methodology/03-tracing-and-drill.md) — `/repo-trace` 与 `/repo-drill` 的动态链路分析与掌握度考核
+- [04 知识延伸与头脑风暴指南](methodology/04-brainstorm.md) — `/repo-brainstorm` 的发散思考与架构想象力延伸
 
 交付格式模板（`templates/`）：
 

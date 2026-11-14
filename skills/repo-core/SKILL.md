@@ -8,7 +8,6 @@ license: MIT
 # Repo Core — 核心实现与内部逻辑剖析
 
 > **核心职责**: **Never show code until the real-world problem is clear.**  
-> （现实问题没搞懂之前，绝不提前甩代码。）
 
 `repo-core` 用于看懂任意一个具体目标（函数、类、模块、规则、配置）**自身是干什么的、内部怎么处理的、核心代码怎么写的、边界有哪些考量**。
 
@@ -57,5 +56,4 @@ license: MIT
 
 ## 参考资源（按需加载）
 
-- [方法论 02：向内剖析——核心实现与承重切片](../../methodology/02-reading-core-logic.md)
-- [方法论 04：核心数据结构与状态不变式](../../methodology/04-state-and-invariants.md)
+- [方法论 02：核心实现与状态模型剖析指南](../../methodology/02-core-analysis.md)

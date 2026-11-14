@@ -70,8 +70,8 @@ One engine, two interfaces: a terminal CLI for humans, and an Agent Skills suite
 └────────────────────────────────────────────────────────────┘
                ▲                           ▲
 ┌──────────────┴───────────┐  ┌────────────┴─────────────────┐
-│  skills/ (1 + 6 suite)   │  │  methodology/ (7 guides)     │
-│  templates/ (3 formats)  │  │  commands/ (optional aliases)│
+│  skills/ (1 + 6 suite)   │  │  methodology/ (4 guides)     │
+│  templates/ (3 formats)  │  │  repo_mentor/ (CLI engine)   │
 └──────────────────────────┘  └──────────────────────────────┘
 ```
 
@@ -133,7 +133,7 @@ The suite follows the Agent Skills specification: one orchestrator plus six sing
 | [`repo-core`](skills/repo-core/SKILL.md) (`/repo-core <target>`) | Looking inward | Purpose, internal steps, load-bearing code, boundary defenses. |
 | [`repo-trace`](skills/repo-trace/SKILL.md) (`/repo-trace <target>`) | Looking outward | Real trigger scenarios, upstream/downstream, a sample data journey, error propagation. |
 | [`repo-drill`](skills/repo-drill/SKILL.md) (`/repo-drill [target]`) | Peer quiz | 2–3 sharp questions on intent, flow, and breaking points; objective review. |
-| [`repo-verify`](skills/repo-verify/SKILL.md) (`/repo-verify`) | Quality gate | Deterministic audit of citations and Mermaid syntax. |
+| [`repo-brainstorm`](skills/repo-brainstorm/SKILL.md) (`/repo-brainstorm [target]`) | Ideation & Expansion | Extend underlying systems knowledge, architectural alternatives, and future evolution. |
 | [`repo-export`](skills/repo-export/SKILL.md) (`/repo-export`) | Deliverable | Deduplicate study notes and compile the offline whitepaper. |
 
 ### Installation by platform
@@ -146,21 +146,18 @@ git clone https://github.com/Asstar-X/repo-mentor.git ~/.claude/skills/repo-ment
 # or install user-level under ~/.qoder/skills/repo-mentor
 ```
 
-Skill discovery differs across agents: some register only the root `SKILL.md`, others register every `skills/*/SKILL.md`. Both work — the root skill links to all six sub-skills and loads them on demand. The short aliases in `commands/` (`/overview`, `/core`, …) are optional: copy them into your agent's command directory (e.g. `.claude/commands/`) if you prefer them.
+Skill discovery differs across agents: some register only the root `SKILL.md`, others register every `skills/*/SKILL.md`. Both work — the root skill links to all six sub-skills and loads them on demand. Commands (`/repo-recon`, `/repo-core`, …) can be triggered directly in chat.
 
 ## Reading Methodology
 
-Seven guides in [`methodology/`](methodology/) drive the skills. They are loaded on demand, not upfront:
+Four guides in [`methodology/`](methodology/) drive the skills. They are loaded on demand, not upfront:
 
 | Guide | Topic |
 | :--- | :--- |
-| [01](methodology/01-project-overview.md) | Project reconnaissance and instant validation |
-| [02](methodology/02-reading-core-logic.md) | Looking inward: load-bearing slices of core logic |
-| [03](methodology/03-tracing-data-flow.md) | Looking outward: call chains and data journeys |
-| [04](methodology/04-state-and-invariants.md) | Core data structures and state invariants |
-| [05](methodology/05-git-churn-hotspots.md) | Git churn hotspots and evolution archaeology |
-| [06](methodology/06-drill-and-mastery.md) | Sharp questioning and mastery review |
-| [07](methodology/07-factual-grounding-security.md) | Fact anchoring and sandbox safety |
+| [01](methodology/01-recon-and-hotspots.md) | Project reconnaissance and Git evolution hotspots |
+| [02](methodology/02-core-analysis.md) | Core implementation, 80/20 filtering, and state invariant modeling |
+| [03](methodology/03-tracing-and-drill.md) | Dynamic call tracing (Payload Diff) and comprehension drills |
+| [04](methodology/04-brainstorm.md) | Technical brainstorming and architectural imagination |
 
 ## 100-Point Rubric
 

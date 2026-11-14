@@ -69,8 +69,8 @@
 └────────────────────────────────────────────────────────────┘
                ▲                           ▲
 ┌──────────────┴───────────┐  ┌────────────┴─────────────────┐
-│  skills/（1 主 + 6 子）  │  │  methodology/（7 篇方法论）  │
-│  templates/（3 种格式）  │  │  commands/（可选短别名）     │
+│  skills/（1 主 + 6 子）  │  │  methodology/（4 篇方法论）  │
+│  templates/（3 种格式）  │  │  repo_mentor/（CLI 引擎）    │
 └──────────────────────────┘  └──────────────────────────────┘
 ```
 
@@ -132,7 +132,7 @@ repo-mentor export studies/target-repo
 | [`repo-core`](skills/repo-core/SKILL.md)（`/repo-core <目标>`） | 向内看 | 职责、内部步骤、承重代码、边界防线。 |
 | [`repo-trace`](skills/repo-trace/SKILL.md)（`/repo-trace <目标>`） | 向外看 | 真实触发场景、上下游协同、样本数据走读、异常传播。 |
 | [`repo-drill`](skills/repo-drill/SKILL.md)（`/repo-drill [目标]`） | 搭档抽查 | 2~3 个直击意图、流转与崩溃边界的硬核问题，客观复盘。 |
-| [`repo-verify`](skills/repo-verify/SKILL.md)（`/repo-verify`） | 质量门禁 | 引用与 Mermaid 语法的确定性核验。 |
+| [`repo-brainstorm`](skills/repo-brainstorm/SKILL.md)（`/repo-brainstorm [目标]`） | 知识延伸与头脑风暴 | 基于项目延伸底层硬核原理，碰撞架构选型，拓宽思路与想象力。 |
 | [`repo-export`](skills/repo-export/SKILL.md)（`/repo-export`） | 交付 | 研读笔记去重合成，编译离线白皮书。 |
 
 ### 按平台安装
@@ -145,21 +145,18 @@ git clone https://github.com/Asstar-X/repo-mentor.git ~/.claude/skills/repo-ment
 # 或安装到用户级 ~/.qoder/skills/repo-mentor
 ```
 
-各平台的技能发现机制不同：有的只注册根 `SKILL.md`，有的会注册 `skills/*/SKILL.md` 全部子技能。两种方式都能用——根技能链接了全部六个子技能，按需加载。`commands/` 里的短别名（`/overview`、`/core` 等）是可选增强：喜欢的话，把它们拷进你所用平台的命令目录（如 `.claude/commands/`）。
+各平台的技能发现机制不同：有的只注册根 `SKILL.md`，有的会注册 `skills/*/SKILL.md` 全部子技能。两种方式都能用——根技能链接了全部六个子技能，按需加载。常用命令（`/repo-recon`、`/repo-core` 等）可直接在对话中触发。
 
 ## 研读方法论
 
-[`methodology/`](methodology/) 里的七篇指南驱动着技能行为，按需加载而非一次性灌入：
+[`methodology/`](methodology/) 里的四篇指南驱动着技能行为，按需加载而非一次性灌入：
 
 | 指南 | 主题 |
 | :--- | :--- |
-| [01](methodology/01-project-overview.md) | 项目全景侦察与开箱验证 |
-| [02](methodology/02-reading-core-logic.md) | 向内剖析：核心实现与承重切片 |
-| [03](methodology/03-tracing-data-flow.md) | 向外追踪：链路场景与数据流转 |
-| [04](methodology/04-state-and-invariants.md) | 核心数据结构与状态不变式 |
-| [05](methodology/05-git-churn-hotspots.md) | Git 变更热点与演进考古 |
-| [06](methodology/06-drill-and-mastery.md) | 硬核问题抽查与答辩复盘 |
-| [07](methodology/07-factual-grounding-security.md) | 代码事实强锚定与沙箱安全 |
+| [01](methodology/01-recon-and-hotspots.md) | 项目侦察与演进热点指南 |
+| [02](methodology/02-core-analysis.md) | 核心实现与状态模型剖析指南 |
+| [03](methodology/03-tracing-and-drill.md) | 链路追踪与掌握度抽查指南 |
+| [04](methodology/04-brainstorm.md) | 知识延伸与头脑风暴指南 |
 
 ## 100 分制评分
 
