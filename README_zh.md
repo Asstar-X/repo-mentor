@@ -1,198 +1,108 @@
-<div align="center">
-
 # Repo Mentor
 
-### 事实经过机器核验的代码库精读助手
+> **Reconstruct the author's mental model, never recite their syntax.**  
+> 重建作者的心智模型，绝不复述代码语法。
 
-<p align="center">
-  <a href="README.md"><b>English</b></a> •
-  <a href="README_zh.md"><b>简体中文</b></a>
-</p>
+[![Python 3.10+](https://img.shields.io/badge/Python-3.10%2B-3776AB.svg?logo=python&logoColor=white)](https://www.python.org/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Agent Skill](https://img.shields.io/badge/Agent_Skill-SKILL.md-FF6F00.svg)](SKILL.md)
 
-[![CI](https://github.com/Asstar-X/repo-mentor/actions/workflows/ci.yml/badge.svg)](https://github.com/Asstar-X/repo-mentor/actions)
-[![Python 3.10+](https://img.shields.io/badge/Python-3.10%2B-blue.svg)](https://www.python.org/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
-[![Code style: Ruff](https://img.shields.io/badge/Code%20Style-Ruff-000000.svg)](https://github.com/astral-sh/ruff)
-[![Typing: Mypy](https://img.shields.io/badge/Typing-Mypy-blue.svg)](https://mypy-lang.org/)
-[![Agent Skill Ready](https://img.shields.io/badge/Agent%20Skill-SKILL.md-orange.svg)](SKILL.md)
-[![Security Policy](https://img.shields.io/badge/Security-Untrusted%20Repo%20Hardened-red.svg)](SECURITY.md)
-
-<p align="center">
-  <b>用大白话读懂陌生代码库。每一处引用，都对照磁盘上的真实文件核验过。</b>
-</p>
-
-[快速上手](#快速上手) •
-[成品演示](#成品演示) •
-[CLI 命令](#cli-命令参考) •
-[Agent 技能](#agent-技能套件) •
-[研读方法论](#研读方法论) •
-[评分规则](#100-分制评分) •
-[安全](#安全)
-
-</div>
+[English](README.md) • [简体中文](README_zh.md)
 
 ---
 
-## 成品演示
+`repo-mentor` 是面向开发者与 AI 编程助手的代码库精读引擎。
 
-下面这份白皮书由[本仓库自己的研读笔记](examples/repo-mentor-self/)真实编译而来——引用锚定率 100%、零幻觉、Grade A。HTML 完全自包含：断网打开，每张图照常渲染。
+当面对几万行完全陌生的复杂项目时，无论是人还是通用大模型，最常见的困境就是**扎进几百行微观代码细节里，却始终搞不清楚系统整体到底在干什么**。
 
-![Repo Mentor 白皮书演示](assets/whitepaper-demo.png)
+`repo-mentor` 扮演你工位旁的资深技术搭档：**用平实自然的大白话讲清技术原由与设计取舍，杜绝营销黑话与 AI 八股文**。向内看透单点承重实现，向外追踪端到端链路场景，并提供确定性的静态分析 CLI 与离线交互式白皮书导出。
 
-## 解决什么麻烦
+---
 
-让通用大模型解释一个五万行的陌生仓库，通常会遇到四类失望：
+## 核心工作流与命令
 
-| 维度 | 通用 AI 总结 | Repo Mentor |
-| :--- | :--- | :--- |
-| **事实锚定** | 编造行号与 API 名。 | 每处引用都过磁盘核验：文件存在、行号不越界、符号真实存在（`path/to/file.py#L42-L88`）。 |
-| **语气** | 空洞吹捧与营销黑话。 | 禁词检测器与"无锚定段落"检测器直接扣分，只留平实的工程语言。 |
-| **执行流转** | 孤立的文件摘要。 | 拽着一个具体数据样本，从外部触发一路追到核心逻辑与最终输出。 |
-| **深度** | 逐行复述"是什么"。 | 必须讲清"为什么"：取舍、状态不变式、失败模式与恢复路径。 |
-| **掌握度检验** | 三道简单题带来虚假自信。 | 围绕设计意图与崩溃边界的苏格拉底式抽查，外加带幻觉罚则的 100 分制评分。 |
+命令名即技能名。在支持 Agent Skills 的对话窗口中，直接输入以下指令即可调起：
 
-## 架构
+| 命令 | 视角 | 一句话说明 |
+| :--- | :---: | :--- |
+| **`/repo-recon`** | 全局侦察 | **项目是干啥的、怎么跑起来**：核心解决什么痛点、开箱验证命令、主要目录职责、推荐切入站点。 |
+| **`/repo-core <目标>`** | 向内剖析 | **这块东西自己是干啥的、怎么实现的**：用日常大白话讲透职责、主线逻辑、承重代码与边界防线。 |
+| **`/repo-trace <目标>`** | 向外追踪 | **它在真实场景中怎么用的**：谁在什么场景调它、结果给谁、带着具体数据样本走读、出错了如何扩散。 |
+| **`/repo-drill [目标]`** | 掌握度抽查 | **搭档抽查答辩**：抛出 2~3 个最接地气、直击设计意图与崩溃边界的硬核问题，客观复盘。 |
+| **`/repo-brainstorm [目标]`** | 知识延伸 | **知识延伸与头脑风暴**：延伸底层原理、碰撞业界替代方案、迁移跨界业务场景、拓宽架构思路。 |
+| **`/repo-export`** | 资产交付 | **整理导出离线白皮书**：将研读笔记去重整合，一键编译为无需外部网络的单文件离线交互式 HTML。 |
 
-一个引擎，两种接口：给人用的终端 CLI，给 AI 编程助手用的 Agent Skills 套件。智能体把确定性工作（扫描、AST 索引、核验、编译）交给 CLI 执行。
-
-```
-┌────────────────────────────────────────────────────────────┐
-│  人类（CLI: repo-mentor） │  AI 智能体（SKILL.md 套件）     │
-└──────────────┬───────────────────────────┬─────────────────┘
-               ▼                           ▼
-┌────────────────────────────────────────────────────────────┐
-│                    repo_mentor 引擎                        │
-│  core/          扫描器 · AST 解析 · 依赖 DAG · Git 热点    │
-│  verification/  锚点门禁 · Mermaid  lint/自愈 ·            │
-│                 八股检测 · 100 分制评审                    │
-│  export/        研读脚手架 · 离线 HTML 编译器              │
-└────────────────────────────────────────────────────────────┘
-               ▲                           ▲
-┌──────────────┴───────────┐  ┌────────────┴─────────────────┐
-│  skills/（1 主 + 6 子）  │  │  methodology/（4 篇方法论）  │
-│  templates/（3 种格式）  │  │  repo_mentor/（CLI 引擎）    │
-└──────────────────────────┘  └──────────────────────────────┘
-```
+---
 
 ## 快速上手
 
-### 安装
+### 1. 安装 CLI 引擎
+
+本地 CLI 工具负责执行扫描、Git 热点分析、AST 解析及 HTML 离线编译等确定性任务：
 
 ```bash
-# 源码安装（PyPI 发布筹备中）：
-pip install git+https://github.com/Asstar-X/repo-mentor.git
-
-# 开发模式，含多语言 AST 支持：
+# 从源码安装
 git clone https://github.com/Asstar-X/repo-mentor.git
 cd repo-mentor
-pip install -e ".[dev,ast]"
+pip install -e .
+
+# 如需多语言 AST 支持（Tree-sitter）
+pip install -e ".[ast]"
 ```
 
-### 三步走
+### 2. 作为 Agent Skill 使用
+
+将本仓库克隆至你的 Agent Skills 目录即可全局或项目级生效：
 
 ```bash
-# 1. 扫描语言、入口与测试布局
-repo-mentor scan /path/to/target-repo
-
-# 2. 把内部模块依赖画成 Mermaid DAG
-repo-mentor map /path/to/target-repo --mermaid
-
-# 3. 找出改动最频繁的文件——架构真正所在的地方
-repo-mentor hotspots /path/to/target-repo --top 10
-```
-
-然后初始化研读工作区、写笔记、过门禁：
-
-```bash
-repo-mentor init studies/target-repo --repo /path/to/target-repo
-repo-mentor verify /path/to/target-repo studies/target-repo --fix
-repo-mentor export studies/target-repo
-```
-
-## CLI 命令参考
-
-| 子命令 | 语法 | 说明 |
-| :--- | :--- | :--- |
-| `scan` | `repo-mentor scan <path> [--depth N] [--format rich\|json]` | 识别语言、框架、清单文件、入口与测试体系。 |
-| `map` | `repo-mentor map <path> [--mermaid] [--internal-only] [--out FILE]` | 提取仓库内部 import 依赖，生成拓扑 DAG。 |
-| `hotspots` | `repo-mentor hotspots <path> [--commits N] [--top N]` | 按 Git 变更频率排序，定位架构重心。 |
-| `ast` | `repo-mentor ast <repo> <file-or-dir> [--symbols/--no-symbols] [--calls]` | 提取类、函数、签名与调用关系（Python、Go、TS、Rust）。 |
-| `init` | `repo-mentor init <study-dir> --repo <repo> [--force]` | 初始化研读工作区，预填真实扫描、DAG 与热点数据。 |
-| `verify` | `repo-mentor verify <repo> <notes> [--fix] [--strict]` | 核验引用的文件路径、行号边界与符号；检查并自愈 Mermaid 语法。 |
-| `eval` | `repo-mentor eval <repo> <report> [--format rich\|json] [--strict]` | 用 100 分制评分研读报告。 |
-| `export` | `repo-mentor export <study-dir> [--out FILE]` | 把笔记编译成完全自包含的离线 HTML 白皮书。 |
-
-## Agent 技能套件
-
-套件遵循 Agent Skills 规范：一个主编排技能 + 六个单一职责子技能。**技能名即命令名。**
-
-| 技能（命令） | 视角 | 职责 |
-| :--- | :--- | :--- |
-| [`repo-recon`](skills/repo-recon/SKILL.md)（`/repo-recon`） | 系统全局 | 项目干啥、怎么跑起来、目录分工、阅读路线。 |
-| [`repo-core`](skills/repo-core/SKILL.md)（`/repo-core <目标>`） | 向内看 | 职责、内部步骤、承重代码、边界防线。 |
-| [`repo-trace`](skills/repo-trace/SKILL.md)（`/repo-trace <目标>`） | 向外看 | 真实触发场景、上下游协同、样本数据走读、异常传播。 |
-| [`repo-drill`](skills/repo-drill/SKILL.md)（`/repo-drill [目标]`） | 搭档抽查 | 2~3 个直击意图、流转与崩溃边界的硬核问题，客观复盘。 |
-| [`repo-brainstorm`](skills/repo-brainstorm/SKILL.md)（`/repo-brainstorm [目标]`） | 知识延伸与头脑风暴 | 基于项目延伸底层硬核原理，碰撞架构选型，拓宽思路与想象力。 |
-| [`repo-export`](skills/repo-export/SKILL.md)（`/repo-export`） | 交付 | 研读笔记去重合成，编译离线白皮书。 |
-
-### 按平台安装
-
-```bash
-# Claude Code（个人技能目录）：
+# Claude Code 个人技能目录：
 git clone https://github.com/Asstar-X/repo-mentor.git ~/.claude/skills/repo-mentor
 
-# Qoder（项目级技能）：克隆到项目的 skills 目录，
-# 或安装到用户级 ~/.qoder/skills/repo-mentor
+# Antigravity / Cursor / Qoder 等环境：
+# 放置于项目根目录的 skills/repo-mentor，或在配置中指定路径指向本仓库根目录的 SKILL.md
 ```
 
-各平台的技能发现机制不同：有的只注册根 `SKILL.md`，有的会注册 `skills/*/SKILL.md` 全部子技能。两种方式都能用——根技能链接了全部六个子技能，按需加载。常用命令（`/repo-recon`、`/repo-core` 等）可直接在对话中触发。
+在对话中输入 `/repo-recon` 即可开始对目标代码库的精读。
 
-## 研读方法论
+---
 
-[`methodology/`](methodology/) 里的四篇指南驱动着技能行为，按需加载而非一次性灌入：
+## CLI 工具一览
 
-| 指南 | 主题 |
-| :--- | :--- |
-| [01](methodology/01-recon-and-hotspots.md) | 项目侦察与演进热点指南 |
-| [02](methodology/02-core-analysis.md) | 核心实现与状态模型剖析指南 |
-| [03](methodology/03-tracing-and-drill.md) | 链路追踪与掌握度抽查指南 |
-| [04](methodology/04-brainstorm.md) | 知识延伸与头脑风暴指南 |
+除了作为 Agent 技能交互，`repo-mentor` 也提供了独立的终端命令行工具：
 
-## 100 分制评分
+```bash
+# 1. 扫描项目技术栈、主入口与单测布局
+repo-mentor scan /path/to/target-repo
 
-`repo-mentor eval` 从五个维度给研读报告打分（实现见 [`judge.py`](repo_mentor/verification/judge.py)）：
+# 2. 提取包依赖拓扑，生成 Mermaid DAG
+repo-mentor map /path/to/target-repo --mermaid
 
-| 维度 | 满分 | 计分方式 |
-| :--- | :---: | :--- |
-| **D1 — 事实锚定** | 35 | 引用锚定率 × 30，零幻觉再加 5；幻觉率按百分比 × 1.5 倒扣。 |
-| **D2 — 架构与取舍** | 25 | 模块分流（10）、明确取舍（10）、状态不变式（5）。 |
-| **D3 — 执行流转** | 20 | 黄金路径叙述（10）+ 时序图跳数核验（10）。 |
-| **D4 — 语气纪律** | 15 | 零禁用词（5）、零无锚定段落（5）、FFI × 5。 |
-| **D5 — Mermaid 完整性** | 5 | 通过语法检查的图表占比。 |
+# 3. 分析 Git Churn 变更热点，定位架构核心重心
+repo-mentor hotspots /path/to/target-repo --commits 300 --top 10
 
-Fluff-Free Index（FFI）从 100 起扣：每个禁用词 -5、每个无锚定段落 -8、每处陈词结构 -4、缺取舍章节 -10。
+# 4. 提取核心符号与函数调用链（支持 Python, Go, TypeScript, Rust）
+repo-mentor ast /path/to/target-repo src/core/engine.py --calls
 
-- **Grade A**：总分 ≥ 90、零幻觉、锚定率 ≥ 95%、FFI ≥ 90。
-- **Grade B**：总分 ≥ 80、零幻觉、锚定率 ≥ 90%。
-- **Fail**：其余情况。`--strict` 模式下只有 Grade A 算通过。
+# 5. 初始化结构化研读工作区
+repo-mentor init studies/target-repo --repo /path/to/target-repo
 
-D2/D3 用的是关键词启发式——分数是 lint 信号，不是理解力的证明。真正扛住事实底线的是确定性门禁（D1、D5）。
+# 6. 编译生成单文件离线交互式 HTML 架构白皮书
+repo-mentor export studies/target-repo --out whitepaper.html
+```
 
-## 安全
+---
 
-分析外部仓库一律按不可信输入处理：
+## 研读思维工具
 
-- **只读静态分析**：引擎绝不执行目标仓库的代码或构建钩子（`npm postinstall`、`setup.py`、Makefile）。唯一的子进程是 `git log`。
-- **抗提示注入**：文件内容、提交信息、docstring 一律视为数据，绝不当作指令。
-- **路径约束**：锚点解析限制在仓库根目录内，`../../` 穿越直接拒绝。
-- **数据隔离**：`studies/` 默认被 gitignore，私有笔记不会混进提交。
+[`methodology/`](methodology/) 目录下提供了 4 篇聚焦的方法论指南，供 Agent 和开发者在深度剖析时按需查阅：
 
-完整安全模型见 [SECURITY.md](SECURITY.md)。
+- [01. 项目侦察与演进热点指南](methodology/01-recon-and-hotspots.md)：30 秒建立全局心智，借助“30 行脚本”检验法与 Git 幂律热点直击系统原罪与重心。
+- [02. 核心实现与状态模型剖析指南](methodology/02-core-analysis.md)：80/20 过滤法剥离外围胶水代码，针对系统状态不变式与生命周期进行严密建模。
+- [03. 链路追踪与掌握度抽查指南](methodology/03-tracing-and-drill.md)：Payload Diff 动态形态差分追踪，结合意图、流转与失效三维考题检验真实掌握度。
+- [04. 知识延伸与头脑风暴指南](methodology/04-brainstorm.md)：跳出单一实现的局限，探索底层运行机制、替代范式取舍与跨界场景迁移。
 
-## 贡献
+---
 
-环境搭建、代码风格（Ruff、Mypy）与测试规范见 [CONTRIBUTING.md](CONTRIBUTING.md)。文档本身也有门禁：`tests/test_docs_smoke.py` 会把文档里的每条 CLI 示例对着真实命令树校验一遍。
+## 许可证
 
-## 许可
-
-[MIT](LICENSE)。内置的第三方软件（Mermaid.js）清单见 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)。
+[MIT License](LICENSE)
