@@ -376,11 +376,28 @@ class DependencyAnalyzer:
 
         lines = ["```mermaid", "graph TD"]
 
+        # Track unique sanitized Mermaid node IDs to prevent collisions
+        mod_to_id: dict[str, str] = {}
+        used_ids: set[str] = set()
+
+        def get_unique_id(name: str) -> str:
+            if name in mod_to_id:
+                return mod_to_id[name]
+            base_id = _sanitize_mermaid_id(name)
+            candidate = base_id
+            suffix = 1
+            while candidate in used_ids:
+                suffix += 1
+                candidate = f"{base_id}_{suffix}"
+            used_ids.add(candidate)
+            mod_to_id[name] = candidate
+            return candidate
+
         # Subgraph for internal repository modules
         if internal_mods:
             lines.append('    subgraph Internal["Internal Repository Modules"]')
             for mod in internal_mods:
-                mod_id = _sanitize_mermaid_id(mod)
+                mod_id = get_unique_id(mod)
                 mod_label = _sanitize_mermaid_label(mod)
                 lines.append(f'        {mod_id}["{mod_label}"]')
             lines.append("    end")
@@ -399,8 +416,8 @@ class DependencyAnalyzer:
                     continue
                 ext_count += 1
 
-            s_id = _sanitize_mermaid_id(s_name)
-            t_id = _sanitize_mermaid_id(t_name)
+            s_id = get_unique_id(s_name)
+            t_id = get_unique_id(t_name)
             edge_key = (s_id, t_id)
 
             if edge_key not in rendered_edges:

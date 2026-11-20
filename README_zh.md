@@ -38,16 +38,13 @@
 
 ### 1. 安装 CLI 引擎
 
-本地 CLI 工具负责执行扫描、Git 热点分析、AST 解析及 HTML 离线编译等确定性任务：
+本地 CLI 工具负责执行扫描、Git 热点分析、AST 与词法符号提取及 HTML 离线编译等确定性任务（基于 Python 原生 AST 与自研轻量词法分析器，零 C 扩展依赖，开箱即用）：
 
 ```bash
 # 从源码安装
 git clone https://github.com/Asstar-X/repo-mentor.git
 cd repo-mentor
 pip install -e .
-
-# 如需多语言 AST 支持（Tree-sitter）
-pip install -e ".[ast]"
 ```
 
 ### 2. 作为 Agent Skill 使用

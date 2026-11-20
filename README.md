@@ -37,16 +37,13 @@ Skill names correspond directly to slash commands. Use them directly within any 
 
 ### 1. Install CLI Engine
 
-The local CLI handles deterministic tasks such as repository scanning, Git churn analysis, AST indexing, and offline whitepaper compilation:
+The local CLI handles deterministic tasks such as repository scanning, Git churn analysis, AST and symbol lexing, and offline whitepaper compilation (zero-dependency native AST and pure-Python resilient lexers, no C extension compilation required):
 
 ```bash
 # Clone and install
 git clone https://github.com/Asstar-X/repo-mentor.git
 cd repo-mentor
 pip install -e .
-
-# Optional: with multi-language AST support (Tree-sitter)
-pip install -e ".[ast]"
 ```
 
 ### 2. Using as an Agent Skill
