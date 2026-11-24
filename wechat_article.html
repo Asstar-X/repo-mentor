@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>别再一行行死磕源码了：用这个开源工具，带你读懂任何项目</title>
+</head>
+<body style="margin: 0; padding: 20px 10px; background-color: #f6f8fa;">
+
+<!-- 微信公众号排版外层容器：极简 GitHub 工程师质感，杜绝花哨杂色 -->
+<section style="max-width: 677px; margin: 0 auto; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', Helvetica, Arial, sans-serif; font-size: 15px; line-height: 1.8; color: #1f2328; letter-spacing: 0.3px; word-break: break-word; background: #ffffff; padding: 32px 24px; border: 1px solid #d0d7de; border-radius: 6px;">
+
+  <!-- 顶部主标题 -->
+  <section style="margin-bottom: 24px;">
+    <h1 style="font-size: 22px; line-height: 1.45; color: #1f2328; font-weight: 700; margin: 0 0 12px; letter-spacing: -0.2px;">
+      别再一行行死磕源码了：用这个开源工具，带你读懂任何项目
+    </h1>
+    <div style="font-size: 13px; color: #656d76; border-bottom: 1px solid #d0d7de; padding-bottom: 14px;">
+      <span>开源项目</span>
+      <span style="margin: 0 6px;">·</span>
+      <span>代码研读</span>
+      <span style="margin: 0 6px;">·</span>
+      <span>阅读时间约 3 分钟</span>
+    </div>
+  </section>
+
+  <!-- 痛点切入 -->
+  <section style="margin-bottom: 24px;">
+    <p style="margin: 0 0 14px;">日常开发中，不管是接手组内遗留的老项目，还是想看某个开源库的实现，不少人第一反应是直接把它丢给 AI：</p>
+    
+    <blockquote style="margin: 0 0 16px; padding: 8px 16px; border-left: 3px solid #d0d7de; color: #57606a; background-color: #f6f8fa; border-radius: 0 4px 4px 0; font-size: 14px;">
+      “帮我分析一下这个模块是怎么实现的。”
+    </blockquote>
+
+    <p style="margin: 0 0 14px;">但随后得到的往往是两类典型回答：</p>
+    <p style="margin: 0 0 8px; padding-left: 4px;"><strong>1. 逐行翻译语法</strong>：把第 50 行到第 100 行的代码翻译成中文，或者复述一遍伪代码。但这段代码接收什么参数、输出什么结果、为什么不写死在上一层，它只字不提。</p>
+    <p style="margin: 0 0 14px; padding-left: 4px;"><strong>2. 堆砌空洞套话</strong>：“这是一个设计极其优雅、高内聚低耦合、功能强大的企业级架构……”</p>
+
+    <p style="margin: 0 0 14px;">
+      这类评价不仅没有任何实质信息量，甚至还会把一些作者为了赶进度妥协的技术债，硬生生吹捧成精妙设计。合上电脑后，大脑依然一片空白。
+    </p>
+  </section>
+
+  <!-- 核心认知 -->
+  <section style="border-left: 3px solid #0969da; background-color: #f6f8fa; padding: 12px 16px; margin-bottom: 28px; border-radius: 0 4px 4px 0;">
+    <p style="margin: 0; font-size: 14px; color: #24292f; line-height: 1.7;">
+      <strong>核心逻辑：</strong>读代码最耗费时间的地方，往往不是看懂每行语法，而是<strong>还原作者当时做取舍的心智模型</strong>——没有这个模块前遇到了什么麻烦？为什么要抽这层抽象？如果把某行判断拿掉，系统究竟会在哪崩掉？
+    </p>
+  </section>
+
+  <!-- 项目介绍 -->
+  <section style="margin-bottom: 28px;">
+    <p style="margin: 0 0 14px;">
+      为了解决这个实际麻烦，我们做了一个开源工具：<strong><code>repo-mentor</code></strong>。
+    </p>
+    <p style="margin: 0 0 14px; color: #57606a;">
+      它的定位不是泛泛而谈的问答助手，而是一个<strong>遵循严格研读规范的确定性引擎</strong>。它的工作原则只有一条：<strong>绝不复述代码语法，只讲技术因果与设计动机。</strong>
+    </p>
+  </section>
+
+  <!-- 核心工作流 -->
+  <section style="margin-bottom: 28px;">
+    <h2 style="font-size: 17px; font-weight: 700; color: #1f2328; margin: 0 0 16px; padding-bottom: 6px; border-bottom: 1px solid #eaeef2;">
+      核心工作流程
+    </h2>
+
+    <!-- 步骤 1 -->
+    <div style="margin-bottom: 18px;">
+      <div style="font-weight: 600; color: #1f2328; margin-bottom: 4px;">
+        1. 寻找切入点：优先分析 Git 变更热点
+        <code style="background: #f6f8fa; border: 1px solid #d0d7de; padding: 1px 6px; border-radius: 4px; font-size: 12px; color: #0969da; margin-left: 4px;">/repo-recon</code>
+      </div>
+      <p style="margin: 0; font-size: 14px; color: #57606a; line-height: 1.7;">
+        不建议从第一行或入口文件盲目通读。代码库的演进遵循幂律分布，核心逻辑与主要折中往往集中在少数几个高频改动的文件上。该命令会统计近期变动最频繁的文件，并用“30行脚本反证法”说明系统存在的现实痛点。
+      </p>
+    </div>
+
+    <!-- 步骤 2 -->
+    <div style="margin-bottom: 18px;">
+      <div style="font-weight: 600; color: #1f2328; margin-bottom: 4px;">
+        2. 剥离外围：只看关键状态与底线约束
+        <code style="background: #f6f8fa; border: 1px solid #d0d7de; padding: 1px 6px; border-radius: 4px; font-size: 12px; color: #0969da; margin-left: 4px;">/repo-core &lt;模块名&gt;</code>
+      </div>
+      <p style="margin: 0; font-size: 14px; color: #57606a; line-height: 1.7;">
+        代码库里通常有 80% 都是入参校验、类型转换与日志记录。指令强制过滤这些外围胶水代码，只讲核心：系统在任何时刻都不能破坏的底线规则是什么，遇到异常时脏数据如何自愈。
+      </p>
+    </div>
+
+    <!-- 步骤 3 -->
+    <div style="margin-bottom: 18px;">
+      <div style="font-weight: 600; color: #1f2328; margin-bottom: 4px;">
+        3. 链路追踪：代入真实数据样本走读
+        <code style="background: #f6f8fa; border: 1px solid #d0d7de; padding: 1px 6px; border-radius: 4px; font-size: 12px; color: #0969da; margin-left: 4px;">/repo-trace &lt;模块名&gt;</code>
+      </div>
+      <p style="margin: 0; font-size: 14px; color: #57606a; line-height: 1.7;">
+        拒绝孤立解剖死符号。选取一个具体的入参样本，全程走读：进入前是什么形态、流经此模块被增删改了哪些字段、交付给谁承接、报错如何向外传播。
+      </p>
+    </div>
+
+    <!-- 步骤 4 -->
+    <div style="margin-bottom: 18px;">
+      <div style="font-weight: 600; color: #1f2328; margin-bottom: 4px;">
+        4. 理解度抽查：反向出题验证真实掌握度
+        <code style="background: #f6f8fa; border: 1px solid #d0d7de; padding: 1px 6px; border-radius: 4px; font-size: 12px; color: #0969da; margin-left: 4px;">/repo-drill</code>
+      </div>
+      <p style="margin: 0; font-size: 14px; color: #57606a; line-height: 1.7;">
+        很多人读代码容易产生“我看懂了”的错觉。该指令由 AI 反向提出 2~3 个关于设计意图与边界失效的工程问题。用户回答后，系统给出客观复盘，指出盲区与遗漏。
+      </p>
+    </div>
+
+    <!-- 步骤 5 -->
+    <div>
+      <div style="font-weight: 600; color: #1f2328; margin-bottom: 4px;">
+        5. 资产沉淀：单文件离线交互式白皮书
+        <code style="background: #f6f8fa; border: 1px solid #d0d7de; padding: 1px 6px; border-radius: 4px; font-size: 12px; color: #0969da; margin-left: 4px;">/repo-export</code>
+      </div>
+      <p style="margin: 0; font-size: 14px; color: #57606a; line-height: 1.7;">
+        将研读笔记编译合并为单个完全离线的 HTML 文件。内嵌可平移缩放的 Mermaid 流程图，零外部网络依赖，适合作为团队内部架构资产长期归档。
+      </p>
+    </div>
+  </section>
+
+  <!-- 质量控制与防瞎吹 -->
+  <section style="margin-bottom: 28px;">
+    <h2 style="font-size: 17px; font-weight: 700; color: #1f2328; margin: 0 0 14px; padding-bottom: 6px; border-bottom: 1px solid #eaeef2;">
+      底层的确定性保障
+    </h2>
+    <div style="background-color: #f6f8fa; border: 1px solid #d0d7de; border-radius: 6px; padding: 14px 16px;">
+      <ul style="margin: 0; padding-left: 18px; color: #24292f; font-size: 14px; line-height: 1.8;">
+        <li>
+          <strong>52 条套话黑名单（Fluff Detector）</strong>：系统内置反浮夸检查器，只要输出中出现“设计极其优雅”、“功能强大且灵活”、“企业级架构”等空洞套话，一律判定不合格并拦截打回。
+        </li>
+        <li>
+          <strong>代码锚点物理校验</strong>：分析文档中引用的代码行号（如 <code>[path/to/file#L10-L20]</code>）必须与目标源码真实行号严格匹配，从底层杜绝 AI 捏造行号与虚构符号的幻觉。
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- 进度展示面板 -->
+  <section style="margin-bottom: 28px;">
+    <h2 style="font-size: 17px; font-weight: 700; color: #1f2328; margin: 0 0 14px; padding-bottom: 6px; border-bottom: 1px solid #eaeef2;">
+      交互示例：量化掌握度仪表盘
+    </h2>
+    <p style="margin: 0 0 10px; font-size: 13px; color: #57606a;">每次问答收尾时，系统会自动评估并输出当前领域的学习进度：</p>
+    
+    <div style="background-color: #f6f8fa; border: 1px solid #d0d7de; border-radius: 6px; padding: 14px; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: 13px; color: #24292f; line-height: 1.6;">
+      <div><strong>项目掌握度：45%</strong> [████████░░░░░░░░░░]</div>
+      <div style="margin-top: 8px; color: #57606a;">
+        已掌握: [扫描引擎, Git变更分析]<br>
+        进行中: [AST解析器 (已完成Core，待Trace与Drill)]<br>
+        未触及: [HTML编译器, 真实性校验引擎]
+      </div>
+      <div style="margin-top: 10px; border-top: 1px dashed #d0d7de; padding-top: 8px; color: #0969da;">
+        下一步引导：<br>
+        &rarr; /repo-trace core/parser.py (跟踪数据解析链路)<br>
+        &rarr; /repo-drill parser (抽查边界问题)
+      </div>
+    </div>
+  </section>
+
+  <!-- 安装与使用 -->
+  <section style="margin-bottom: 28px;">
+    <h2 style="font-size: 17px; font-weight: 700; color: #1f2328; margin: 0 0 14px; padding-bottom: 6px; border-bottom: 1px solid #eaeef2;">
+      安装与运行
+    </h2>
+    <p style="margin: 0 0 8px; font-size: 14px; color: #57606a;">基于标准 Python 3.10+ 开发，零复杂第三方依赖。</p>
+
+    <!-- 命令行使用 -->
+    <div style="margin-bottom: 14px;">
+      <div style="font-size: 13px; font-weight: 600; color: #24292f; margin-bottom: 6px;">1. 本地命令行模式</div>
+      <pre style="margin: 0; background-color: #f6f8fa; border: 1px solid #d0d7de; border-radius: 6px; padding: 12px 14px; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: 12px; color: #1f2328; overflow-x: auto; line-height: 1.5;">git clone https://github.com/Asstar-X/repo-mentor.git
+cd repo-mentor && pip install -e .
+
+# 分析目标代码库的变更热点
+repo-mentor hotspots /path/to/repo --commits 300 --top 10</pre>
+    </div>
+
+    <!-- Agent 模式 -->
+    <div>
+      <div style="font-size: 13px; font-weight: 600; color: #24292f; margin-bottom: 6px;">2. 作为 Agent Skill 使用（Claude Code / Antigravity / Cursor 等）</div>
+      <pre style="margin: 0; background-color: #f6f8fa; border: 1px solid #d0d7de; border-radius: 6px; padding: 12px 14px; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: 12px; color: #1f2328; overflow-x: auto; line-height: 1.5;"># 放置到对应技能目录下
+git clone https://github.com/Asstar-X/repo-mentor.git ~/.claude/skills/repo-mentor</pre>
+      <p style="margin: 8px 0 0; font-size: 13px; color: #57606a;">
+        在对话框中输入 <code>/repo-recon</code> 即可调起规范化精读。
+      </p>
+    </div>
+  </section>
+
+  <!-- 总结与项目链接 -->
+  <section style="border: 1px solid #d0d7de; border-radius: 6px; padding: 16px; background-color: #f6f8fa; margin-bottom: 20px;">
+    <div style="font-size: 14px; font-weight: 600; color: #1f2328; margin-bottom: 4px;">项目开源地址</div>
+    <div style="font-size: 13px; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; color: #0969da; word-break: break-all; margin-bottom: 8px;">
+      https://github.com/Asstar-X/repo-mentor
+    </div>
+    <div style="font-size: 13px; color: #57606a; line-height: 1.6;">
+      采用 MIT 开源协议。如果你在阅读复杂项目时也受够了泛泛而谈的语法翻译，欢迎试用与交流。
+    </div>
+  </section>
+
+</section>
+
+</body>
+</html>
