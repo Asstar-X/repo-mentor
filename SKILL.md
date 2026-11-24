@@ -47,7 +47,7 @@ license: MIT
 | **`/repo-trace <目标>`** | **它在真实场景中怎么用的**：谁在什么场景调它、结果给谁、实例走读、异常怎么向外传。 | [`skills/repo-trace`](skills/repo-trace/SKILL.md) |
 | **`/repo-drill [目标]`** | **搭档抽查答辩**：出 2~3 个最接地气、最考验有没有真懂的核心问题，客观交流与复盘。 | [`skills/repo-drill`](skills/repo-drill/SKILL.md) |
 | **`/repo-brainstorm [目标]`** | **知识延伸与头脑风暴**：基于项目延伸底层硬核原理，碰撞架构选型，拓宽思路与想象力。 | [`skills/repo-brainstorm`](skills/repo-brainstorm/SKILL.md) |
-| **`/repo-export`** | **整理导出离线白皮书**：将研读笔记编译合并为单个离线交互式 HTML 页面。 | [`skills/repo-export`](skills/repo-export/SKILL.md) |
+| **`/repo-export`** | **合成第一视角离线阅读报告**：回溯全会话研读对话与排雷，按重要性主次重排并导出单栏离线 HTML 报告。 | [`skills/repo-export`](skills/repo-export/SKILL.md) |
 
 ---
 
@@ -74,6 +74,7 @@ license: MIT
 
 交付格式模板（`templates/`）：
 
+- [REPORT.md](templates/REPORT.md) — 第一视角单栏项目阅读报告标准模板（`/repo-export` 默认）
 - [ARCHITECTURE.md](templates/ARCHITECTURE.md) — 架构白皮书结构参考
 - [DEBUG_NOTES.md](templates/DEBUG_NOTES.md) — 调试笔记与极限演练结构参考
 - [STUDY_INDEX.md](templates/STUDY_INDEX.md) — 研读工作区索引结构参考

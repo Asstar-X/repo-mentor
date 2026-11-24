@@ -300,10 +300,13 @@ def init(
 def export(
     study_dir: str = typer.Argument(..., help="Path to study directory"),
     out: str | None = typer.Option(None, "--out", "-o", help="Output single-file HTML manual path"),
+    mode: str = typer.Option(
+        "auto", "--mode", "-m", help="Export mode: auto, whitepaper, or report"
+    ),
 ) -> None:
     """Compile study assets into an offline, interactive HTML whitepaper manual."""
     try:
-        out_path = compile_study_html(study_dir, output_file=out)
+        out_path = compile_study_html(study_dir, output_file=out, mode=mode)
         console.print(
             Panel(
                 f"Source Study: [bold]{study_dir}[/bold]\n"

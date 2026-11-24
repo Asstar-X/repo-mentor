@@ -31,16 +31,22 @@ def _load_mermaid_js() -> str:
 
 
 def _format_inline_markdown(text: str) -> str:
-    """Formats inline Markdown (bold, code, links) into HTML."""
+    """Formats inline Markdown (bold, code, links) into HTML safely."""
     if not text:
         return ""
+    code_spans: list[str] = []
+
+    def _stash_code(match: re.Match[str]) -> str:
+        idx = len(code_spans)
+        code_spans.append(f'<code class="inline-code">{html.escape(match.group(1))}</code>')
+        return f"\x00CODESPAN_{idx}\x00"
+
+    # Protect inline code spans first so brackets/asterisks inside code never break link/bold regexes
+    text = re.sub(r"`([^`]+)`", _stash_code, text)
+
     # Code anchors [path#Lstart-Lend]
     text = re.sub(
         r"\[([^\]]+#L\d+(?:-L\d+)?)\](?:\([^)]*\))?", r'<span class="code-anchor">\1</span>', text
-    )
-    # Inline code `code`
-    text = re.sub(
-        r"`([^`]+)`", lambda m: f'<code class="inline-code">{html.escape(m.group(1))}</code>', text
     )
     # Bold **text**
     text = re.sub(r"\*\*([^*]+)\*\*", r"<strong>\1</strong>", text)
@@ -52,6 +58,9 @@ def _format_inline_markdown(text: str) -> str:
         ),
         text,
     )
+
+    for idx, code_html in enumerate(code_spans):
+        text = text.replace(f"\x00CODESPAN_{idx}\x00", code_html)
     return text
 
 
@@ -64,14 +73,18 @@ def _markdown_to_html(md_text: str) -> str:
     n = len(lines)
 
     in_list = False
+    in_ol = False
     in_table = False
     table_has_header = False
 
     def close_open_tags() -> None:
-        nonlocal in_list, in_table, table_has_header
+        nonlocal in_list, in_ol, in_table, table_has_header
         if in_list:
             html_parts.append("</ul>")
             in_list = False
+        if in_ol:
+            html_parts.append("</ol>")
+            in_ol = False
         if in_table:
             html_parts.append("</tbody></table></div>")
             in_table = False
@@ -169,8 +182,8 @@ def _markdown_to_html(md_text: str) -> str:
             while i < n and lines[i].strip().startswith(">"):
                 bq_lines.append(lines[i].strip()[1:].strip())
                 i += 1
-            bq_content = " ".join(bq_lines)
-            html_parts.append(f"<blockquote>{_format_inline_markdown(bq_content)}</blockquote>")
+            bq_content = "<br />".join(_format_inline_markdown(line_txt) for line_txt in bq_lines)
+            html_parts.append(f"<blockquote>{bq_content}</blockquote>")
             continue
 
         # Markdown Table
@@ -199,6 +212,7 @@ def _markdown_to_html(md_text: str) -> str:
 
         # Unordered or Ordered List Item
         m_list = re.match(r"^[-*+]\s+(.*)$", trimmed)
+        m_ol = re.match(r"^\d+\.\s+(.*)$", trimmed)
         if m_list:
             if not in_list:
                 close_open_tags()
@@ -208,7 +222,23 @@ def _markdown_to_html(md_text: str) -> str:
             html_parts.append(f"<li>{_format_inline_markdown(item_text)}</li>")
             i += 1
             continue
-        elif in_list and not trimmed.startswith(" "):
+        elif m_ol:
+            if not in_ol:
+                close_open_tags()
+                in_ol = True
+                html_parts.append("<ol>")
+            item_text = m_ol.group(1).strip()
+            html_parts.append(f"<li>{_format_inline_markdown(item_text)}</li>")
+            i += 1
+            continue
+        elif (in_list or in_ol) and line.startswith(("  ", "\t")):
+            if html_parts and html_parts[-1].endswith("</li>"):
+                prev = html_parts.pop()[:-5]
+                html_parts.append(f'{prev}<div style="margin-top: 4px;">{_format_inline_markdown(trimmed)}</div></li>')
+                i += 1
+                continue
+            close_open_tags()
+        elif in_list or in_ol:
             close_open_tags()
 
         # Regular Paragraph
@@ -811,7 +841,15 @@ def build_full_html_page(
                 return;
             }}
             try {{
-                mermaid.initialize({{ startOnLoad: false, theme: 'neutral', securityLevel: 'loose' }});
+                mermaid.initialize({{
+                    startOnLoad: false,
+                    theme: 'neutral',
+                    securityLevel: 'loose',
+                    themeVariables: {{
+                        fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", Helvetica, Arial, sans-serif',
+                        fontSize: '14px'
+                    }}
+                }});
                 await mermaid.run({{ nodes: document.querySelectorAll('.mermaid'), suppressErrors: true }});
             }} catch (e) {{
                 console.error("Mermaid rendering error", e);
@@ -865,9 +903,362 @@ def build_full_html_page(
 """
 
 
-def compile_study_html(study_dir: str | Path, output_file: str | Path | None = None) -> str:
+def build_narrative_report_page(
+    title: str,
+    subtitle: str,
+    body_html: str,
+) -> str:
+    """Renders a clean, single-column WeChat-article style reading report."""
+    mermaid_js = _load_mermaid_js()
+    return f"""<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{html.escape(title)}</title>
+    <style>
+        :root {{
+            --bg-outer: #f6f8fa;
+            --bg-article: #ffffff;
+            --text-main: #1f2328;
+            --text-body: #24292f;
+            --text-muted: #57606a;
+            --border-color: #d0d7de;
+            --border-soft: #eaeef2;
+            --accent: #0969da;
+            --bg-muted: #f6f8fa;
+            --font-sans: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+            --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+        }}
+        * {{ box-sizing: border-box; margin: 0; padding: 0; }}
+        html {{ scroll-behavior: smooth; }}
+        body {{
+            background-color: #f6f8fa;
+            color: #24292f;
+            font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+            font-size: 15.5px;
+            line-height: 1.85;
+            letter-spacing: 0.25px;
+            word-break: break-word;
+            padding: 28px 14px 60px;
+            -webkit-font-smoothing: antialiased;
+        }}
+        strong {{ font-weight: 600; color: #1f2328; }}
+        article.report-container {{
+            max-width: 800px;
+            margin: 0 auto;
+            background: #ffffff;
+            border: 1px solid #d0d7de;
+            border-radius: 8px;
+            padding: 44px 42px 56px;
+        }}
+        @media (max-width: 640px) {{
+            body {{ padding: 12px 8px 36px; }}
+            article.report-container {{ padding: 24px 18px 36px; }}
+        }}
+        .report-header {{
+            margin-bottom: 28px;
+            padding-bottom: 18px;
+            border-bottom: 1px solid var(--border-color);
+        }}
+        .report-header h1 {{
+            font-size: 26px;
+            line-height: 1.38;
+            color: var(--text-main);
+            font-weight: 700;
+            margin-bottom: 12px;
+            letter-spacing: -0.3px;
+            border: none;
+            padding: 0;
+        }}
+        .report-meta {{
+            font-size: 13.5px;
+            color: var(--text-muted);
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            align-items: center;
+        }}
+        .report-meta .dot {{ color: #8c959f; }}
+        h2 {{
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--text-main);
+            margin: 36px 0 16px;
+            padding-left: 12px;
+            border-left: 4px solid var(--accent);
+            line-height: 1.4;
+        }}
+        h3 {{
+            font-size: 17px;
+            font-weight: 700;
+            color: var(--text-main);
+            margin: 26px 0 12px;
+            padding-bottom: 6px;
+            border-bottom: 1px solid var(--border-soft);
+        }}
+        h4 {{
+            font-size: 15.5px;
+            font-weight: 700;
+            color: var(--text-main);
+            margin: 18px 0 8px;
+        }}
+        p {{ margin-bottom: 15px; color: var(--text-body); }}
+        hr {{ border: none; height: 1px; background: var(--border-soft); margin: 28px 0; }}
+        blockquote {{
+            margin: 18px 0 22px;
+            padding: 14px 18px;
+            border-left: 3px solid var(--accent);
+            background-color: var(--bg-muted);
+            border-radius: 0 6px 6px 0;
+            color: var(--text-body);
+            font-size: 15.5px;
+            line-height: 1.85;
+        }}
+        ul, ol {{
+            margin: 0 0 18px;
+            padding-left: 24px;
+        }}
+        li {{
+            margin-bottom: 10px;
+            color: var(--text-body);
+            font-size: 15.5px;
+            line-height: 1.85;
+        }}
+        li strong {{ color: var(--text-main); }}
+        .table-container {{
+            width: 100%;
+            overflow-x: auto;
+            margin: 18px 0 22px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+        }}
+        table {{ width: 100%; border-collapse: collapse; font-size: 14.5px; text-align: left; }}
+        th, td {{ padding: 10px 14px; border-bottom: 1px solid var(--border-soft); line-height: 1.65; }}
+        th {{ background-color: var(--bg-muted); font-weight: 600; color: var(--text-main); border-bottom: 1px solid var(--border-color); }}
+        tr:last-child td {{ border-bottom: none; }}
+        .code-container {{
+            background: var(--bg-muted);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            margin: 16px 0 20px;
+            overflow: hidden;
+        }}
+        .code-header {{
+            background: #eef1f4;
+            padding: 6px 14px;
+            font-size: 12px;
+            color: var(--text-muted);
+            border-bottom: 1px solid var(--border-color);
+            font-family: var(--font-mono);
+            text-transform: uppercase;
+        }}
+        pre {{
+            padding: 14px 16px;
+            overflow-x: auto;
+            font-family: var(--font-mono);
+            font-size: 13.5px;
+            line-height: 1.6;
+            color: var(--text-main);
+        }}
+        code.inline-code {{
+            background: #eff1f3;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+            font-size: 0.88em;
+            color: #1f2328;
+            vertical-align: 0.03em;
+        }}
+        .code-anchor {{
+            background: #f0f6fc;
+            color: #0969da;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+            font-size: 0.88em;
+            font-weight: 500;
+            vertical-align: 0.03em;
+        }}
+        article.report-container a {{
+            color: #0969da;
+            text-decoration: none;
+            border-bottom: 1px solid rgba(9, 105, 218, 0.35);
+            font-weight: 500;
+        }}
+        article.report-container a:hover {{
+            border-bottom-color: #0969da;
+        }}
+        .mermaid-diagram-container {{
+            margin: 20px 0 24px;
+            border: 1px solid var(--border-soft);
+            border-radius: 6px;
+            overflow: hidden;
+            background: #ffffff;
+        }}
+        .mermaid-toolbar {{
+            display: none;
+        }}
+        .mermaid-viewport {{
+            overflow-x: auto;
+            padding: 16px 12px;
+            background: #ffffff;
+            display: flex;
+            justify-content: center;
+            min-height: 80px;
+        }}
+        .mermaid-viewport pre.mermaid,
+        .mermaid-viewport svg {{
+            max-width: 100%;
+            min-width: 0;
+            height: auto !important;
+        }}
+        .mermaid-viewport img.mermaid-png {{
+            max-width: 100%;
+            height: auto;
+            display: block;
+            margin: 0 auto;
+        }}
+        .mermaid-source {{
+            display: none;
+            width: 100%;
+            margin: 0;
+            padding: 14px;
+            background: var(--bg-muted);
+            font-family: var(--font-mono);
+            font-size: 12.5px;
+            line-height: 1.5;
+            white-space: pre-wrap;
+        }}
+    </style>
+    <script>{mermaid_js}</script>
+    <script>
+        function svgToPngImg(svgEl) {{
+            return new Promise((resolve) => {{
+                try {{
+                    const vb = svgEl.getAttribute('viewBox');
+                    let w = 0, h = 0;
+                    if (vb) {{
+                        const parts = vb.trim().split(/[\\s,]+/);
+                        if (parts.length === 4) {{
+                            w = parseFloat(parts[2]);
+                            h = parseFloat(parts[3]);
+                        }}
+                    }}
+                    if (!w || !h) {{
+                        const rect = svgEl.getBoundingClientRect();
+                        w = rect.width || 720;
+                        h = rect.height || 400;
+                    }}
+                    const clone = svgEl.cloneNode(true);
+                    clone.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+                    clone.setAttribute('width', String(w));
+                    clone.setAttribute('height', String(h));
+                    const xml = new XMLSerializer().serializeToString(clone);
+                    const svgDataUrl = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(xml)));
+                    const img = new Image();
+                    img.onload = function() {{
+                        try {{
+                            const scale = 2;
+                            const canvas = document.createElement('canvas');
+                            canvas.width = Math.ceil(w * scale);
+                            canvas.height = Math.ceil(h * scale);
+                            const ctx = canvas.getContext('2d');
+                            ctx.fillStyle = '#ffffff';
+                            ctx.fillRect(0, 0, canvas.width, canvas.height);
+                            ctx.scale(scale, scale);
+                            ctx.drawImage(img, 0, 0, w, h);
+                            const pngUrl = canvas.toDataURL('image/png');
+                            const outImg = document.createElement('img');
+                            outImg.className = 'mermaid-png';
+                            outImg.src = pngUrl;
+                            outImg.style.width = Math.round(w) + 'px';
+                            outImg.alt = 'Architecture Flowchart';
+                            resolve(outImg);
+                        }} catch (err) {{
+                            resolve(null);
+                        }}
+                    }};
+                    img.onerror = function() {{ resolve(null); }};
+                    img.src = svgDataUrl;
+                }} catch (e) {{
+                    resolve(null);
+                }}
+            }});
+        }}
+        window.renderAllMermaid = async function() {{
+            if (typeof mermaid === 'undefined') {{
+                document.querySelectorAll('.mermaid-diagram-container').forEach(c => {{
+                    const src = c.querySelector('.mermaid-source');
+                    if (src) src.style.display = 'block';
+                    const vp = c.querySelector('.mermaid');
+                    if (vp) vp.style.display = 'none';
+                }});
+                return;
+            }}
+            try {{
+                mermaid.initialize({{
+                    startOnLoad: false,
+                    theme: 'base',
+                    securityLevel: 'loose',
+                    htmlLabels: false,
+                    flowchart: {{ htmlLabels: false, useMaxWidth: false, curve: 'basis' }},
+                    themeVariables: {{
+                        fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", Helvetica, Arial, sans-serif',
+                        fontSize: '14px',
+                        primaryColor: '#f6f8fa',
+                        primaryTextColor: '#1f2328',
+                        primaryBorderColor: '#0969da',
+                        lineColor: '#57606a',
+                        secondaryColor: '#eef4ff',
+                        tertiaryColor: '#ffffff',
+                        edgeLabelBackground: '#ffffff'
+                    }}
+                }});
+                await mermaid.run({{ nodes: document.querySelectorAll('.mermaid'), suppressErrors: true }});
+                const containers = document.querySelectorAll('.mermaid-diagram-container');
+                for (const container of containers) {{
+                    const vp = container.querySelector('.mermaid-viewport');
+                    const svgEl = vp ? vp.querySelector('svg') : null;
+                    if (!svgEl) continue;
+                    const pngImg = await svgToPngImg(svgEl);
+                    if (pngImg) {{
+                        const tb = container.querySelector('.mermaid-toolbar');
+                        if (tb) tb.remove();
+                        const src = container.querySelector('.mermaid-source');
+                        if (src) src.remove();
+                        const preEl = container.querySelector('pre.mermaid');
+                        if (preEl) preEl.remove();
+                        vp.appendChild(pngImg);
+                    }}
+                }}
+            }} catch (e) {{
+                console.error("Mermaid rendering error", e);
+            }}
+        }};
+        document.addEventListener('DOMContentLoaded', function() {{ window.renderAllMermaid(); }});
+    </script>
+</head>
+<body>
+    <article class="report-container">
+        <header class="report-header">
+            <h1>{html.escape(title)}</h1>
+            <div class="report-meta">
+                <span>{html.escape(subtitle)}</span>
+            </div>
+        </header>
+        {body_html}
+    </article>
+</body>
+</html>
+"""
+
+
+def compile_study_html(
+    study_dir: str | Path, output_file: str | Path | None = None, mode: str = "auto"
+) -> str:
     """
-    Compiles study assets in study_dir into a single-file dynamic HTML whitepaper.
+    Compiles study assets in study_dir into a single-file dynamic HTML whitepaper or reading report.
     Extracts all Q&A and challenges dynamically. No canned text is injected.
     """
     global _DIAGRAM_COUNTER
@@ -878,6 +1269,48 @@ def compile_study_html(study_dir: str | Path, output_file: str | Path | None = N
         raise FileNotFoundError(f"Study directory does not exist: {study_dir}")
 
     repo_name = study_path.name
+    report_md = study_path / "REPORT.md"
+
+    use_report = mode == "report" or (mode == "auto" and report_md.is_file())
+    if use_report:
+        if not report_md.is_file():
+            raise FileNotFoundError(f"Report markdown does not exist: {report_md}")
+        raw_md = report_md.read_text(encoding="utf-8", errors="replace").lstrip()
+        title = f"{repo_name} 项目深度阅读报告"
+        subtitle = "开源源码深读 · 第一视角实战拆解 · 全链路核心梳理"
+
+        lines = raw_md.splitlines()
+        content_lines = []
+        skipped_h1 = False
+        extracted_subtitle = False
+        for line in lines:
+            if not skipped_h1 and line.strip().startswith("# "):
+                title = line.strip()[2:].strip()
+                skipped_h1 = True
+                continue
+            if skipped_h1 and not extracted_subtitle and not content_lines:
+                if not line.strip():
+                    continue
+                if line.strip().startswith(">"):
+                    subtitle = line.strip()[1:].strip()
+                    extracted_subtitle = True
+                    continue
+                extracted_subtitle = True
+            content_lines.append(line)
+
+        body_html = _markdown_to_html("\n".join(content_lines))
+        full_html = build_narrative_report_page(title=title, subtitle=subtitle, body_html=body_html)
+        out_p: Path
+        if output_file:
+            out_p = Path(output_file).resolve()
+        else:
+            out_dir = study_path / "dist"
+            out_dir.mkdir(parents=True, exist_ok=True)
+            out_p = out_dir / "index.html"
+
+        out_p.parent.mkdir(parents=True, exist_ok=True)
+        out_p.write_text(full_html, encoding="utf-8")
+        return str(out_p)
     mastery_eval = evaluate_study_directory(study_path)
     progress_val = mastery_eval.get("global_progress", 0.0)
 

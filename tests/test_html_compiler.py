@@ -132,3 +132,42 @@ def test_vendored_mermaid_asset_exists():
     assert content.startswith("/*!")
     assert "MIT" in content[:600]
     assert len(content) > 1_000_000
+
+
+def test_compile_narrative_report_single_column():
+    with tempfile.TemporaryDirectory() as tmp:
+        root = Path(tmp)
+        (root / "REPORT.md").write_text("""# 从零拆解示例项目
+
+> 第一视角阅读笔记
+
+## 1. 背景
+
+1. 第一点
+2. 第二点
+
+```mermaid
+flowchart LR
+    A[输入] --> B[处理]
+```
+""", encoding="utf-8")
+        out_file = root / "report.html"
+        res_path = compile_study_html(root, output_file=out_file, mode="report")
+        html_code = Path(res_path).read_text(encoding="utf-8")
+
+        assert "<aside" not in html_code
+        assert '<article class="report-container">' in html_code
+        assert "<ol>" in html_code
+        assert "<li>第一点</li>" in html_code
+        assert "mermaid.initialize" in html_code
+        assert "从零拆解示例项目" in html_code
+
+
+def test_inline_code_with_brackets_does_not_corrupt_links():
+    from repo_mentor.export.html_compiler import _format_inline_markdown
+
+    line = r"光标上移 `\x1b[2A` 后在 [TuiMainScreen](packages/tui/src/tui-main-screen.ts#L522-L535) 断言。"
+    rendered = _format_inline_markdown(line)
+    assert '<code class="inline-code">\\x1b[2A</code>' in rendered
+    assert '<a href="packages/tui/src/tui-main-screen.ts#L522-L535"' in rendered
+    assert ">TuiMainScreen</a>" in rendered

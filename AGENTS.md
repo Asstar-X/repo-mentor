@@ -85,7 +85,7 @@
 | **`/repo-trace <目标>`** | **它在真实场景中怎么用的**：追溯目标上下流程逻辑、谁在什么情况下叫它、处理完给谁、拿一个具体例子走一遍、出错了怎么办。 | [`skills/repo-trace/SKILL.md`](skills/repo-trace/SKILL.md) |
 | **`/repo-drill [目标]`** | **搭档抽查答辩**：出 2~3 个最接地气、最考验有没有真懂的核心问题，客观交流与复盘。 | [`skills/repo-drill/SKILL.md`](skills/repo-drill/SKILL.md) |
 | **`/repo-brainstorm [目标]`** | **头脑风暴与知识延伸**：基于项目延伸底层硬核原理，碰撞架构选型，拓宽思路与想象力。 | [`skills/repo-brainstorm/SKILL.md`](skills/repo-brainstorm/SKILL.md) |
-| **`/repo-export`** | **整理导出离线白皮书**：将研读笔记编译合并为单个离线交互式 HTML 页面。 | [`skills/repo-export/SKILL.md`](skills/repo-export/SKILL.md) |
+| **`/repo-export`** | **合成第一视角离线阅读报告**：回溯全会话 `core/trace/drill` 对话与排雷，按重要性主次重排并导出单栏离线 HTML 报告。 | [`skills/repo-export/SKILL.md`](skills/repo-export/SKILL.md) |
 
 ---
 
